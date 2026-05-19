@@ -1,0 +1,134 @@
+<!--관리자 페이지-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMSYS 권한 관리</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="../css/authority.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+</head>
+
+<body>
+    <div id="header"></div>
+    <div class="container admin-content">
+        <div class="row">
+            <div class="col-sm-8">
+                <section class="post-manage">
+                    <h2 class="post-manage-header">부원 목록</h2>
+
+                    <hr class="header-divider">
+                    <div class="section-box">
+                        <div class="board-search-area">
+                            <input type="text" class="search-input" placeholder="검색" />
+                        </div>
+
+                        <div class="user-list">
+                            <div class="user-item">
+                                <sapn>25 냉장고</sapn>
+                                <button class="btn btn-default">임원 임명</button>
+                            </div>
+                            <div class="user-item">
+                                <sapn>24 키보드</sapn>
+                                <button class="btn btn-default">임원 임명</button>
+                            </div>
+                            <div class="user-item">
+                                <sapn>26 받침대</sapn>
+                                <button class="btn btn-default">임원 임명</button>
+                            </div>
+                            <div class="user-item">
+                                <sapn>25 난방기</sapn>
+                                <button class="btn btn-default">임원 임명</button>
+                            </div>
+                            <div class="user-item">
+                                <sapn>24 에어컨</sapn>
+                                <button class="btn btn-default">임원 임명</button>
+                            </div>
+                            <div class="user-item">
+                                <sapn>26 정수기</sapn>
+                                <button class="btn btn-default">임원 임명</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-sm-4">
+                <section class="user-manage">
+                    <div class="user-manage-header">
+                        <h2 class="user-manage-title">임원 관리</h2>
+                    </div>
+
+                    <hr class="header-divider">
+
+                    <div class="executive-list">
+                        <div class="user-item">
+                            <sapn class="name">25 냉장고</sapn>
+                            <button class="btn btn-danger">해임</button>
+                        </div>
+                        <div class="user-item">
+                            <sapn>24 키보드</sapn>
+                            <button class="btn btn-danger">해임</button>
+                        </div>
+                        <div class="user-item">
+                            <sapn>26 받침대</sapn>
+                            <button class="btn btn-danger">해임</button>
+                        </div>
+                        <div class="user-item">
+                            <sapn>25 난방기</sapn>
+                            <button class="btn btn-danger">해임</button>
+                        </div>
+                        <div class="user-item">
+                            <sapn>24 에어컨</sapn>
+                            <button class="btn btn-danger">해임</button>
+                        </div>
+                        <div class="user-item">
+                            <sapn>26 정수기</sapn>
+                            <button class="btn btn-danger">해임</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="container admin-content">
+        <section class="danger-zone">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h2 class="danger-title">관리자 권한 위임</h2>
+            <hr class="danger-header-divider">
+
+            <div class="row">
+                <div class="col-xs-4 danger-description">
+
+                    <p>홈페이지 관리 권한을 이양합니다.<br>
+                        권한 위임이 완료되는 즉시 <br>
+                        현재 계정의 마스터 권한은 회수되며, <br>
+                        일반 회원 등급으로 자동 변경됩니다.<br>
+                        작업은 되돌릴 수 없습니다.
+                    </p>
+                </div>
+
+                <div class="col-xs-7 danger-search-area">
+                    <input type="text" class="danger-search" placeholder="부원 검색" />
+                    <div class="search-result">
+                        <div class="user-item">
+                            <span>25 난방기</span>
+                            <button class="btn btn-danger">권한 위임</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div id="footer"></div>
+    <script src="../js/common.js"></script>
+</body>
+
+</html>
