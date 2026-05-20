@@ -1,0 +1,248 @@
+/* 메인페이지 전용 스타일 */
+@charset "UTF-8";
+
+:root {
+    --bg-main: #333333;
+    --bg-box: #444444;
+    --text-main: #ffffff;
+    --text-muted: #aaaaaa;
+    --point-mint: #00ffa3;
+    --border-color: #555555;
+}
+
+section{
+    zoom:0.9;
+}
+
+/* 메인 배너 */
+header {
+    background-color: var(--text-main);
+    color: black;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.header-mascot {
+    vertical-align: middle;
+    width: 200px;
+    height: auto;
+}
+
+header h2 {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    margin-left: 20px;
+    font-size:32px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+.fa-instagram{
+    position: relative;
+    top: 10px;
+    font-size:50px;
+    display: inline-block;
+    margin-right:10px;
+    color:var(--point-mint);
+}
+
+/* about & 자료실 */
+.about-section {
+    padding: 30px 50px 50px 50px;
+    background-color: var(--bg-main);
+}
+
+.section-divider {
+    border-color: var(--border-color);
+    color: var(--border-color);
+}
+
+.left-box {
+    border-right: 1px solid var(--border-color);
+}
+
+@media (max-width: 991px) {
+    .left-box {
+        border-right: none;
+    }
+}
+
+.left-box, .right-box {
+    margin-top:24px;
+    cursor: pointer;
+}
+
+.content-wrapper {
+    padding: 10px 20px;
+}
+
+.about-mascot {
+    
+}
+
+.about-title {
+    display: inline-block;
+    font-weight: bold;
+    color: var(--point-mint);
+    margin-top:24px;
+    font-size:20px;
+}
+
+.title-group {
+    display: inline-block;
+    vertical-align: middle; 
+}
+
+.document-icon {
+    display: inline-block;
+    color: var(--point-mint);
+    font-size: 32px;
+    margin-right: 12px;
+}
+
+.description-group {
+    margin-top:24px;
+}
+
+.section-desc {
+    font-size: 12px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.arr-btn {
+    color: var(--text-muted);
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.content-wrapper-link:hover .arr-btn{
+    color: var(--point-mint);
+    text-decoration: none;
+}
+
+.shortcut .section-divider{
+    display:flex;
+    text-align:center;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.shortcut {
+    background-color: var(--bg-main);
+}
+
+.shortcut .line {
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-color);
+    margin-left:10px;
+    margin-right:10px;
+    margin-top: 8px;
+}
+
+.shortcut .shortcut-text {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.shortcut-item {
+    background-color: var(--point-mint);
+    color: #000000;
+    text-align: center;
+    padding: 40px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ;
+    cursor: pointer;
+}
+
+.shortcut-item:hover {
+    transform: translateY(-2px);
+    background-color: #00cc82;
+}
+
+.shortcut-item i{
+    font-size: 48px;
+    margin-bottom: 15px;
+    transition: color 0.3s;    
+}
+
+.shortcut-item h4 {
+    font-weight: bold;
+    margin: 0;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.shortcut-item:hover i, .shortcut-item:hover h4 {
+    color: #ffffff;
+}
+
+.board-preview{
+    padding: 50px 0;
+    background-color: var(--bg-main);
+}
+
+.board-box{
+    border-radius: 10px;
+    background-color: var(--bg-box);
+    border: 2px solid var(--point-mint);
+    padding:10px 30px 20px 30px;
+    margin-bottom:20px;
+}
+
+.board-header {
+    margin-bottom:10px;
+}
+
+.plus-btn{
+    color: var(--point-mint);
+    font-size: 20px;
+    transition: color 0.3s;
+    cursor: pointer;
+    margin-top:20px;
+}
+
+.board-title{
+    display:inline-block;
+    color:var(--point-mint);
+    font-size:20px;
+
+}
+
+.board-divider{
+    border-color: var(--point-mint);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--point-mint);
+}
+
+.board-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;     
+}
+
+.board-list li{
+    color: var(--text-main);
+    padding:10px 0;
+    margin:0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.board-list li:last-child {
+    border-bottom: none;
+}
+
+.board-list li a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.board-list li a:hover {
+    color: var(--point-mint);
+}

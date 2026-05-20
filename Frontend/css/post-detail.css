@@ -1,0 +1,263 @@
+/* ========================================
+   게시글 상세 페이지
+======================================== */
+
+/* =========================
+   공통 색상 변수
+========================= */
+:root {
+  --bg-main: #333333;
+  --bg-box: #444444;
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --point-mint: #00ffa3;
+  --border-color: #555555;
+}
+
+/* 전체 컨테이너 */
+.detail-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 5%;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  background-color: var(--bg-main);
+}
+
+/* ========================================
+   상단 영역
+======================================== */
+
+/* 목록으로 */
+.back-link {
+  color: var(--point-mint);
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+}
+
+/* 목록 + 버튼 전체 */
+.detail-top-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3%;
+  margin-bottom: 3%;
+  flex-wrap: wrap;
+}
+
+/* 수정/삭제 버튼 영역 */
+.detail-top-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* 버튼 공통 */
+.edit-btn,
+.delete-btn {
+  width: 100px;
+  max-width: 30vw;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: clamp(14px, 1.5vw, 16px);
+}
+
+/* 수정 버튼 */
+.edit-btn {
+  background-color: var(--point-mint);
+  color: black;
+}
+
+/* 삭제 버튼 */
+.delete-btn {
+  background-color: red;
+  color: white;
+}
+
+/* ========================================
+   제목 영역
+======================================== */
+
+.detail-header {
+  margin-bottom: 5%;
+}
+
+/* 제목 + 카테고리 */
+.detail-title-area {
+  display: flex;
+  align-items: center;
+  gap: 3%;
+  padding-top: 3%;
+  flex-wrap: wrap;
+}
+
+/* 제목 */
+.detail-title {
+  margin-bottom: 10px;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+/* 작성 정보 */
+.detail-info {
+  color: #cfcfcf;
+  font-size: clamp(13px, 1.5vw, 15px);
+}
+
+/* ========================================
+   게시글 내용
+======================================== */
+
+.detail-content {
+  min-height: 30vh;
+  padding: 5% 0;
+  border-top: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  line-height: 1.8;
+  font-size: clamp(14px, 1.8vw, 16px);
+  word-break: break-word;
+}
+
+/* ========================================
+   좋아요 / 싫어요
+======================================== */
+
+.reaction-section {
+  display: flex;
+  justify-content: center;
+  gap: 3%;
+  padding: 5% 0 3% 0;
+  flex-wrap: wrap;
+}
+
+/* 반응 버튼 */
+.reaction-section button {
+  width: 10%;
+  min-width: 120px;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--border-color);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.reaction-section button:hover {
+  border: 2px solid var(--point-mint);
+}
+
+/* 활성화 상태 */
+.reaction-section button.active {
+  background-color: var(--point-mint);
+  border: 2px solid var(--point-mint);
+  color: black;
+}
+
+/* 안내 문구 */
+.reaction-message {
+  text-align: center;
+  color: salmon;
+  font-size: clamp(12px, 1.5vw, 14px);
+  margin: 0;
+  padding-bottom: 15px;
+}
+
+/* ========================================
+   댓글 영역
+======================================== */
+
+.comment-section {
+  padding-top: 5%;
+  border-top: 2px solid var(--border-color);
+}
+
+/* 댓글 제목 */
+.comment-title {
+  margin-bottom: 4%;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+}
+
+/* 댓글 카드 */
+.comment-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5%;
+  padding: 3% 0;
+  border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+/* 댓글 작성자 */
+.comment-writer {
+  margin-bottom: 10px;
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 700;
+}
+
+/* 댓글 내용 */
+.comment-text {
+  color: #dddddd;
+  font-size: clamp(14px, 1.8vw, 16px);
+  word-break: break-word;
+}
+
+/* 댓글 수정 삭제 */
+.comment-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 댓글 버튼 */
+.comment-actions button {
+  border: none;
+  background: none;
+  color: var(--text-main);
+  font-size: clamp(13px, 1.5vw, 16px);
+}
+
+/* ========================================
+   댓글 입력 영역
+======================================== */
+
+.comment-input-section {
+  display: flex;
+  align-items: center;
+  gap: 3%;
+  padding-top: 5%;
+}
+
+/* 댓글 입력 */
+.comment-input {
+  flex: 1;
+  height: 60px;
+  padding: 0 4%;
+  border: 2px solid var(--border-color);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--text-main);
+  font-size: clamp(14px, 1.8vw, 16px);
+  min-width: 0;
+}
+
+/* placeholder */
+.comment-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* 댓글 등록 버튼 */
+.comment-submit-btn {
+  width: 60px;
+  min-width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--point-mint);
+  color: black;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+}
