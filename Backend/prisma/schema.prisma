@@ -1,16 +1,122 @@
-// prisma/schema.prisma
-
-datasource db {
-  provider = "mysql" // 👈 여기를 반드시 mysql로 확인!
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// 📌 [설계도 작성] 어떤 데이터를 저장할지 정의합니다.
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+datasource db {
+  provider = "mysql"
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model comments {
+  id         Int       @id @default(autoincrement())
+  content    String?   @db.Text
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  post_id    Int
+  author_id  Int
+  posts      posts     @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
+  users      users     @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
+
+  @@index([author_id], map: "author_id")
+  @@index([post_id], map: "post_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model events {
+  id         Int       @id @default(autoincrement())
+  title      String?   @db.VarChar(255)
+  start_time DateTime? @db.Timestamp(0)
+  end_time   DateTime? @db.Timestamp(0)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model finances {
+  id          Int       @id @default(autoincrement())
+  target_date DateTime? @db.Timestamp(0)
+  item_name   String?   @db.VarChar(255)
+  amount      Int?
+  category    String?   @db.VarChar(255)
+  uploaded_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model invitation_codes {
+  id         Int       @id @default(autoincrement())
+  code       String?   @unique(map: "code") @db.VarChar(255)
+  student_id String?   @db.VarChar(255)
+  name       String?   @db.VarChar(255)
+  is_used    Boolean?  @default(false)
+  used_at    DateTime? @db.Timestamp(0)
+}
+
+model post_dislikes {
+  id      Int   @id @default(autoincrement())
+  post_id Int
+  user_id Int
+  posts   posts @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_dislikes_ibfk_1")
+  users   users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_dislikes_ibfk_2")
+
+  @@unique([post_id, user_id], map: "post_dislikes_index_1")
+  @@index([user_id], map: "user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model post_images {
+  id        Int     @id @default(autoincrement())
+  image_url String? @db.VarChar(255)
+  caption   String? @db.VarChar(255)
+  post_id   Int
+  posts     posts   @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_images_ibfk_1")
+
+  @@index([post_id], map: "post_id")
+}
+
+model post_likes {
+  id      Int   @id @default(autoincrement())
+  post_id Int
+  user_id Int
+  posts   posts @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_likes_ibfk_1")
+  users   users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_likes_ibfk_2")
+
+  @@unique([post_id, user_id], map: "post_likes_index_0")
+  @@index([user_id], map: "user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model posts {
+  id            Int             @id @default(autoincrement())
+  board_type    String?         @default("COMMUNITY") @db.VarChar(255)
+  category      String?         @db.VarChar(255)
+  title         String?         @db.VarChar(255)
+  content       String?         @db.Text
+  view_count    Int?            @default(0)
+  created_at    DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  author_id     Int
+  comments      comments[]
+  post_dislikes post_dislikes[]
+  post_images   post_images[]
+  post_likes    post_likes[]
+  users         users           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "posts_ibfk_1")
+
+  @@index([author_id], map: "author_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id            Int             @id @default(autoincrement())
+  email         String?         @unique(map: "email") @db.VarChar(255)
+  password      String?         @db.VarChar(255)
+  name          String?         @db.VarChar(255)
+  student_id    String?         @unique(map: "student_id") @db.VarChar(255)
+  role          String?         @default("MEMBER") @db.VarChar(255)
+  status        String          @db.VarChar(255)
+  profile_image String?         @db.VarChar(255)
+  visit_count   Int?            @default(0)
+  created_at    DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
+  comments      comments[]
+  post_dislikes post_dislikes[]
+  post_likes    post_likes[]
+  posts         posts[]
 }
