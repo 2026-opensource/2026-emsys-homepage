@@ -43,6 +43,7 @@ body {
     font-size: 64px;
     color: var(--point-mint);
     margin: 0px 0px 30px 0px;
+    display:inline-block;
 }
 
 .section-title {
@@ -50,6 +51,18 @@ body {
     color: var(--point-mint);
     text-align: left;
     margin: 20px auto;
+}
+
+.to-admin{
+    display:inline-block;
+    margin-left:10px;
+    font-size:20px;
+    color:orange;
+}
+
+.to-admin:hover{
+    color:chocolate;
+    text-decoration: none;
 }
 
 .user-info-box {
