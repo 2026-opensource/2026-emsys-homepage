@@ -86,12 +86,13 @@ body {
 
 /* 크롬 자동으로 인한 배경색 바뀜 방지 */
 .input-box:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px var(--bg-box) inset; /* 배경색을 box-shadow 스타일로 덮어쓰기 */
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-box) inset;
+    /* 배경색을 box-shadow 스타일로 덮어쓰기 */
     -webkit-text-fill-color: var(--text-main);
 }
 
 .login-link,
-.signup-link{
+.signup-link {
     font-size: 16px;
     color: var(--text-main);
     margin: 10px 0px;
@@ -127,6 +128,20 @@ a:hover {
     font-size: 16px;
     color: var(--point-mint);
     text-decoration: underline;
+}
+
+.status-select-box {
+    padding: 10px 0px 0px 0px;
+    text-align: center;
+}
+
+.status-title {
+    font-size: 16px;
+    display: inline-block;
+}
+
+.status-option {
+    margin: 0px 20px;
 }
 
 /* ID 찾기/PW 변경 페이지 스타일 */
