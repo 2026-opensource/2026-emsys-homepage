@@ -143,17 +143,36 @@ a:hover {
 }
 
 .status-select-box {
+<<<<<<< Updated upstream
     padding: 10px 0px 0px 0px;
     text-align: center;
 }
 
 .status-title {
     font-size: 16px;
+=======
+    width: 400px;
+    margin: 5px auto;
+    color: var(--text-main);
+    text-align: left;
+}
+
+.status-title {
+    margin: 5px 0px 0px 5px;
+    font-size: 16px;
+    color: var(--text-muted);
+>>>>>>> Stashed changes
     display: inline-block;
 }
 
 .status-option {
+<<<<<<< Updated upstream
     margin: 0px 20px;
+=======
+    margin: 0px 10px 0px 15px;
+    font-size: 15px;
+    cursor: pointer;
+>>>>>>> Stashed changes
 }
 
 /* ID 찾기/PW 변경 페이지 스타일 */
