@@ -1,13 +1,12 @@
 // backend/server.js
 // src/app.js에서 만든 Express 앱을 가져와서 listen으로 실행
+// 서버 실행 담당
 
 require("dotenv").config();
 
 const app = require("./src/app");
 
 const PORT = process.env.PORT || 5000;
-
-app.use(express.json());
 
 app.listen(PORT, () => {
   console.log(`=============================================`);
