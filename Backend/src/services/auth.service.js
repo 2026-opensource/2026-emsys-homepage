@@ -1,6 +1,7 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt"); //  비밀번호 암호화, 비교
 const prisma = require("../lib/prisma");
 const { isValidPassword, isValidStatus } = require("../utils/validators");
+const jwt = require("jsonwebtoken");
 
 async function registerUser(body) {
     const {
@@ -136,6 +137,64 @@ async function registerUser(body) {
     return result;
 }
 
+async function loginUser(body) {
+    const { email, password } = body;
+
+    if (!email || !password) {
+        const error = new Error("이메일과 비밀번호를 입력해야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const user = await prisma.users.findUnique({
+        where: { email },
+    });
+
+    if (!user) {
+        const error = new Error("아이디 또는 비밀번호를 확인하세요.");
+        error.statusCode = 401;
+        throw error;
+    }
+
+    if (!user.is_active) {
+        const error = new Error("탈퇴 또는 비활성화된 계정입니다.");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+        const error = new Error("아이디 또는 비밀번호를 확인하세요.");
+        error.statusCode = 401;
+        throw error;
+    }
+
+    const token = jwt.sign(
+        {
+            id: user.id,
+            role: user.role,
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "2h",
+        }
+    );
+
+    return {
+        token,
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            student_id: user.student_id,
+            role: user.role,
+            status: user.status,
+        },
+    };
+}
+
 module.exports = {
     registerUser,
+    loginUser,
 };

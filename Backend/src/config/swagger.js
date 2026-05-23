@@ -14,9 +14,16 @@ const swaggerOptions = {
                 description: "Local server",
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
     },
-
-    // Swagger 주석을 읽을 파일 위치
     apis: ["./src/routes/*.js"],
 };
 

@@ -5,6 +5,7 @@ const swaggerUi = require("swagger-ui-express");
 
 const authRoutes = require("./routes/auth.routes");
 const swaggerSpec = require("./config/swagger");
+const adminRoutes = require("./routes/admin.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
@@ -23,7 +24,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // API 라우터
 app.use("/api/auth", authRoutes);
 
-// 에러 처리 미들웨어
+app.use("/api/admin", adminRoutes);
+
+// 에러 처리 미들웨어는 항상 마지막에 배치
 app.use(errorMiddleware);
 
 module.exports = app;

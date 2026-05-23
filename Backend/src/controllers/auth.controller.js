@@ -14,6 +14,21 @@ async function register(req, res, next) {
     }
 }
 
+async function login(req, res, next) {
+    try {
+        const result = await authService.loginUser(req.body);
+
+        return res.status(200).json({
+            success: true,
+            message: "로그인 성공",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     register,
+    login,
 };
