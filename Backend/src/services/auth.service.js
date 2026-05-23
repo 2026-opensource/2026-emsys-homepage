@@ -155,13 +155,13 @@ async function loginUser(body) {
         error.statusCode = 401;
         throw error;
     }
-
+/*
     if (!user.is_active) {
         const error = new Error("탈퇴 또는 비활성화된 계정입니다.");
         error.statusCode = 403;
         throw error;
     }
-
+*/
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {

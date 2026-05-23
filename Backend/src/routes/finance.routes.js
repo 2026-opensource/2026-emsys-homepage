@@ -1,25 +1,82 @@
 const express = require('express');
 const router = express.Router();
 const financeController = require('../controllers/finance.controller');
+const { requireAuth } = require('../middlewares/auth.middleware');
+const { requireAdmin } = require('../middlewares/role.middleware');
+const multer = require('multer');
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @swagger
- * /api/finance:
- * get:
- * summary: 전체 회계 내역 조회
- * tags: [Finance]
- * responses:
- * 200:
- * description: 조회 성공
- * /api/finance/create:
- * post:
- * summary: 새로운 회계 내역 등록
- * tags: [Finance]
- * responses:
- * 21:
- * description: 등록 성공
+ * /api/finance/upload:
+ *   post:
+ *     summary: 엑셀 파일 업로드 (회비 내역 일괄 등록)
+ *     description: 회장/임원만 업로드 가능
+ *     tags: [Finance]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: 엑셀 파일 (.xlsx, .xls)
+ *     responses:
+ *       201:
+ *         description: 업로드 성공
+ *       401:
+ *         description: 로그인 필요
+ *       403:
+ *         description: 관리자 권한 필요
  */
-router.get('/', financeController.getAllFinances);
-router.post('/', financeController.createFinanceItem);
+router.post('/upload', requireAuth, requireAdmin, upload.single('file'), financeController.uploadFinanceExcel);
+
+/**
+ * @swagger
+ * /api/finance/stats:
+ *   get:
+ *     summary: 통계 데이터 조회 (월별/주별 그래프용)
+ *     description: 회장/임원만 조회 가능
+ *     tags: [Finance]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [monthly, weekly]
+ *         description: 조회 기간 (monthly=월별, weekly=주별)
+ *         example: monthly
+ *       - in: query
+ *         name: months
+ *         schema:
+ *           type: integer
+ *           default: 12
+ *         description: 월별 통계 시 조회할 개월 수
+ *       - in: query
+ *         name: weeks
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: 주별 통계 시 조회할 주 수
+ *     responses:
+ *       200:
+ *         description: 조회 성공
+ *       401:
+ *         description: 로그인 필요
+ *       403:
+ *         description: 관리자 권한 필요
+ */
+router.get('/stats', requireAuth, requireAdmin, financeController.getFinanceStats);
 
 module.exports = router;

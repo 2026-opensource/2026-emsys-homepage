@@ -22,104 +22,131 @@ exports.getCommentsByPostId = async (req, res) => {
 // 2. 새로운 댓글 작성
 exports.createComment = async (req, res) => {
   try {
-    const { post_id, author_id, content } = req.body;
+    const { post_id, content } = req.body;
+    const author_id = req.user.id;
 
     if (!content || content.trim() === "") {
       return res.status(400).json({ success: false, message: "댓글 내용을 입력해주세요." });
     }
 
+    const postIdInt = parseInt(post_id);
+    if (isNaN(postIdInt)) {
+      return res.status(400).json({
+        success: false,
+        message: "post_id는 숫자여야 합니다."
+      });
+    }
+
     const newComment = await prisma.comments.create({
       data: {
-        post_id: parseInt(post_id),
-        author_id: parseInt(author_id),
-        content
+        post_id: postIdInt,
+        author_id: author_id,
+        content: content.trim()
       }
     });
     res.status(201).json({ success: true, message: "댓글이 등록되었습니다.", data: newComment });
   } catch (error) {
     console.error("댓글 작성 에러:", error);
+    
+    if (error.code === 'P2003') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "존재하지 않는 게시글입니다." 
+      });
+    }
+    
     res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
   }
 };
 
-// 3. 댓글 삭제
+// 3. 댓글 수정 (본인만 가능)
+exports.updateComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const userId = req.user.id;
+    
+    if (!content || content.trim() === "") {
+      return res.status(400).json({ 
+        success: false, 
+        message: "댓글 내용을 입력해주세요." 
+      });
+    }
+    
+    const existingComment = await prisma.comments.findUnique({
+      where: { id: parseInt(id) }
+    });
+    
+    if (!existingComment) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "댓글을 찾을 수 없습니다." 
+      });
+    }
+    
+    // 본인 확인
+    if (existingComment.author_id !== userId) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "본인의 댓글만 수정할 수 있습니다." 
+      });
+    }
+    
+    const updatedComment = await prisma.comments.update({
+      where: { id: parseInt(id) },
+      data: { 
+        content: content.trim(),
+        updated_at: new Date()
+      }
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      message: "댓글이 수정되었습니다.", 
+      data: updatedComment 
+    });
+  } catch (error) {
+    console.error("댓글 수정 에러:", error);
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+  }
+};
+
+// 4. 댓글 삭제 (본인 또는 임원 이상)
 exports.deleteComment = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    
+    const existingComment = await prisma.comments.findUnique({
+      where: { id: parseInt(id) }
+    });
+    
+    if (!existingComment) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "댓글을 찾을 수 없습니다." 
+      });
+    }
+    
+    // 본인이거나 임원 이상이면 삭제 가능
+    const isOwner = existingComment.author_id === userId;
+    const isAdmin = userRole === 'OFFICER' || userRole === 'PRESIDENT';
+    
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "댓글 삭제 권한이 없습니다." 
+      });
+    }
+    
     await prisma.comments.delete({
       where: { id: parseInt(id) }
     });
+    
     res.status(200).json({ success: true, message: "댓글이 정상적으로 삭제되었습니다." });
   } catch (error) {
     console.error("댓글 삭제 에러:", error);
-    res.status(500).json({ success: false, message: "이미 삭제되었거나 존재하지 않는 댓글입니다." });
-  }
-};
-
-// 4. 게시글 좋아요 누르기
-exports.toggleLike = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const { userId } = req.body;
-
-    const existingDislike = await prisma.post_dislikes.findUnique({
-      where: { post_id_user_id: { post_id: parseInt(postId), user_id: parseInt(userId) } }
-    });
-
-    if (existingDislike) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "이미 싫어요를 누른 상태에서는 좋아요를 누를 수 없습니다." 
-      });
-    }
-
-    const existingLike = await prisma.post_likes.findUnique({
-      where: { post_id_user_id: { post_id: parseInt(postId), user_id: parseInt(userId) } }
-    });
-
-    if (existingLike) {
-      await prisma.post_likes.delete({ where: { id: existingLike.id } });
-      return res.status(200).json({ success: true, message: "좋아요를 취소했습니다." });
-    } else {
-      await prisma.post_likes.create({ data: { post_id: parseInt(postId), user_id: parseInt(userId) } });
-      return res.status(201).json({ success: true, message: "게시글을 좋아요 했습니다." });
-    }
-  } catch (error) {
-    console.error("좋아요 처리 에러:", error);
-    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
-  }
-};
-
-// 5. 게시글 싫어요 누르기
-exports.toggleDislike = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const { userId } = req.body;
-
-    const existingLike = await prisma.post_likes.findUnique({
-      where: { post_id_user_id: { post_id: parseInt(postId), user_id: parseInt(userId) } }
-    });
-
-    if (existingLike) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "이미 좋아요를 누른 상태에서는 싫어요를 누를 수 없습니다." 
-      });
-    }
-
-    const existingDislike = await prisma.post_dislikes.findUnique({
-      where: { post_id_user_id: { post_id: parseInt(postId), user_id: parseInt(userId) } }
-    });
-
-    if (existingDislike) {
-      await prisma.post_dislikes.delete({ where: { id: existingDislike.id } });
-      return res.status(200).json({ success: true, message: "싫어요를 취소했습니다." });
-    } else {
-      await prisma.post_dislikes.create({ data: { post_id: parseInt(postId), user_id: parseInt(userId) } });
-      return res.status(201).json({ success: true, message: "게시글을 싫어요 했습니다." });
-    }
-  } catch (error) {
-    console.error("싫어요 처리 에러:", error);
     res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
   }
 };
