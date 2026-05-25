@@ -43,32 +43,18 @@ router.post('/upload', requireAuth, requireAdmin, upload.single('file'), finance
  * @swagger
  * /api/finance/stats:
  *   get:
- *     summary: 통계 데이터 조회 (월별/주별 그래프용)
+ *     summary: 월별 통계 데이터 조회
  *     description: 회장/임원만 조회 가능
  *     tags: [Finance]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
- *         name: period
- *         required: true
- *         schema:
- *           type: string
- *           enum: [monthly, weekly]
- *         description: 조회 기간 (monthly=월별, weekly=주별)
- *         example: monthly
- *       - in: query
  *         name: months
  *         schema:
  *           type: integer
  *           default: 12
- *         description: 월별 통계 시 조회할 개월 수
- *       - in: query
- *         name: weeks
- *         schema:
- *           type: integer
- *           default: 5
- *         description: 주별 통계 시 조회할 주 수
+ *         description: 조회할 개월 수
  *     responses:
  *       200:
  *         description: 조회 성공
