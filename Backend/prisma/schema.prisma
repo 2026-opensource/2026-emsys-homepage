@@ -106,21 +106,18 @@ model posts {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  id              Int             @id @default(autoincrement())
-  email           String?         @unique(map: "email") @db.VarChar(255)
-  password        String?         @db.VarChar(255)
-  name            String?         @db.VarChar(255)
-  student_id      String?         @unique(map: "student_id") @db.VarChar(255)
-  role            String?         @default("MEMBER") @db.VarChar(255)
-  status          String          @db.VarChar(255)
-  profile_image   String?         @db.VarChar(255)
-  visit_count     Int?            @default(0)
-  created_at      DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
-  comments        comments[]
-  post_dislikes   post_dislikes[]
-  post_likes      post_likes[]
-  posts           posts[]
-  is_active       Boolean         @default(true)
-  withdraw_reason String?
-  deleted_at      DateTime?
+  id            Int             @id @default(autoincrement())
+  email         String?         @unique(map: "email") @db.VarChar(255)
+  password      String?         @db.VarChar(255)
+  name          String?         @db.VarChar(255)
+  student_id    String?         @unique(map: "student_id") @db.VarChar(255)
+  role          String?         @default("MEMBER") @db.VarChar(255)
+  status        String          @db.VarChar(255)
+  profile_image String?         @db.VarChar(255)
+  visit_count   Int?            @default(0)
+  created_at    DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
+  comments      comments[]
+  post_dislikes post_dislikes[]
+  post_likes    post_likes[]
+  posts         posts[]
 }

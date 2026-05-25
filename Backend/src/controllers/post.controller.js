@@ -216,15 +216,21 @@ exports.updatePost = async (req, res) => {
       });
     }
     
-    const updatedPost = await prisma.posts.update({
-      where: { id: parseInt(id) },
-      data: {
-        board_type,
-        category,
-        title,
-        content,
-        updated_at: new Date()
-      }
+    // MySQL의 NOW()로 한국 시간 저장
+    await prisma.$executeRaw`
+      UPDATE posts 
+      SET 
+        board_type = ${board_type || 'COMMUNITY'}, 
+        category = ${category}, 
+        title = ${title}, 
+        content = ${content},
+        updated_at = NOW()
+      WHERE id = ${parseInt(id)}
+    `;
+    
+    // 수정된 게시글 다시 조회
+    const updatedPost = await prisma.posts.findUnique({
+      where: { id: parseInt(id) }
     });
     
     res.status(200).json({ 

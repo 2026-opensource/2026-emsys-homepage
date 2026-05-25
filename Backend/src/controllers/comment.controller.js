@@ -92,12 +92,16 @@ exports.updateComment = async (req, res) => {
       });
     }
     
-    const updatedComment = await prisma.comments.update({
-      where: { id: parseInt(id) },
-      data: { 
-        content: content.trim(),
-        updated_at: new Date()
-      }
+    // MySQL의 NOW()로 한국 시간 저장
+    const updatedComment = await prisma.$executeRaw`
+      UPDATE comments 
+      SET content = ${content.trim()}, updated_at = NOW() 
+      WHERE id = ${parseInt(id)}
+    `;
+    
+    // 수정된 댓글 다시 조회
+    const result = await prisma.comments.findUnique({
+      where: { id: parseInt(id) }
     });
     
     res.status(200).json({ 
