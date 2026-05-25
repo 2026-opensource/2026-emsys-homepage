@@ -54,7 +54,7 @@ const router = express.Router();
  *                 example: "재학생"
  *               invitationCode:
  *                 type: string
- *                 example: "EMSYS-ABC123"
+ *                 example: "A1B2C3D4"
  *     responses:
  *       201:
  *         description: 회원가입 성공
@@ -125,5 +125,120 @@ router.get("/me", requireAuth, (req, res) => {
         data: req.user,
     });
 });
+
+/**
+ * @swagger
+ * /api/auth/find-email:
+ *   post:
+ *     summary: 아이디/이메일 찾기
+ *     description: 이름과 학번을 확인하여 가입된 이메일을 반환합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - student_id
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "홍길동"
+ *               student_id:
+ *                 type: string
+ *                 example: "202123456"
+ *     responses:
+ *       200:
+ *         description: 이메일 조회 성공
+ *       400:
+ *         description: 입력값 오류
+ *       404:
+ *         description: 일치하는 사용자 없음
+ *       500:
+ *         description: 서버 오류
+ */
+router.post("/find-email", authController.findEmail);
+
+/**
+ * @swagger
+ * /api/auth/verify-password-user:
+ *   post:
+ *     summary: 비밀번호 변경 전 사용자 정보 확인
+ *     description: 이름, 학번, 이메일이 모두 일치하는지 확인하고 비밀번호 변경용 임시 토큰을 발급합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - student_id
+ *               - email
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "홍길동"
+ *               student_id:
+ *                 type: string
+ *                 example: "202123456"
+ *               email:
+ *                 type: string
+ *                 example: "student@chungbuk.ac.kr"
+ *     responses:
+ *       200:
+ *         description: 사용자 정보 확인 성공
+ *       400:
+ *         description: 입력값 오류
+ *       404:
+ *         description: 사용자 정보 불일치
+ *       500:
+ *         description: 서버 오류
+ */
+router.post("/verify-password-user", authController.verifyPasswordUser);
+
+/**
+ * @swagger
+ * /api/auth/password:
+ *   patch:
+ *     summary: 비밀번호 변경
+ *     description: 비밀번호 변경용 임시 토큰을 확인한 뒤 새 비밀번호로 변경합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - resetToken
+ *               - newPassword
+ *               - newPasswordConfirm
+ *             properties:
+ *               resetToken:
+ *                 type: string
+ *                 example: "temporary_reset_token"
+ *               newPassword:
+ *                 type: string
+ *                 example: "newpass123"
+ *               newPasswordConfirm:
+ *                 type: string
+ *                 example: "newpass123"
+ *     responses:
+ *       200:
+ *         description: 비밀번호 변경 성공
+ *       400:
+ *         description: 입력값 오류
+ *       401:
+ *         description: 임시 토큰 만료 또는 유효하지 않음
+ *       403:
+ *         description: 비밀번호를 변경할 수 없는 계정
+ *       500:
+ *         description: 서버 오류
+ */
+router.patch("/password", authController.changePassword);
 
 module.exports = router;

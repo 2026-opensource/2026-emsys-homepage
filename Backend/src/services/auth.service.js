@@ -194,7 +194,151 @@ async function loginUser(body) {
     };
 }
 
+async function findEmail(body) {
+    const { name, student_id } = body;
+
+    if (!name || !student_id) {
+        const error = new Error("이름과 학번을 입력해야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const user = await prisma.users.findFirst({
+        where: {
+            name,
+            student_id,
+            is_active: true,
+        },
+        select: {
+            email: true,
+        },
+    });
+
+    if (!user) {
+        const error = new Error("일치하는 사용자 정보를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return {
+        email: user.email,
+    };
+}
+
+async function verifyPasswordUser(body) {
+    const { name, student_id, email } = body;
+
+    if (!name || !student_id || !email) {
+        const error = new Error("이름, 학번, 이메일을 모두 입력해야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const user = await prisma.users.findFirst({
+        where: {
+            name,
+            student_id,
+            email,
+            is_active: true,
+        },
+        select: {
+            id: true,
+            email: true,
+        },
+    });
+
+    if (!user) {
+        const error = new Error("입력한 사용자 정보가 일치하지 않습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    const resetToken = jwt.sign(
+        {
+            id: user.id,
+            type: "PASSWORD_RESET",
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "10m",
+        }
+    );
+
+    return {
+        resetToken,
+    };
+}
+
+async function changePassword(body) {
+    const { resetToken, newPassword, newPasswordConfirm } = body;
+
+    if (!resetToken || !newPassword || !newPasswordConfirm) {
+        const error = new Error("모든 필드를 입력해야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (!isValidPassword(newPassword)) {
+        const error = new Error("비밀번호는 영문과 숫자를 포함하여 8자 이상이어야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (newPassword !== newPasswordConfirm) {
+        const error = new Error("새 비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    let decoded;
+
+    try {
+        decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch (error) {
+        const customError = new Error("비밀번호 변경 인증 시간이 만료되었거나 유효하지 않습니다.");
+        customError.statusCode = 401;
+        throw customError;
+    }
+
+    if (decoded.type !== "PASSWORD_RESET") {
+        const error = new Error("유효하지 않은 비밀번호 변경 요청입니다.");
+        error.statusCode = 401;
+        throw error;
+    }
+
+    const user = await prisma.users.findUnique({
+        where: {
+            id: decoded.id,
+        },
+    });
+
+    if (!user || !user.is_active) {
+        const error = new Error("비밀번호를 변경할 수 없는 계정입니다.");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.users.update({
+        where: {
+            id: user.id,
+        },
+        data: {
+            password: hashedPassword,
+        },
+    });
+
+    return {
+        id: user.id,
+        email: user.email,
+    };
+}
+
 module.exports = {
     registerUser,
     loginUser,
+    findEmail,
+    verifyPasswordUser,
+    changePassword,
 };
