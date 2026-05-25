@@ -1,7 +1,7 @@
 const express = require("express");
 const adminController = require("../controllers/admin.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
-const { requireAdmin } = require("../middlewares/role.middleware");
+const { requireAdmin, requirePresident  } = require("../middlewares/role.middleware");
 
 const router = express.Router();
 
@@ -162,6 +162,128 @@ router.patch(
     requireAuth,
     requireAdmin,
     adminController.withdrawUsers
+);
+
+/**
+ * @swagger
+ * /api/admin/officers/{userId}/dismiss:
+ *   patch:
+ *     summary: 임원 해임
+ *     description: 회장 권한을 가진 사용자가 특정 임원을 일반 부원으로 변경합니다.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 해임할 임원의 사용자 id
+ *         example: 3
+ *     responses:
+ *       200:
+ *         description: 임원 해임 성공
+ *       400:
+ *         description: 잘못된 요청 또는 해임 대상 오류
+ *       401:
+ *         description: 로그인 필요 또는 토큰 오류
+ *       403:
+ *         description: 회장 권한 없음
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
+router.patch(
+    "/officers/:userId/dismiss",
+    requireAuth,
+    requirePresident,
+    adminController.dismissOfficer
+);
+
+/**
+ * @swagger
+ * /api/admin/officers/{userId}/appoint:
+ *   patch:
+ *     summary: 임원 임명
+ *     description: 회장 권한을 가진 사용자가 일반 부원을 임원으로 임명합니다.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 임명할 사용자의 id
+ *         example: 3
+ *     responses:
+ *       200:
+ *         description: 임원 임명 성공
+ *       400:
+ *         description: 잘못된 요청 또는 임명 대상 오류
+ *       401:
+ *         description: 로그인 필요 또는 토큰 오류
+ *       403:
+ *         description: 회장 권한 없음
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
+router.patch(
+    "/officers/:userId/appoint",
+    requireAuth,
+    requirePresident,
+    adminController.appointOfficer
+);
+
+/**
+ * @swagger
+ * /api/admin/president/delegate:
+ *   patch:
+ *     summary: 회장 권한 위임
+ *     description: 현재 회장이 특정 사용자에게 회장 권한을 위임합니다. confirmText에 "위임합니다"를 정확히 입력해야 합니다.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - targetUserId
+ *               - confirmText
+ *             properties:
+ *               targetUserId:
+ *                 type: integer
+ *                 example: 3
+ *               confirmText:
+ *                 type: string
+ *                 example: "위임합니다"
+ *     responses:
+ *       200:
+ *         description: 회장 권한 위임 성공
+ *       400:
+ *         description: 잘못된 요청 또는 입력값 오류
+ *       401:
+ *         description: 로그인 필요 또는 토큰 오류
+ *       403:
+ *         description: 회장 권한 없음
+ *       404:
+ *         description: 사용자를 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
+router.patch(
+    "/president/delegate",
+    requireAuth,
+    requirePresident,
+    adminController.delegatePresident
 );
 
 module.exports = router;

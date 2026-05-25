@@ -126,8 +126,230 @@ async function withdrawUsers(body) {
     };
 }
 
+async function dismissOfficer(userId) {
+    const targetUserId = Number(userId);
+
+    if (!targetUserId) {
+        const error = new Error("해임할 사용자의 id가 필요합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const targetUser = await prisma.users.findUnique({
+        where: {
+            id: targetUserId,
+        },
+    });
+
+    if (!targetUser) {
+        const error = new Error("해당 사용자를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (!targetUser.is_active) {
+        const error = new Error("비활성화된 사용자는 해임할 수 없습니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (targetUser.role !== "OFFICER") {
+        const error = new Error("해임 대상은 임원이어야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const updatedUser = await prisma.users.update({
+        where: {
+            id: targetUserId,
+        },
+        data: {
+            role: "MEMBER",
+        },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            student_id: true,
+            role: true,
+            status: true,
+            is_active: true,
+        },
+    });
+
+    return updatedUser;
+}
+
+async function appointOfficer(userId) {
+    const targetUserId = Number(userId);
+
+    if (!targetUserId) {
+        const error = new Error("임명할 사용자의 id가 필요합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const targetUser = await prisma.users.findUnique({
+        where: {
+            id: targetUserId,
+        },
+    });
+
+    if (!targetUser) {
+        const error = new Error("해당 사용자를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (!targetUser.is_active) {
+        const error = new Error("비활성화된 사용자는 임원으로 임명할 수 없습니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (targetUser.role !== "MEMBER") {
+        const error = new Error("임명 대상은 일반 부원이어야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const updatedUser = await prisma.users.update({
+        where: {
+            id: targetUserId,
+        },
+        data: {
+            role: "OFFICER",
+        },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            student_id: true,
+            role: true,
+            status: true,
+            is_active: true,
+        },
+    });
+
+    return updatedUser;
+}
+
+async function delegatePresident(currentUserId, body) {
+    const { targetUserId, confirmText } = body;
+
+    const targetId = Number(targetUserId);
+
+    if (!targetId) {
+        const error = new Error("위임받을 사용자의 id가 필요합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (confirmText !== "위임합니다") {
+        const error = new Error('"위임합니다"를 정확히 입력해야 합니다.');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (currentUserId === targetId) {
+        const error = new Error("본인에게는 회장 권한을 위임할 수 없습니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const currentPresident = await prisma.users.findUnique({
+        where: {
+            id: currentUserId,
+        },
+    });
+
+    if (!currentPresident) {
+        const error = new Error("현재 회장 정보를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (currentPresident.role !== "PRESIDENT") {
+        const error = new Error("회장 권한이 필요합니다.");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const targetUser = await prisma.users.findUnique({
+        where: {
+            id: targetId,
+        },
+    });
+
+    if (!targetUser) {
+        const error = new Error("위임받을 사용자를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (!targetUser.is_active) {
+        const error = new Error("비활성화된 사용자에게는 회장 권한을 위임할 수 없습니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (targetUser.role === "PRESIDENT") {
+        const error = new Error("이미 회장 권한을 가진 사용자입니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+        const oldPresident = await tx.users.update({
+            where: {
+                id: currentUserId,
+            },
+            data: {
+                role: "MEMBER",
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                student_id: true,
+                role: true,
+                status: true,
+                is_active: true,
+            },
+        });
+
+        const newPresident = await tx.users.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                role: "PRESIDENT",
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                student_id: true,
+                role: true,
+                status: true,
+                is_active: true,
+            },
+        });
+
+        return {
+            oldPresident,
+            newPresident,
+        };
+    });
+
+    return result;
+}
+
 module.exports = {
     getUsers,
     updateUsersStatus,
     withdrawUsers,
+    dismissOfficer,
+    appointOfficer,
+    delegatePresident,
 };

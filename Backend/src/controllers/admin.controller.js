@@ -56,9 +56,54 @@ async function withdrawUsers(req, res, next) {
     }
 }
 
+async function dismissOfficer(req, res, next) {
+    try {
+        const result = await adminService.dismissOfficer(req.params.userId);
+
+        return res.status(200).json({
+            success: true,
+            message: "임원 해임이 완료되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function appointOfficer(req, res, next) {
+    try {
+        const result = await adminService.appointOfficer(req.params.userId);
+
+        return res.status(200).json({
+            success: true,
+            message: "임원 임명이 완료되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function delegatePresident(req, res, next) {
+    try {
+        const result = await adminService.delegatePresident(req.user.id, req.body);
+
+        return res.status(200).json({
+            success: true,
+            message: "회장 권한 위임이 완료되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     adminTest,
     getUsers,
     updateUsersStatus,
     withdrawUsers,
+    dismissOfficer,
+    appointOfficer,
+    delegatePresident,
 };
