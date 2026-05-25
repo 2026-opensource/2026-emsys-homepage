@@ -16,7 +16,13 @@ const financeRoutes = require("./routes/finance.routes");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5500',  // 프론트 주소 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // 서버 정상 작동 확인용 
