@@ -1,0 +1,141 @@
+/* =========================
+   캘린더
+========================= */
+
+.calendar-section {
+  padding: 30px 0 0 0;
+}
+
+/* FullCalendar 전체 */
+
+.fc {
+  width: 100%;
+  background-color: var(--bg-box);
+  padding: 20px;
+  border-radius: 20px;
+  color: var(--text-main);
+}
+
+/* 상단 툴바 */
+
+.fc .fc-toolbar-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.fc .fc-button {
+  background-color: var(--point-mint) !important;
+  border: none !important;
+  color: black !important;
+
+  padding: 8px 14px;
+
+  font-weight: bold;
+
+  transition: 0.3s;
+}
+
+.fc .fc-button:hover {
+  background-color: #00cc82 !important;
+}
+
+.fc .fc-button:disabled {
+  opacity: 0.5;
+}
+
+/* 캘린더 테두리 */
+
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+  border-color: var(--border-color);
+}
+
+/* 요일 헤더 */
+
+.fc .fc-col-header-cell {
+  background-color: #3d3d3d;
+  padding: 10px 0;
+}
+
+.fc .fc-col-header-cell-cushion {
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: bold;
+}
+
+/* 일요일 */
+
+.fc .fc-col-header-cell:first-child .fc-col-header-cell-cushion {
+  color: var(--calendar-sunday);
+}
+
+/* 토요일 */
+
+.fc .fc-col-header-cell:last-child .fc-col-header-cell-cushion {
+  color: var(--calendar-saturday);
+}
+
+/* 날짜 숫자 */
+
+.fc .fc-daygrid-day-number {
+  text-decoration: none;
+  color: var(--text-main);
+  padding: 8px;
+}
+
+/* 일요일 날짜 */
+
+.fc .fc-day-sun .fc-daygrid-day-number {
+  color: var(--calendar-sunday);
+}
+
+/* 토요일 날짜 */
+
+.fc .fc-day-sat .fc-daygrid-day-number {
+  color: var(--calendar-saturday);
+}
+
+/* 오늘 날짜 */
+
+.fc .fc-day-today {
+  background-color: rgba(0, 255, 163, 0.15) !important;
+}
+
+/* 이벤트 */
+
+.fc .fc-event {
+  background-color: var(--point-mint);
+  border: none;
+  color: black;
+
+  padding: 2px 6px;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+/* 날짜 칸 hover */
+
+.fc .fc-daygrid-day:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* 빈 공간 */
+
+.fc .fc-scrollgrid-section > * {
+  border-color: var(--border-color);
+}
+
+.fc table {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.fc-daygrid-body {
+  width: 100% !important;
+}

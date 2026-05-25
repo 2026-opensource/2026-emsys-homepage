@@ -1,0 +1,116 @@
+/* 커뮤니티, 자료실, 글쓰기, 글 상세 페이지 공통 스타일 */
+
+:root {
+    --bg-main: #333333;
+    --bg-box: #444444;
+    --text-main: #ffffff;
+    --text-muted: #aaaaaa;
+    --point-mint: #00ffa3;
+    --border-color: #555555;
+}
+
+body{
+    background-color: var(--bg-main);
+}
+
+.write-container{
+    border:3px solid var(--border-color);
+    border-radius: 10px;
+    padding-bottom:20px;
+    padding-left:30px;
+    padding-right:30px;
+    padding-top:10px;
+    width:50%;
+    min-width:450px;
+    margin: 50px auto;
+}
+
+.board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom:0;
+    color:var(--point-mint);
+}
+
+.cancel-write-btn{
+    background-color: var(--text-muted);
+    font-size:16px;
+    font-weight: bolder;
+    border: 0;
+    padding-top:4px;
+    padding-bottom: 4px;
+    padding-left:20px;
+    padding-right:20px;
+    margin-right:10px;
+}
+
+.post-write-btn{
+    background-color: var(--point-mint);
+    font-size:16px;
+    font-weight: bolder;
+    border: 0;
+    padding-top:4px;
+    padding-bottom: 4px;
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.header-divider{
+    border: 2px solid var(--point-mint);
+    margin-top:0;
+}
+
+.title-box{
+    display:flex;
+    border:3px solid var(--border-color);
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:15px;
+}
+
+.category-select{
+    padding : 0 28px;
+    border-radius: 6px;
+    margin-right:10px;
+    color:var(--text-main);
+    background-color: var(--bg-box);
+    cursor: pointer;
+    border: 2px solid var(--border-color);
+}
+
+.title-input-box{
+    background-color: var(--bg-box);
+    border: 2px solid var(--border-color);
+    color:var(--text-main);
+    border-radius: 6px;
+}
+
+.note-btn-group {
+    background-color: transparent;
+}
+
+.note-toolbar{
+    background-color: var(--bg-box);
+    border-bottom: 3px solid var(--border-color);
+    border-top: 3px solid var(--border-color);
+}
+
+.note-btn {
+    background-color: var(--bg-box);
+    border: 2px solid var(--border-color);
+    color:var(--text-main);
+}
+
+.note-editable{
+    color:var(--text-main);
+    background-color: var(--bg-main);
+}
+.note-btn:hover,
+.note-btn:focus,
+.note-btn.active {
+    background-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+

@@ -1,0 +1,203 @@
+<!--관리자 페이지-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMSYS 관리자 페이지</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+</head>
+
+<body>
+    <div id="header"></div>
+    <div class="admin-container">
+        <div class="row">
+            <div class="col-sm-8">
+                <section class="post-manage">
+                    <h2 class="post-manage-header">게시글 관리</h2>
+                    <hr class="header-divider">
+                    <div class="section-box">
+                        <div class="manage-header-wrapper">
+                            <div class="board-search-area">
+                                <select class="category-select">
+                                    <option>카테고리</option>
+                                    <option>자유</option>
+                                    <option>질문</option>
+                                    <option>공지</option>
+                                </select>
+
+                                <input type="text" class="search-input" placeholder="검색" />
+                            </div>
+                            <button class="post-delete-btn btn btn-danger">게시글 삭제</button>
+                        </div>
+
+                        <div class="board-list">
+                            <div class="content-wrap">
+                                <input type="checkbox" class="delete-check">
+
+                                <a href="./post-detail.html" class="board-link">
+
+                                    <article class="board-card">
+                                        <div class="row board-row">
+                                            <div class="col-sm-2">
+                                                <div class="board-category">자유</div>
+                                            </div>
+
+                                            <div class="col-sm-8">
+                                                <div class="board-main">
+                                                    <h2 class="board-title">첫 번째 게시글 제목입니다</h2>
+                                                    <p class="board-info">홍길동 · 2026-05-10</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <div class="board-stats">
+                                                    <p>조회수 12</p>
+                                                    <p>좋아요 7</p>
+                                                    <p>댓글 3</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </section>
+            </div>
+
+            <div class="col-sm-4">
+                <section class="user-manage">
+                    <div class="user-manage-header">
+                        <h2 class="user-manage-title">사용자 관리</h2>
+                        <a href="./authority.html">
+                            <button class="btn btn-danger authority">권한 관리</button>
+                        </a>
+                    </div>
+                    <hr class="header-divider">
+                    <div class="section-box">
+
+                        <ul class="nav nav-tabs user-tabs">
+                            <li>
+                                <a class="tab-list" data-toggle="tab" href="#member-list">부원 목록</a>
+                            </li>
+                            <li class="active">
+                                <a class="tab-list" data-toggle="tab" href="#new-members">신규 부원</a>
+                                <!--아래 new-members로 연결됨-->
+                            </li>
+
+                        </ul>
+
+                        <div class="tab-content user-list">
+
+                            <div id="member-list" class="tab-pane fade in active">
+                                <div class="user-item">
+                                    <div class="dropdown">
+                                        <span class="dropdown-toggle" data-toggle="dropdown">
+                                            22 정수기
+                                        </span>
+                                        <i class="fa-solid fa-graduation-cap" id="g-icon"></i>
+                                        <i class="fa-solid fa-house" id="l-icon"></i>
+
+                                        <ul class="dropdown-menu">
+                                            <li><a onClick="enrolledStudent()">재학생</a></li>
+                                            <li><a onClick="graduatedStudent()">졸업생</a></li>
+                                            <li><a onClick="leaveStudent()">휴학생</a></li>
+                                        </ul>
+                                    </div>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>25 냉장고</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>24 키보드</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>26 받침대</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>25 난방기</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>24 에어컨</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>26 정수기</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                            </div>
+
+                            <div id="new-members" class="tab-pane fade">
+                                <div class="user-item">
+                                    <sapn>26 정수기</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>25 냉장고</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                                <div class="user-item">
+                                    <sapn>24 키보드</sapn>
+                                    <button class="btn btn-danger btn-xs">퇴출</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div id="footer"></div>
+
+    <script>
+        function graduatedStudent() {
+            document.getElementById('g-icon').style.display = "inline-block";
+            document.getElementById('l-icon').style.display = "none";
+        }
+
+        function enrolledStudent() {
+            document.getElementById('g-icon').style.display = "none";
+            document.getElementById('l-icon').style.display = "none";
+        }
+
+        function leaveStudent() {
+            document.getElementById('g-icon').style.display = "none";
+            document.getElementById('l-icon').style.display = "inline-block";
+        }
+    </script>
+
+    <script src="../js/common.js"></script>
+</body>
+
+</html>

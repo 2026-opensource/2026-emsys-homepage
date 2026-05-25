@@ -1,0 +1,69 @@
+/* 1. 전체 틀에 넓이와 중앙 정렬 추가 */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  width: 100%;
+  max-width: none; /* ⭐ 핵심 제거 */
+  margin: 70px 0 0 0;       /* ⭐ 중앙 제한 제거 */
+  padding: 0 40px 0 0; /* 필요하면 내부 여백만 유지 */
+  background-color: white;
+}
+
+/* 2. 왼쪽 영역 확실하게 크기 잡기 */
+.header-left {
+  flex: 2;
+  width: 100%; /* 공간 꽉 채우기 */
+  height: 400px; /* ⭐ 매우 중요: 이 높이만큼 이미지가 꽉 차고 잘립니다! */
+  position: relative; 
+  overflow: hidden;
+}
+
+/* 3. Swiper 최상단 컨테이너 */
+.header-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+/* 4. Swiper 내부 wrapper와 slide도 무조건 100% 상속받게 강제 */
+.header-swiper .swiper-wrapper {
+  height: 100%; /* Swiper 내부 숨겨진 요소 크기 보장 */
+}
+
+.header-swiper .swiper-slide {
+  width: 100%;
+  height: 100%;
+}
+
+/* 5. 대망의 이미지 */
+.header-mascot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 가로세로 비율 유지하며 꽉 채우고 남는 건 자르기 */
+  object-position: center; /* 가운데 기준으로 자르기 */
+}
+
+/* 오른쪽 텍스트 (그대로 유지) */
+.header-right {
+  flex: 1;
+}
+
+.header-right h2 {
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 1.5;
+  color: black;
+  text-align: left;
+}
+
+/* Swiper 버튼 (그대로 유지) */
+.header-swiper .swiper-button-prev,
+.header-swiper .swiper-button-next {
+  color: black;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}

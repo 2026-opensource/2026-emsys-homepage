@@ -1,0 +1,115 @@
+/* 갤러리 페이지 전용 스타일 */
+
+/* 전체 적용 */
+html,
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #333333;
+}
+
+/* padding, border가 요소의 전체 크기에 포함 */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* 다크모드 기준 색상 변수 */
+:root {
+    --bg-main: #333333;
+    /* 전체 어두운 회색 배경 */
+    --bg-box: #444444;
+    /* 푸터 등 박스 배경 */
+    --text-main: #ffffff;
+    /* 기본 글자색 (흰색) */
+    --text-muted: #aaaaaa;
+    /* 설명용 연한 회색 글자 */
+    --point-mint: #00ffa3;
+    /* EMSYS 상징 민트색 */
+    --border-color: #555555;
+    /* 연한 테두리 선 색상 */
+}
+
+.gallery-container {
+    zoom: 0.9;
+    max-width: 1200px;
+    margin: 0px auto;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.gallery-title {
+    font-size: 64px;
+    color: var(--point-mint);
+    text-align: center;
+    margin: 0px auto;
+}
+
+.header-divider {
+    border: 2px solid var(--point-mint);
+    margin: 15px 0px;
+}
+
+.gallery-box {
+    min-width: 500px;
+    min-height: 400px;
+    border: 3px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    text-align: center;
+    margin: 0px auto;
+    padding: 30px;
+}
+
+.gallery-button {
+    text-align: left;
+}
+
+.write-button {
+    background-color: var(--text-muted);
+    color: black;
+    border: 2px solid var(--border-color);
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.gallery-post {
+    width: 100%;
+    max-width: 250px;
+    height: 100%;
+    border: 3px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    text-align: center;
+    margin: 20px 0px;
+}
+
+.post-image-box {
+    width: 100%;
+    height: 150px;
+    border-bottom: 3px solid var(--border-color);
+}
+
+.post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 이미지를 좁은 쪽으로 맞춰서 잘라내고 맞추는 방식 */
+}
+
+.post-content {
+    width: 100%;
+    height: 100px;
+    font-size: 20px;
+    color: var(--text-main);
+    padding: 15px;
+}
+
+.post-title {
+    font-size: 16px;
+    white-space: nowrap; /* 밑으로 줄바꿈x 무조건 한 줄로 쭉 */
+    overflow: hidden; /* 박스 크기를 삐져나간 글자는 말줄임표로 표시 */
+    text-overflow: ellipsis;
+}

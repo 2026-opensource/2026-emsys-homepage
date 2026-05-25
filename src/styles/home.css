@@ -1,0 +1,234 @@
+/* 메인페이지 전용 스타일 */
+:root {
+  --bg-main: #333333;
+  --bg-box: #444444;
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --point-mint: #00ffa3;
+  --border-color: #555555;
+  --calendar-sunday: #ff6b6b;
+  --calendar-saturday: #4da3ff;
+  --calendar-active: lightpink;
+}
+
+/* =========================
+   About Section
+========================= */
+
+.about-section {
+  padding: 30px 50px 50px;
+  background-color: var(--bg-main);
+}
+
+.section-divider {
+  border-color: var(--border-color);
+  color: var(--border-color);
+}
+
+.left-box,
+.right-box {
+  margin-top: 24px;
+  cursor: pointer;
+}
+
+.left-box {
+  border-right: 1px solid var(--border-color);
+}
+
+@media (max-width: 991px) {
+  .left-box {
+    border-right: none;
+  }
+}
+
+.content-wrapper {
+  padding: 10px 20px;
+}
+
+.content-wrapper-link:hover {
+  text-decoration: none;
+}
+
+.title-group {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.fa-instagram {
+  position: relative;
+  top: 10px;
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 50px;
+  color: var(--point-mint);
+}
+
+.document-icon {
+  display: inline-block;
+  margin-right: 12px;
+  font-size: 32px;
+}
+
+.about-title {
+  display: inline-block;
+  margin-top: 24px;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--point-mint);
+}
+
+.description-group {
+  margin-top: 24px;
+}
+
+.section-desc {
+  margin-right: 10px;
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.arr-btn {
+  font-size: 18px;
+  color: var(--text-muted);
+  transition: color 0.3s;
+}
+
+.content-wrapper-link:hover .arr-btn {
+  color: var(--point-mint);
+}
+
+/* =========================
+   바로가기
+========================= */
+
+.shortcut {
+  background-color: var(--bg-main);
+}
+
+.shortcut .section-divider {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.shortcut .line {
+  flex: 1;
+  height: 1px;
+  margin: 8px 10px 0;
+  background-color: var(--border-color);
+}
+
+.shortcut .shortcut-text {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.shortcut-item {
+  margin-bottom: 20px;
+  padding: 40px 20px;
+  border-radius: 10px;
+  background-color: var(--point-mint);
+  color: black;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform 0.3s,
+    background-color 0.3s;
+}
+
+.shortcut-item:hover {
+  transform: translateY(-2px);
+  background-color: #00cc82;
+}
+
+.shortcut-item i,
+.shortcut-item h4 {
+  transition: color 0.3s;
+}
+
+.shortcut-item:hover i,
+.shortcut-item:hover h4 {
+  color: #ffffff;
+}
+
+.shortcut-item i {
+  margin-bottom: 15px;
+  font-size: 48px;
+}
+
+.shortcut-item h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* =========================
+   게시판 미리보기
+========================= */
+
+.home-board-preview {
+  padding: 50px 0;
+  background-color: var(--bg-main);
+}
+
+.home-board-box {
+  padding: 15px 30px;
+  border: 2px solid var(--point-mint);
+  border-radius: 10px;
+  background-color: var(--bg-box);
+}
+
+.home-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 10px 0;
+}
+
+.home-board-title,
+.plus-btn {
+  margin: 0;
+  padding: 0;
+  color: var(--point-mint);
+  font-size: 20px;
+}
+
+.plus-btn {
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.home-board-divider {
+  margin: 0;
+  border: 1px solid var(--point-mint);
+}
+
+.home-board-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-board-list li {
+  margin: 0;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.home-board-list li:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.home-board-list li a {
+  font-size: 16px;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.home-board-list li a:hover {
+  color: var(--point-mint);
+}
