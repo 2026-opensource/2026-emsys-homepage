@@ -1,7 +1,5 @@
-import React from "react";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-
 import "../layout/common.css";
 import "../styles/mypage.css";
 
@@ -20,8 +18,8 @@ function MyPage() {
           <div className="user-info-body">
             <section className="profile-image-section">
               <img
-                className="img-circle profile-image"
-                src="../assets/images/기본_프로필.png"
+                className="profile-image"
+                src="../src/assets/images/기본_프로필.png"
                 alt="프로필 이미지"
               />
             </section>
@@ -65,7 +63,7 @@ function MyPage() {
         <section className="my-posts-box">
           <div className="posts-header">
             <h2 className="section-title">내가 작성한 글</h2>
-            <a className="community-link" href="community.html">
+            <a className="community-link" href="board-link">
               +
             </a>
           </div>

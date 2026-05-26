@@ -5,6 +5,9 @@ import Community from "./pages/Community";
 import Resources from "./pages/Resources";
 import Mypage from "./pages/Mypage";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import FindAccount from "./pages/FindAccount";
+import ChangePassword  from "./pages/ChangePassword";
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/mypage" element={<Mypage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/find-account" element={<FindAccount />} />
+        <Route path="/change-password" element={<ChangePassword  />} />
       </Routes>
     </BrowserRouter>
   );

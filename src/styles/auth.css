@@ -45,6 +45,7 @@ body {
     flex-direction: column;
     min-height: 800px;      
     width: 100%;
+    
 }
 
 .auth-content-area {
@@ -58,18 +59,24 @@ body {
 
 .auth-box,
 .change-pw-box {
-    min-width: 500px;
+    width: 500px;
+    max-width: 90%;
     min-height: 400px;
     border: 3px solid var(--border-color);
     border-radius: 10px;
     color: var(--text-main);
     text-align: center;
+    margin: 100px auto;
+}
+
+.auth-text {
+    font-size: 64px;
+    color: var(--point-mint);
     margin: 0px auto;
 }
 
-.auth-text,
 .change-pw-text {
-    font-size: 64px;
+    font-size: 58px;
     color: var(--point-mint);
     margin: 0px auto;
 }
@@ -83,13 +90,15 @@ body {
 
 .input-box {
     width: 400px;
+    max-width: 100%;
     padding: 10px 0px 10px 15px;
-    margin: 5px auto;
+    margin: 10px auto;
     color: var(--text-main);
     background-color: var(--bg-box);
     border-radius: 10px;
     border: 1px solid var(--text-muted);
     font-size: 16px;
+    display: block;
 }
 
 .input-box::placeholder {
@@ -111,6 +120,7 @@ body {
 
 .auth-btn {
     width: 400px;
+    max-width: 100%;
     background-color: var(--point-mint);
     color: #000000;
     border: none;
@@ -129,13 +139,15 @@ body {
     opacity: 0.8;
 }
 
-a {
+.link-text,
+.link-text:link,
+.link-text:visited {
     font-size: 16px;
     color: var(--point-mint);
     text-decoration: none;
 }
 
-a:hover {
+.link-text:hover {
     font-size: 16px;
     color: var(--point-mint);
     text-decoration: underline;
@@ -143,11 +155,13 @@ a:hover {
 
 /* ID 찾기/PW 변경 페이지 스타일 */
 .find-tabs {
-    width: 100%;
+    width: 120%;
     border-bottom: none;
     display: flex;
     justify-content: space-between;
     margin: 0px 0px 30px 0px;
+    padding: 0;
+    transform: translateX(-8%);
 }
 
 .tab-content>.tab-pane {
@@ -158,6 +172,19 @@ a:hover {
 .tab-content>.active {
     /* active 클래스가 있는 탭은 보이도록 설정 */
     display: block;
+    animation: tabFadeIn 0.25s ease-in-out;
+}
+
+@keyframes tabFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .find-tabs>li {

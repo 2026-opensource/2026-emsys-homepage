@@ -1,8 +1,12 @@
+import Navbar from "../layout/Nav";
+import Footer from "../layout/Footer";
+import "../layout/common.css";
 import "../styles/auth.css";
 
 function Login() {
   return (
     <>
+      <Navbar />
       <div className="auth-page-wrapper">
         <div className="auth-content-area">
           <section className="auth-box">
@@ -33,17 +37,19 @@ function Login() {
               </form>
 
               <p className="signup-link">
-                계정이 없으신가요? <a href="/signup">회원가입</a>
+                계정이 없으신가요?{" "}
+                <a className="link-text" href="/signup">회원가입</a>
               </p>
 
               <p className="find-link">
                 계정을 잃어버리셨나요?{" "}
-                <a href="/find-account">ID 찾기/PW 변경</a>
+                <a className="link-text" href="/find-account">ID 찾기/PW 변경</a>
               </p>
             </div>
           </section>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
