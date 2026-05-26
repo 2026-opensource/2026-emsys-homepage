@@ -132,6 +132,7 @@ a:active {
   background-color: var(--bg-box);
   color: var(--text-main);
   font-size: 16px;
+  align-items: center;
 }
 
 /* 검색창. 검색란과 버튼을 포함 */
@@ -208,15 +209,15 @@ a:active {
   width: 12%;
   min-width: 80px;
   height: 40px;
-  line-height: 40px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 10px;
   background-color: var(--text-muted);
   color: black;
   font-size: 16px;
   font-weight: 700;
 }
-
 /* 메인 영역 */
 .board-main {
   flex: 1;

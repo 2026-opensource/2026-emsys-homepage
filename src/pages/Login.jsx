@@ -1,4 +1,5 @@
 import "../styles/auth.css";
+import "../layout/common.css"
 
 function Login() {
   return (

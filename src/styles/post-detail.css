@@ -17,7 +17,7 @@
 .detail-container {
   width: 100%;
   max-width: 1000px;
-  margin: 50px auto;
+  margin: 50px auto 0 auto;
   padding: 50px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
@@ -33,6 +33,10 @@
   color: var(--point-mint);
   font-size: 24px;
   font-weight: 700;
+}
+
+.back-link:hover {
+  font-size: 24px;
 }
 
 /* 목록 + 버튼 전체 */
@@ -170,98 +174,98 @@
 }
 
 /* ========================================
-   댓글 영역
+   댓글 Drawer (shadcn Sheet)
 ======================================== */
 
-.comment-section {
-  padding-top: 20px;
-  border-top: 2px solid var(--border-color);
+/* Drawer 전체 */
+.comment-drawer {
+  height: 65vh; /* ↓ 기존보다 살짝 줄임 */
+  max-height: 300px;
+  width: 65vw;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--bg-box);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border: none;
+
+  overflow-y: auto;
+
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4);
 }
 
-/* 댓글 제목 */
-.comment-count {
-  margin: 20px 0;
-  font-size: 32px;
-  font-weight: 700;
+/* shadcn 내부 wrapper padding 제거 */
+.comment-drawer > div {
+  padding: 0 !important;
+}
+
+/* 댓글 리스트 */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: 10px;
+  padding-bottom: 90px; /* 입력창 공간 확보 */
 }
 
 /* 댓글 카드 */
 .comment-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5%;
-  padding: 20px 0;
-  border-bottom: 2px solid var(--border-color);
-  flex-wrap: wrap;
-}
-
-/* 댓글 작성자 */
-.comment-writer {
-  margin-bottom: 10px;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-/* 댓글 내용 */
-.comment-text {
-  color: #dddddd;
-  font-size: 16px;
-  word-break: break-word;
-}
-
-/* 댓글 수정 삭제 */
-.comment-actions {
-  display: flex;
-  gap: 12px;
-}
-
-/* 댓글 버튼 */
-.comment-actions button {
-  border: none;
-  background: none;
-  color: var(--text-main);
-  font-size: clamp(13px, 1.5vw, 16px);
+  background-color: var(--bg-main);
+  padding: 12px 14px;
+  border-radius: 12px;
 }
 
 /* ========================================
-   댓글 입력 영역
+   입력창 (Drawer 내부)
 ======================================== */
 
 .comment-input-section {
+  position: sticky;
+  bottom: 0;
   display: flex;
   align-items: center;
-  gap: 3%;
-  padding-top: 5%;
+  gap: 10px;
+  padding-top: 12px;
+  padding-bottom: 10px;
+  background-color: var(--bg-box);
 }
 
-/* 댓글 입력 */
+/* input */
 .comment-input {
   flex: 1;
-  height: 60px;
-  padding: 0 4%;
-  border: 2px solid var(--border-color);
+  height: 48px;
   border-radius: 999px;
+  border: 2px solid var(--border-color);
   background-color: transparent;
   color: var(--text-main);
-  font-size: clamp(14px, 1.8vw, 16px);
-  min-width: 0;
+  padding: 0 16px;
 }
 
-/* placeholder */
-.comment-input::placeholder {
-  color: var(--text-muted);
-}
-
-/* 댓글 등록 버튼 */
+/* 버튼 */
 .comment-submit-btn {
-  width: 60px;
-  min-width: 60px;
-  height: 60px;
-  border: none;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
+  border: none;
   background-color: var(--point-mint);
   color: black;
-  font-size: clamp(18px, 2vw, 24px);
-  font-weight: 700;
+  font-weight: bold;
+}
+
+/* ========================================
+  미리보기 창
+======================================== */
+
+.comment-preview {
+  cursor: pointer;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: var(--bg-box);
+  transition: 0.2s;
+}
+
+.comment-preview:hover {
+  transform: scale(1.01);
 }
