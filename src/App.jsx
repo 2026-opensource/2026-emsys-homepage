@@ -9,6 +9,8 @@ import Signup from "./pages/Signup";
 import FindAccount from "./pages/FindAccount";
 import ChangePassword  from "./pages/ChangePassword";
 
+import AdminPage from "./pages/admin-page";
+
 function App() {
   return (
     <BrowserRouter>
@@ -21,6 +23,9 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/find-account" element={<FindAccount />} />
         <Route path="/change-password" element={<ChangePassword  />} />
+
+      
+        <Route path="/admin-page" element={<AdminPage/>} />
       </Routes>
     </BrowserRouter>
   );

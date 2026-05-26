@@ -1,0 +1,547 @@
+/* 색상 변수 */
+:root {
+  --bg-main: #333333;
+  /* 전체 어두운 회색 배경 */
+  --bg-box: #444444;
+  /* 푸터 등 박스 배경 */
+  --text-main: #ffffff;
+  /* 기본 글자색 (흰색) */
+  --text-muted: #aaaaaa;
+  /* 설명용 연한 회색 글자 */
+  --point-mint: #00ffa3;
+  /* EMSYS 상징 민트색 */
+  --border-color: #555555;
+  /* 연한 테두리 선 색상 */
+  --danger-red: #dc3545;
+  --warning-orange: #ff9800;
+}
+
+/* 기본 레이아웃 */
+.admin-page {
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  padding-bottom: 60px;
+}
+
+.role-badge {
+  background-color: var(--point-mint);
+  color: var(--bg-main);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.admin-main, .admin-bottom-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* 섹션 */
+.admin-section {
+  background-color: var(--bg-box);
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.admin-box {
+  background-color: var(--bg-main);
+  border: 3px solid var(--border-color);
+  border-radius: 15px;
+  padding: 25px;
+  overflow: visible;
+}
+
+.box-title {
+  color: var(--point-mint);
+  font-size: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid var(--point-mint);
+}
+
+.section-header h2 {
+  color: var(--point-mint);
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/*------
+게시글 관리 컨트롤 영역
+------*/
+.post-controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.board-category-select, .status-select {
+  flex: 0 0 100px;
+  height: 42px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.user-transfer-box .modal-search-input-group{
+  margin-bottom:10px;
+   overflow: visible; 
+}
+
+.user-transfer-box .modal-search-input-group input {
+  width: 100% !important;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* 게시글 목록 */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.post-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px;
+  background-color: var(--border-color);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.post-item:hover {
+  background-color: #666666;
+  transform: translateY(-2px);
+}
+
+.post-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.post-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;               
+  flex: 1;
+  margin-top:6px;
+  min-width: 0;
+}
+
+.post-category {        
+  width: 15%;            
+  text-align: center;     
+  padding: 10px 0;         
+  background-color: #d9d9d9;
+  color: #000;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.post-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;              
+  flex: 1;
+  min-width: 20px;
+}
+
+.post-content h3 {
+  margin: 0;        
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-info {            
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.post-stats {
+  font-size: 12px;
+}
+
+/* 부원 목록 */
+
+.user-controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px; 
+}
+
+.user-box-content {
+  flex: 1;
+  display: flex; 
+  position: relative;
+  overflow: hidden;
+}
+
+.available-members-view {
+  flex: 1;
+  overflow-y: auto; 
+  padding: 16px 20px;
+}
+
+.basket-members-drawer {
+  position: absolute;
+  top: 0;
+  right: -100%;      
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-main);
+  overflow-y: auto;         
+  padding: 16px 20px;
+  transition: right 0.3s ease;
+  border-left: 1px solid var(--border-color);
+}
+
+
+.user-transfer-box.open .basket-members-drawer {
+  right: 0;
+}
+
+.member-ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: var(--bg-box);
+  border-radius: 6px;
+}
+
+.right-section-wrapper {
+  position: relative;
+  display: flex;
+  gap: 0px;                
+  width: 100%;
+  overflow: visible;         
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.right-section-wrapper .user-transfer-box {
+  width: 100%;
+  flex: 1;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 2;
+}
+
+.basket-title{
+  font-size: 20px;
+  color:var(--text-muted);
+  font-weight: 700;
+}
+
+.basket-section-header{
+  display:flex;
+}
+
+.right-section-wrapper .basket-drawer-box {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0%;
+  height: 100%;
+  opacity: 0;
+  padding: 0;               
+  border: none;             
+  overflow: hidden;
+  pointer-events: none;     
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 1;
+}
+
+
+.right-section-wrapper.open {
+  gap: 20px;                 
+}
+
+.right-section-wrapper.open .user-transfer-box {
+  width: 48%;
+  flex: none;
+}
+
+
+.right-section-wrapper.open .basket-drawer-box {
+  position: relative;        
+  width: 52%;
+  opacity: 1;
+  padding: 25px;           
+  border: 3px solid var(--border-color); 
+  pointer-events: auto;
+}
+
+.available-members-view,
+.basket-members-view {
+  overflow-y: auto;
+  max-height: 440px;
+  padding: 5px 0;
+}
+
+.basket-members-view {
+  width: 100% !important;
+  display: block !important;
+}
+
+.right-section-wrapper .drawer-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: -9px;     
+  display: flex;   
+  background-color: transparent;
+  border: none;     
+  transform: translateY(-50%);
+  color: var(--text-main);
+  border-radius: 6px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-size:25px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+
+.right-section-wrapper.open .drawer-toggle-btn {
+  right: 50.5%;               
+  transform: translate(50%, -50%);
+  color: var(--text-muted);
+  
+}
+.right-section-wrapper.open .drawer-toggle-btn:hover {
+  color: var(--point-mint);
+  
+}
+
+.drawer-toggle-btn:hover {
+  color: var(--point-mint);
+}
+
+.box-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.box-title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-main);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reset-basket-btn {
+  background-color: transparent;
+  border: none;
+  color: var(--border-color);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 18px;
+  align-items: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.reset-basket-btn:hover {
+  color: var(--point-mint);
+  transform: rotate(180deg);
+}
+
+.basket-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed var(--border-color);
+  white-space: nowrap;
+}
+
+.member-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-ul li {
+  padding: 12px 16px;
+  background-color: var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+  user-select: none;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.member-ul li:hover {
+  background-color: #666666;
+  border-color: var(--point-mint);
+}
+
+.empty-text {
+  text-align: center;
+  color: var(--text-muted);
+  margin-top: 40px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.status-badge.mint {
+  background-color: rgba(0, 255, 163, 0.1);
+  color: var(--point-mint);
+  border: 1px solid var(--point-mint);
+}
+
+.status-badge.gray {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--text-muted);
+}
+
+.apply-btn {
+  background-color: var(--point-mint);
+  color: var(--bg-main);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.apply-btn:hover {
+  background-color: #00cc82;
+  transform: translateY(-2px);
+}
+
+.btn-danger{
+  margin-left:auto;
+}
+
+.delete-btn, .btn-danger {
+  background-color: var(--danger-red);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--danger-red);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remove-btn:hover {
+  background-color: rgba(220, 53, 69, 0.15);
+}
+
+
+.admin-bottom-grid {
+    display: grid;
+    grid-template-columns: 6fr 4fr; 
+    gap: 30px;                     
+    margin-top: 40px;              
+    align-items: start;            
+}
+
+.admin-bottom-grid .executive-roster,
+.admin-bottom-grid .danger-zone-container {
+    margin-top: 0 !important;
+    height: 100%;                 
+}
+
+@media (max-width: 1024px) {
+    .admin-grid {
+        grid-template-columns: 1fr;  /* 2열(1fr 1fr)에서 1열(1fr)로 변경 */
+        gap: 20px;
+    }
+    
+    .admin-bottom-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .admin-bottom-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}

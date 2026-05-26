@@ -1,0 +1,90 @@
+
+.finance-inside-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 350px;
+    width: 100%;
+}
+
+.finance-headline-box {
+    padding: 10px 5px;
+}
+
+.finance-title {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+.finance-subtitle {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.finance-chart-container {
+    width: 100%;
+    height: 220px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 12px 10px 10px 10px;
+    border: 1px solid #eef0f3;
+}
+
+.finance-empty-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #888;
+    font-size: 13px;
+}
+
+.finance-upload-wrapper {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #f1f1f5;
+    padding-top: 15px;
+}
+
+.finance-hidden-input {
+    display: none;
+}
+
+.finance-excel-label {
+    cursor: pointer;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 13px;
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #555;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 20px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.finance-excel-label:hover {
+    background-color: #f5f5f7;
+    border-color: #adadad;
+}
+
+.finance-upload-btn {
+    height: 34px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
