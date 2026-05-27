@@ -6,7 +6,7 @@ import "swiper/css/navigation";
 
 import "./imageslider.css";
 
-import mascot from "../assets/images/human-sketch-logo.svg";
+import mascot from "../assets/images/EMSYS_Halloween.png";
 import img2 from "../assets/images/mountain.png";
 import img3 from "../assets/images/human-green.png";
 
