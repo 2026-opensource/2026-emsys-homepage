@@ -56,7 +56,7 @@ async function registerUser(body) {
     });
 
     if (existingEmailUser) {
-        const error = new Error("이미 사용 중인 이메일입니다.");
+        const error = new Error("이미 사용 중인 아이디(이메일)입니다.");
         error.statusCode = 409;
         throw error;
     }
@@ -155,13 +155,13 @@ async function loginUser(body) {
         error.statusCode = 401;
         throw error;
     }
-/*
+
     if (!user.is_active) {
         const error = new Error("탈퇴 또는 비활성화된 계정입니다.");
         error.statusCode = 403;
         throw error;
     }
-*/
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -169,6 +169,15 @@ async function loginUser(body) {
         error.statusCode = 401;
         throw error;
     }
+
+    const updatedUser = await prisma.users.update({
+        where: { id: user.id },
+        data: {
+            visit_count: {
+                increment: 1,
+            },
+        },
+    });
 
     const token = jwt.sign(
         {

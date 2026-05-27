@@ -153,6 +153,41 @@ body {
     text-decoration: underline;
 }
 
+.status-radio-group {
+    width: 600px;
+    max-width: 100%;
+    margin: 10px auto;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.status-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.status-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.status-option input {
+    cursor: pointer;
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
 /* ID 찾기/PW 변경 페이지 스타일 */
 .find-tabs {
     width: 120%;
