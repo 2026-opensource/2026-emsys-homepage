@@ -56,7 +56,7 @@ return (
 
                         <div id="find-pw" className={ activeTab==="find-pw" ? "tab-pane fade in active"
                             : "tab-pane fade" }>
-                            <h2>사용자 정보 확인</h2>
+                            <h2 className="check-info-text">사용자 정보 확인</h2>
 
                             <form className="find-form">
                                 <input className="input-box" type="text" name="name" placeholder="이름" required />

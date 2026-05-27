@@ -49,7 +49,6 @@ const ExecutiveTeamRoster = () => {
     setSearchTerm('');
   };
 
-  // 실시간 필터링
   const filteredMembers = allMembers.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -84,7 +83,6 @@ const ExecutiveTeamRoster = () => {
         </button>
       </div>
 
-      {/* 동적 커스텀 모달 영역 */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -106,7 +104,7 @@ const ExecutiveTeamRoster = () => {
                   autoFocus
                 />
                 <button className="search-btn" type="button">
-                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <i className="fa-solid fa-magnifying-glass"></i>
                 </button>
               </div>
             </div>

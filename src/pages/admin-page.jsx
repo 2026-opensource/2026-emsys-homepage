@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/AdminPage.css';
-import DangerZone from '../components/admin/danger_zone.jsx'
-import ExecutiveZone from '../components/admin/excutive_zone.jsx'
+import DangerZone from '../components/admin/danger_zone.jsx';
+import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
 
 const AdminPage = () => {
@@ -102,7 +102,7 @@ const AdminPage = () => {
     return (
         <div className="admin-page">
             <div className="admin-main">
-                <div className="admin-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                <div className="admin-grid">
 
                     <div className="left-section admin-box">
                         <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
