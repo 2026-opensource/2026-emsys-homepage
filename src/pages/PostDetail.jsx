@@ -4,9 +4,6 @@ import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import "../styles/post-detail.css";
 
-// shadcn drawer (sheet)
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-
 function PostDetail() {
   // =========================
   // 좋아요 / 싫어요 상태
@@ -14,6 +11,8 @@ function PostDetail() {
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [message, setMessage] = useState("");
+
+  const [commentOpen, setCommentOpen] = useState(false);
 
   // =========================
   // 좋아요 클릭
@@ -106,28 +105,23 @@ function PostDetail() {
           <p className="reaction-message">{message}</p>
 
           {/* =========================
-              💬 댓글 (Drawer Trigger)
+          💬 댓글
           ========================= */}
 
-          <Sheet>
-            <SheetTrigger asChild>
-              <div className="comment-preview">
-                <h2 className="comment-title">💬 댓글 12개 보기</h2>
+          <div className="comment-wrapper">
+            {/* 바깥 클릭 감지용 배경 */}
+            {commentOpen && (
+              <div
+                className="comment-overlay"
+                onClick={() => setCommentOpen(false)}
+              ></div>
+            )}
 
-                {/* 최신 댓글 1개 미리보기 */}
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <h3 className="comment-writer">24000</h3>
-                    <p className="comment-text">가장 최신 댓글 미리보기...</p>
-                  </div>
-                </div>
-              </div>
-            </SheetTrigger>
-
-            {/* =========================
-                Drawer (전체 댓글)
-            ========================= */}
-            <SheetContent side="bottom" className="comment-drawer">
+            {/* 펼쳐지는 댓글창 */}
+            <div
+              className={`comment-expand ${commentOpen ? "open" : ""}`}
+              onClick={(e) => e.stopPropagation()}
+            >
               <h2 className="comment-title">댓글</h2>
 
               <div className="comment-list">
@@ -146,7 +140,6 @@ function PostDetail() {
                 </div>
               </div>
 
-              {/* 댓글 입력 */}
               <div className="comment-input-section">
                 <input
                   type="text"
@@ -156,8 +149,23 @@ function PostDetail() {
 
                 <button className="comment-submit-btn">➤</button>
               </div>
-            </SheetContent>
-          </Sheet>
+            </div>
+
+            {/* 댓글 미리보기 */}
+            <div
+              className="comment-preview"
+              onClick={() => setCommentOpen(true)}
+            >
+              <h2 className="comment-title">💬 댓글 12개 보기</h2>
+
+              <div className="comment-card">
+                <div className="comment-main">
+                  <h3 className="comment-writer">24000</h3>
+                  <p className="comment-text">가장 최신 댓글 미리보기...</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 

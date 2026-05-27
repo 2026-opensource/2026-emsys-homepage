@@ -20,7 +20,7 @@ function Home() {
       <Navbar />
       <ImageSlider />
       <section className="about-section">
-        <div className="container">
+        <div className="home-container">
           <hr className="section-divider top-divider" />
 
           <div className="row">
@@ -77,7 +77,7 @@ function Home() {
       </section>
 
       <section className="shortcut">
-        <div className="container">
+        <div className="home-container">
           <div className="section-divider">
             <div className="line"></div>
             <div className="shortcut-text">바로가기</div>
@@ -127,7 +127,7 @@ function Home() {
       <MainCalendar />
 
       <section className="home-board-preview">
-        <div className="container">
+        <div className="home-container">
           <div className="row">
             <div className="col-sm-6">
               <div className="home-board-box">

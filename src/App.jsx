@@ -11,6 +11,7 @@ import ChangePassword  from "./pages/ChangePassword";
 
 import AdminPage from "./pages/admin-page";
 import PostDetail from "./pages/PostDetail";
+import PostWrite from "./pages/PostWrite";
 import Gallery from "./pages/Gallery";
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
       
         <Route path="/admin-page" element={<AdminPage/>} />
         <Route path="/post-detail" element={<PostDetail />} />
+        <Route path="/post-write" element={<PostWrite />} />
         <Route path="/gallery" element={<Gallery />} />
       </Routes>
     </BrowserRouter>
