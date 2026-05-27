@@ -208,9 +208,7 @@
   margin: 0;
 }
 
-/* ==========================================
-   위험 구역 (Danger Zone Styles)
-========================================== */
+/* 위임 */
 
 .danger-zone-container {
   border: 3px solid orange; 
@@ -398,7 +396,7 @@
   font-size: 12px;
 }
 
-/* 🌟 새로 추가되는 선택 부원 확정 컴포넌트 CSS */
+/* 선택한 부원 확정 */
 .selected-admin-badge {
   display: flex;
   justify-content: space-between;
