@@ -173,31 +173,50 @@
   padding-bottom: 15px;
 }
 
-/* ========================================
-   댓글 Drawer (shadcn Sheet)
-======================================== */
-
-/* Drawer 전체 */
-.comment-drawer {
-  height: 65vh; /* ↓ 기존보다 살짝 줄임 */
-  max-height: 300px;
-  width: 65vw;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: var(--bg-box);
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  border: none;
-
-  overflow-y: auto;
-
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4);
+/* 댓글 영역*/
+.comment-wrapper {
+  position: relative;
+  margin-top: 40px;
 }
 
-/* shadcn 내부 wrapper padding 제거 */
-.comment-drawer > div {
-  padding: 0 !important;
+/* 댓글 미리보기 */
+.comment-preview {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.comment-preview:hover {
+  transform: scale(1.01);
+}
+
+/* 펼쳐지는 댓글창 */
+.comment-expand {
+  max-height: 500px;
+  overflow-y: auto;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--bg-box);
+  border-radius: 15px;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(30px);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+/* 열렸을 때 */
+.comment-expand.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* 댓글 리스트 */
@@ -217,10 +236,7 @@
   border-radius: 12px;
 }
 
-/* ========================================
-   입력창 (Drawer 내부)
-======================================== */
-
+/* 입력창 */
 .comment-input-section {
   position: sticky;
   bottom: 0;
@@ -232,7 +248,6 @@
   background-color: var(--bg-box);
 }
 
-/* input */
 .comment-input {
   flex: 1;
   height: 48px;
@@ -243,7 +258,7 @@
   padding: 0 16px;
 }
 
-/* 버튼 */
+/* 댓글 등록 버튼 */
 .comment-submit-btn {
   width: 48px;
   height: 48px;
@@ -254,18 +269,8 @@
   font-weight: bold;
 }
 
-/* ========================================
-  미리보기 창
-======================================== */
-
-.comment-preview {
-  cursor: pointer;
-  padding: 16px;
-  border-radius: 12px;
-  background-color: var(--bg-box);
-  transition: 0.2s;
-}
-
-.comment-preview:hover {
-  transform: scale(1.01);
+.comment-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
 }

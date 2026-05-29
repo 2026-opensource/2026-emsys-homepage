@@ -2,6 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
+const path = require("path");
 
 const authRoutes = require("./routes/auth.routes");
 const swaggerSpec = require("./config/swagger");
@@ -13,13 +14,12 @@ const commentRoutes = require("./routes/comment.routes");
 const eventRoutes = require("./routes/event.routes");
 const financeRoutes = require("./routes/finance.routes");
 
-
 const app = express();
 
 app.use(cors({
   origin: 'http://localhost:5173',  // 프론트 주소 
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -32,6 +32,9 @@ app.get("/", (req, res) => {
 
 // Swagger 문서 페이지
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// 프로필 이미지
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // API 라우터
 app.use("/api/auth", authRoutes);

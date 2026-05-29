@@ -1,9 +1,22 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoGreen from "../assets/images/logo-green-removebg.png";
 
+import { isLoggedIn, removeToken } from "../utils/token";
+
 function Navbar() {
+  const navigate = useNavigate();
+
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
   const [menuOpen, setMenuOpen] = useState(false);
+
+  function handleLogout() {
+    removeToken();
+    setLoggedIn(false);
+    setMenuOpen(false);
+    alert("로그아웃되었습니다.");
+    navigate("/");
+  }
 
   return (
     <nav className="navbar">
@@ -33,7 +46,23 @@ function Navbar() {
           </li>
 
           <li>
-            <Link to="/login">로그인</Link>
+            {loggedIn ? (
+              <Link
+                to="/"
+                onClick={() => {
+                  removeToken();
+                  setLoggedIn(false);
+                  setMenuOpen(false);
+                  alert("로그아웃되었습니다.");
+                }}
+              >
+                로그아웃
+              </Link>
+            ) : (
+              <Link to="/login" onClick={() => setMenuOpen(false)}>
+                로그인
+              </Link>
+            )}
           </li>
         </ul>
       </div>
