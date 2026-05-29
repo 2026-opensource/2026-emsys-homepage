@@ -9,7 +9,7 @@ import Signup from "./pages/Signup";
 import FindAccount from "./pages/FindAccount";
 import ChangePassword  from "./pages/ChangePassword";
 
-import AdminPage from "./pages/admin-page";
+import AdminPage from "./pages/Admin-page";
 import PostDetail from "./pages/PostDetail";
 import Gallery from "./pages/Gallery";
 

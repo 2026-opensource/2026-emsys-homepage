@@ -11,6 +11,7 @@
 
 .admin-page * {
   box-sizing: border-box;
+  
 }
 
 .admin-page {
@@ -55,6 +56,7 @@
   border-radius: 15px;
   padding: 25px;
   overflow: visible;
+  min-width: 360px;
 }
 
 .box-title {
@@ -117,9 +119,10 @@
 
 .post-item {
   display: flex;
+  min-width: 320px;
   align-items: center;
   gap: 15px;
-  padding: 16px;
+  padding: 5px 20px;
   background-color: var(--border-color);
   border-radius: 10px;
   transition: all 0.2s;
@@ -138,11 +141,9 @@
 
 .post-content {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;               
+  align-items: center;     
   flex: 1;
-  margin-top: 6px;
-  min-width: 0;
+  min-width: 300px;
 }
 
 .post-category {        
@@ -161,7 +162,7 @@
   flex-direction: column;
   gap: 5px;              
   flex: 1;
-  min-width: 20px;
+  min-width: 50px;
 }
 
 .post-content h3 {
@@ -188,6 +189,7 @@
   gap: 10px;
   align-items: center;
   margin-top: 12px; 
+  justify-content: flex-start;
 }
 
 .user-box-content {
@@ -390,7 +392,7 @@
   border: 1px solid var(--text-muted);
 }
 
-.apply-btn {
+.btn-apply {
   background-color: var(--point-mint);
   color: var(--bg-main);
   border: none;
@@ -403,20 +405,30 @@
   white-space: nowrap;
 }
 
-.apply-btn:hover {
+.btn-apply:hover {
   background-color: #00cc82;
-  transform: translateY(-2px);
 }
 
 .btn-danger {
-  margin-left: auto;
-}
-
-.delete-btn, .btn-danger {
   background-color: var(--danger-red);
   color: white;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
+  border: none;
+  margin-left: auto;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-delete{
+  margin-right:0;
+  background-color: var(--danger-red);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   font-weight: 700;
@@ -518,15 +530,13 @@
       gap: 10px;
   }
 
-  .board-category-select,
+  .board-category-select, 
   .board-search-input,
   .status-select,
   .post-controls-row .btn-danger,
-  .user-controls-row select,
   .user-controls-row button {
       width: 100%;
-      height: 42px !important;
-      margin-left: 0; 
+      display: block;
   }
 
   .board-search-input .modal-search-input-group {
@@ -546,20 +556,20 @@
   }
 
   .post-item {
-      flex-wrap: wrap;
-      padding: 15px 12px;
-  }
+      align-items: center;
+    }
 
   .post-content {
+      display: flex;
+      gap:0;
       flex-direction: column;
-      width: calc(100% - 35px);
-      gap: 8px;
-      margin-top: 0;
   }
 
   .post-category {
-      width: max-content;
-      padding: 4px 10px;
+      flex-shrink: 0;
+      font-size: 10px;
+      padding: 4px 8px;
+
   }
 
   .post-text-group {
@@ -567,18 +577,21 @@
   }
 
   .post-text-group h3 {
-      white-space: normal;
-      word-break: keep-all;
-      font-size: 15px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+  
+  .post-info{
+    font-size: 10px;
   }
 
   .post-stats {
       width: 100%;
-      display: flex;
-      gap: 15px;
-      margin-top: 5px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-color);
+      gap:10px;
+      display:flex;
+      font-size: 10px;
   }
 
   .left-section.admin-box {
@@ -591,10 +604,10 @@
 
   .finance-chart-container {
       width: 100%;
-      min-height: 250px; /* 모바일에서는 차트가 너무 찌그러지지 않게 최소 높이 지정 */
+      min-height: 250px;
   }
 
-  /* 엑셀 업로드 버튼 영역 세로로 정리 */
+
   .finance-upload-wrapper {
       display: flex;
       flex-direction: column;
@@ -605,7 +618,7 @@
   .finance-excel-label {
       width: 100%;
       white-space: normal;
-      word-break: break-all; /* 파일 이름이 길어도 밖으로 안 나가고 줄바꿈됨 */
+      word-break: break-all;
       text-align: center;
   }
   

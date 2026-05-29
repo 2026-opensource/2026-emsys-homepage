@@ -126,6 +126,32 @@ async function withdrawUsers(body) {
     };
 }
 
+
+async function getOfficers() {
+
+    const officers = await prisma.users.findMany({
+        where: {
+            role: "OFFICER",
+            is_active: true,
+        },
+
+        select: {
+            id: true,
+            name: true,
+            student_id: true,
+            role: true,
+            position: true,
+            profile_image: true,
+        },
+
+        orderBy: {
+            student_id: "asc",
+        },
+    });
+
+    return officers;
+}
+
 async function dismissOfficer(userId) {
     const targetUserId = Number(userId);
 
@@ -165,6 +191,7 @@ async function dismissOfficer(userId) {
         },
         data: {
             role: "MEMBER",
+            position:null,
         },
         select: {
             id: true,
@@ -180,8 +207,9 @@ async function dismissOfficer(userId) {
     return updatedUser;
 }
 
-async function appointOfficer(userId) {
+async function appointOfficer(userId, body) {
     const targetUserId = Number(userId);
+    const { position } = body;
 
     if (!targetUserId) {
         const error = new Error("임명할 사용자의 id가 필요합니다.");
@@ -219,6 +247,7 @@ async function appointOfficer(userId) {
         },
         data: {
             role: "OFFICER",
+            position,
         },
         select: {
             id: true,
@@ -245,8 +274,10 @@ async function delegatePresident(currentUserId, body) {
         throw error;
     }
 
-    if (confirmText !== "위임합니다") {
-        const error = new Error('"위임합니다"를 정확히 입력해야 합니다.');
+    const expectedText = `${targetUser.name}을 회장으로 임명`;
+
+    if (confirmText !== expectedText) {
+        const error = new Error('문구를 정확히 입력해주세요.');
         error.statusCode = 400;
         throw error;
     }
@@ -349,6 +380,7 @@ module.exports = {
     getUsers,
     updateUsersStatus,
     withdrawUsers,
+    getOfficers,
     dismissOfficer,
     appointOfficer,
     delegatePresident,

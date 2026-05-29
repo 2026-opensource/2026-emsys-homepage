@@ -56,6 +56,22 @@ async function withdrawUsers(req, res, next) {
     }
 }
 
+async function getOfficers(req, res, next) {
+    try {
+
+        const result = await adminService.getOfficers();
+
+        return res.status(200).json({
+            success: true,
+            message: "임원 목록 조회 성공",
+            data: result,
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 async function dismissOfficer(req, res, next) {
     try {
         const result = await adminService.dismissOfficer(req.params.userId);
@@ -72,7 +88,7 @@ async function dismissOfficer(req, res, next) {
 
 async function appointOfficer(req, res, next) {
     try {
-        const result = await adminService.appointOfficer(req.params.userId);
+        const result = await adminService.appointOfficer(req.params.userId, req.body);
 
         return res.status(200).json({
             success: true,
@@ -103,6 +119,7 @@ module.exports = {
     getUsers,
     updateUsersStatus,
     withdrawUsers,
+    getOfficers,
     dismissOfficer,
     appointOfficer,
     delegatePresident,

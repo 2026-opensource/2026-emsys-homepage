@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/AdminPage.css';
+import { fetchMembers, fetchPosts, fetchExecutives } from '../api/adminAPI.js';
 import DangerZone from '../components/admin/danger_zone.jsx';
 import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
@@ -7,17 +8,22 @@ import FinanceStats from '../components/admin/FinanceStats.jsx';
 const AdminPage = () => {
     const [showFinance, setShowFinance] = useState(false);
 
-    const [posts, setPosts] = useState([
-        { id: 1, category: '자유', title: '첫 번째 게시글 제목입니다', author: '홍길동', date: '2026-05-10', views: 12, likes: 7, comments: 3 },
-        { id: 2, category: '공지', title: '동아리 정기 회의 공지', author: '김철수', date: '2026-05-15', views: 45, likes: 12, comments: 8 },
-        { id: 3, category: '질문', title: '프로젝트 질문있습니다', author: '이영희', date: '2026-05-18', views: 23, likes: 5, comments: 15 },
-        { id: 4, category: '질문', title: '프로젝트 질문있습니다', author: '이영희', date: '2026-05-18', views: 23, likes: 5, comments: 15 },
-        { id: 5, category: '질문', title: '프로젝트 질문있습니다', author: '이영희', date: '2026-05-18', views: 23, likes: 5, comments: 15 },
-    ]);
+    //전체 게시글
+    const [posts, setPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); //로딩 상태
+
     const [selectedPosts, setSelectedPosts] = useState([]);
     const [postCategory, setPostCategory] = useState('');
     const [postSearch, setPostSearch] = useState('');
 
+    const [availableMembers, setAvailableMembers] = useState([]);//부원 목록
+
+    const [basketMembers, setBasketMembers] = useState([]);
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [isBasketOpen, setIsBasketOpen] = useState(false);
+
+
+    // 동작 실행 함수들
     const togglePostSelect = (postId) => {
         setSelectedPosts(prev =>
             prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
@@ -40,16 +46,6 @@ const AdminPage = () => {
         const matchSearch = !postSearch || p.title.includes(postSearch) || p.author.includes(postSearch);
         return matchCategory && matchSearch;
     });
-
-    const [availableMembers, setAvailableMembers] = useState([
-        { id: 1, name: '금동이', status: '재학' },
-        { id: 2, name: '은동이', status: '휴학' },
-        { id: 3, name: '동동이', status: '재학' },
-        { id: 4, name: '청동이', status: '졸업' },
-    ]);
-    const [basketMembers, setBasketMembers] = useState([]);
-    const [selectedStatus, setSelectedStatus] = useState('');
-    const [isBasketOpen, setIsBasketOpen] = useState(false);
 
     const moveToBasket = (member) => {
         setAvailableMembers(availableMembers.filter(m => m.id !== member.id));
@@ -99,6 +95,38 @@ const AdminPage = () => {
         }
     };
 
+    // 백엔드에서 데이터 불러오기
+    useEffect(() => {
+        const loadInitialData = async () => {
+            try {
+                // 로딩 시작
+                setIsLoading(true);
+
+                // 백엔드에서 데이터 가져오기 (비동기 처리)
+                const membersData = await fetchMembers();
+                const postsData = await fetchPosts();
+
+                setAvailableMembers(membersData.data || []);
+                setPosts(postsData.data || []);
+
+            } catch (error) {
+                console.error("데이터를 불러오는데 실패했습니다.", error);
+                alert("서버와 연결할 수 없습니다.");
+            } finally {
+                // 로딩 끝
+                setIsLoading(false);
+            }
+        };
+
+        loadInitialData();
+    }, []); // 딱 한번 실행되도록 빈 배열을 넣음
+
+    // 데이터를 가져오는 동안 보여줄 로딩 화면
+    if (isLoading) {
+        return <div style={{ textAlign: 'center', padding: '50px' }}>데이터를 불러오는 중입니다...</div>;
+    }
+
+
     return (
         <div className="admin-page">
             <div className="admin-main">
@@ -107,8 +135,8 @@ const AdminPage = () => {
                     <div className="left-section admin-box">
                         <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 className="box-title">{showFinance ? '회계 지출 통계' : '게시글 관리'}</h2>
-                            <button 
-                                className="status-badge mint" 
+                            <button
+                                className="status-badge mint"
                                 style={{ border: 'none', cursor: 'pointer', padding: '5px 10px' }}
                                 onClick={() => setShowFinance(!showFinance)}
                             >
@@ -161,19 +189,21 @@ const AdminPage = () => {
                                                     checked={selectedPosts.includes(post.id)}
                                                     onChange={() => togglePostSelect(post.id)}
                                                 />
+                                                <div className="post-category">{post.category}</div>
                                                 <div className="post-content">
-                                                    <div className="post-category">{post.category}</div>
-
+                                                    
                                                     <div className="post-text-group">
                                                         <h3>{post.title}</h3>
-                                                        <p className="post-info">{post.author} · {post.date}</p>
+                                                        <p className="post-info"> {post.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
                                                     </div>
+
+                                                    <div className="post-stats">
+                                                    <div>조회수 {post.view_count ||0}</div>
+                                                    <div>좋아요 {post._count.post_likes || 0}</div>
+                                                    <div>댓글 {post._count.comments || 0}</div>
                                                 </div>
-                                                <div className="post-stats">
-                                                    <div>조회수 {post.views}</div>
-                                                    <div>좋아요 {post.likes}</div>
-                                                    <div>댓글 {post.comments}</div>
                                                 </div>
+                                                
                                             </div>
                                         ))
                                     )}
@@ -239,8 +269,8 @@ const AdminPage = () => {
                                         <option value="휴학">휴학</option>
                                         <option value="졸업">졸업</option>
                                     </select>
-                                    <button onClick={handleBatchUpdate} className="apply-btn">적용</button>
-                                    <button onClick={handleBatchDelete} className="delete-btn">탈퇴</button>
+                                    <button onClick={handleBatchUpdate} className="btn-apply">적용</button>
+                                    <button onClick={handleBatchDelete} className="btn-delete">탈퇴</button>
                                 </div>
                             </div>
 

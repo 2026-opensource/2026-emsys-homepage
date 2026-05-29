@@ -1,41 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchMembers, delegateMaster } from '../../api/adminAPI.js';
 import { AlertTriangle, X } from 'lucide-react';
 
 const DangerZone = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [selectedMember, setSelectedMember] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [allMembers] = useState([
-    { id: 1, name: '문서연', role: '' },
-    { id: 2, name: '김은솔', role: '' },
-    { id: 3, name: '최희원', role: '' },
-    { id: 4, name: '탁우림', role: '부회장' },
-    { id: 5, name: '이나연', role: '학습부장인가' }
-  ]);
+  // 검색을 위한 전체 부원 목록
+  const [allMembers, setAllmembers] = useState([]);
 
   const filteredMembers = allMembers.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSelectMember = (member) => {
-    setSelectedAdmin(member);
+    setSelecteMember(member);
     setSearchTerm('');
     setIsDropdownOpen(false);
   };
 
   const handleCancelSelection = () => {
-    setSelectedAdmin(null);
+    setSelectedMember(null);
   };
 
-  const handleTransferAuthority = () => {
-    if (!selectedAdmin) return alert('권한을 위임할 부원을 목록에서 선택해 주세요.');
-    if (window.confirm(`정말로 모든 마스터 권한을 [${selectedAdmin.name}]님에게 위임하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
-      alert(`${selectedAdmin.name}님에게 권한 위임이 완료되었습니다. 일반 회원으로 전환됩니다.`);
-      setSelectedAdmin(null);
+  // 권한 위임
+  const handleTransferAuthority = async () => {
+    if (!selectedMember) {
+      return alert('권한을 위임할 부원을 선택해 주세요.');
+    }
+
+    const expectedText =
+    `${selectedMember.name}을 회장으로 임명`;
+
+    const inputText = prompt(
+    `정말 권한을 위임하려면\n"${expectedText}"\n를 정확히 입력하세요.`
+    );
+
+    if (inputText !== expectedText) {
+      return alert('문구가 정확하지 않습니다.');
+    }
+
+    try {
+      const result = await delegateMaster(selectedMember.id, inputText);
+
+      alert(result.message);
+
+      setSelectedMember(null);
       setSearchTerm('');
+
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+        '권한 위임 실패'
+      );
     }
   };
+
+  // 백엔드 데이터 (부원 전체) 불러오기
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        const membersData = await fetchMembers();
+        setAllmembers(membersData.data || []);
+      }
+      catch (error) {
+        console.error("데이터를 불러오는데 실패했습니다", error);
+        alert("서버와 연결할 수 없습니다.");
+      }
+    };
+
+    loadInitialData();
+  }, []); // 처음 한번만 실행되게 빈 배열 넣기
 
   return (
     <div className="danger-zone-container">
@@ -53,9 +89,9 @@ const DangerZone = () => {
               <div className="delegation-input-row">
                 <input
                   type="text"
-                  placeholder={selectedAdmin ? "위임 대상이 선택되었습니다." : "부원 이름 검색..."}
+                  placeholder={selectedMember ? "위임 대상이 선택되었습니다." : "부원 이름 검색..."}
                   value={searchTerm}
-                  disabled={!!selectedAdmin}
+                  disabled={!!selectedMember}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
                     setIsDropdownOpen(true);
@@ -71,7 +107,7 @@ const DangerZone = () => {
                 </button>
               </div>
 
-              {isDropdownOpen && searchTerm && !selectedAdmin && (
+              {isDropdownOpen && searchTerm && !selectedMember && (
                 <div className="delegation-dropdown">
                   {filteredMembers.length === 0 ? (
                     <div className="dropdown-empty">
@@ -92,11 +128,11 @@ const DangerZone = () => {
                 </div>
               )}
 
-              {selectedAdmin && (
+              {selectedMember && (
                 <div className="selected-admin-badge">
                   <div className="badge-info">
-                    <span className="badge-name">{selectedAdmin.name}</span>
-                    <span className="badge-role">{selectedAdmin.role}</span>
+                    <span className="badge-name">{selectedMember.name}</span>
+                    <span className="badge-role">{selectedMember.role}</span>
                   </div>
                   <button onClick={handleCancelSelection} className="badge-remove-btn">
                     <X size={14} />

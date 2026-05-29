@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// 1. 게시글 전체 조회 (검색, 카테고리 필터링, 페이지네이션 포함)
+// 게시글 전체 조회 (검색, 카테고리 필터링, 페이지네이션 포함)
 exports.getAllPosts = async (req, res) => {
   try {
     const { category, search, page = 1, limit = 10, board_type = 'COMMUNITY' } = req.query;
@@ -52,7 +52,7 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
-// 2. 특정 게시글 상세 조회 (조회수 1 증가 + 상세 정보 포함)
+// 특정 게시글 상세 조회 (조회수 1 증가, 상세 정보 포함)
 exports.getPostById = async (req, res) => {
   try {
     const { id } = req.params;

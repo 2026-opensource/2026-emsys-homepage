@@ -31,7 +31,10 @@ const router = express.Router();
  *       500:
  *         description: 서버 오류
  */
-router.get("/test", requireAuth, requireAdmin, adminController.adminTest);
+router.get("/test", 
+    //requireAuth, 
+    //requireAdmin,
+     adminController.adminTest);
 
 /**
  * @swagger
@@ -68,7 +71,9 @@ router.get("/test", requireAuth, requireAdmin, adminController.adminTest);
  *       500:
  *         description: 서버 오류
  */
-router.get("/users", requireAuth, requireAdmin, adminController.getUsers);
+router.get("/users", //requireAuth, 
+// requireAdmin, 
+adminController.getUsers);
 
 /**
  * @swagger
@@ -112,8 +117,8 @@ router.get("/users", requireAuth, requireAdmin, adminController.getUsers);
  */
 router.patch(
     "/users/status",
-    requireAuth,
-    requireAdmin,
+    //requireAuth,
+    //requireAdmin,
     adminController.updateUsersStatus
 );
 
@@ -159,9 +164,16 @@ router.patch(
  */
 router.patch(
     "/users/withdraw",
-    requireAuth,
-    requireAdmin,
+    //requireAuth,
+    //requireAdmin,
     adminController.withdrawUsers
+);
+
+router.get(
+    "/officers",
+    //requireAuth,
+    //requireAdmin,
+    adminController.getOfficers
 );
 
 /**
@@ -197,8 +209,8 @@ router.patch(
  */
 router.patch(
     "/officers/:userId/dismiss",
-    requireAuth,
-    requirePresident,
+    //requireAuth,
+    //requirePresident,
     adminController.dismissOfficer
 );
 
@@ -235,8 +247,8 @@ router.patch(
  */
 router.patch(
     "/officers/:userId/appoint",
-    requireAuth,
-    requirePresident,
+    //requireAuth,
+    //requirePresident,
     adminController.appointOfficer
 );
 
@@ -281,8 +293,8 @@ router.patch(
  */
 router.patch(
     "/president/delegate",
-    requireAuth,
-    requirePresident,
+    //requireAuth,
+    //requirePresident,
     adminController.delegatePresident
 );
 
