@@ -1,8 +1,34 @@
 const express = require("express");
+const path = require("path");
+const multer = require("multer");
 const authController = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, "../../uploads/profile-images"));
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${req.user.id}-${Date.now()}${ext}`);
+    },
+});
+
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith("image/")) {
+            return cb(new Error("이미지 파일만 업로드할 수 있습니다."));
+        }
+
+        cb(null, true);
+    },
+});
 
 /**
  * @swagger
@@ -159,6 +185,19 @@ router.get("/me", requireAuth, (req, res) => {
  *       500:
  *         description: 서버 오류
  */
+router.patch(
+    "/me/profile-image",
+    requireAuth,
+    upload.single("profileImage"),
+    authController.updateProfileImage
+);
+
+router.delete(
+    "/me/profile-image",
+    requireAuth,
+    authController.resetProfileImage
+);
+
 router.post("/find-email", authController.findEmail);
 
 /**

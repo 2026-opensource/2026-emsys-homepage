@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt"); //  비밀번호 암호화, 비교
 const prisma = require("../lib/prisma");
 const { isValidPassword, isValidStatus } = require("../utils/validators");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const fs = require("fs");
 
 async function registerUser(body) {
     const {
@@ -344,10 +346,122 @@ async function changePassword(body) {
     };
 }
 
+async function updateProfileImage(userId, file) {
+    if (!file || !file.filename) {
+        const error = new Error("업로드된 이미지 파일 정보가 올바르지 않습니다.");
+        error.statusCode = 400;
+        throw error; 
+}
+
+    const user = await prisma.users.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            profile_image: true,
+        },
+    });
+
+    if (!user) {
+        const error = new Error("사용자 정보를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // 기존 프로필 이미지가 있으면 삭제
+    if (user.profile_image) {
+        const oldImagePath = path.join(
+            __dirname,
+            "../../",
+            user.profile_image
+        );
+
+        if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+        }
+    }
+
+    const imagePath = `/uploads/profile-images/${file.filename}`;
+
+    const updatedUser = await prisma.users.update({
+        where: { id: userId },
+        data: {
+            profile_image: imagePath,
+        },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            student_id: true,
+            role: true,
+            status: true,
+            profile_image: true,
+            visit_count: true,
+        },
+    });
+
+    return updatedUser;
+}
+
+async function resetProfileImage(userId) {
+    // 1. 현재 사용자의 기존 프로필 이미지 경로 조회
+    const user = await prisma.users.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            profile_image: true,
+        },
+    });
+
+    if (!user) {
+        const error = new Error("사용자 정보를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // 2. 기존 프로필 이미지가 있으면 실제 파일 삭제
+    if (user.profile_image) {
+        const oldImagePath = path.join(
+            __dirname,
+            "../../",
+            user.profile_image.replace(/^\/+/, "")
+        );
+
+        if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+        }
+    }
+
+    // 3. DB의 profile_image 값을 null로 변경
+    const updatedUser = await prisma.users.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            profile_image: null,
+        },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            student_id: true,
+            role: true,
+            status: true,
+            profile_image: true,
+            visit_count: true,
+        },
+    });
+
+    return updatedUser;
+}
+
 module.exports = {
     registerUser,
     loginUser,
     findEmail,
     verifyPasswordUser,
     changePassword,
+    updateProfileImage,
+    resetProfileImage,
 };

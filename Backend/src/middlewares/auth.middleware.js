@@ -36,6 +36,8 @@ async function requireAuth(req, res, next) {
                 student_id: true,
                 role: true,
                 status: true,
+                visit_count: true,
+                profile_image: true,
             },
         });
 

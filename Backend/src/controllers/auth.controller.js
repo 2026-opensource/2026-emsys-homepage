@@ -70,10 +70,43 @@ async function changePassword(req, res, next) {
     }
 }
 
+async function updateProfileImage(req, res, next) {
+    try {
+        const result = await authService.updateProfileImage(
+            req.user.id,
+            req.file
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "프로필 이미지가 변경되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function resetProfileImage(req, res, next) {
+    try {
+        const result = await authService.resetProfileImage(req.user.id);
+
+        return res.status(200).json({
+            success: true,
+            message: "기본 프로필 이미지로 변경되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     register,
     login,
     findEmail,
     verifyPasswordUser,
     changePassword,
+    updateProfileImage,
+    resetProfileImage,
 };
