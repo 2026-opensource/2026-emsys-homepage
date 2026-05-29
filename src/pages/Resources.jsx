@@ -6,59 +6,32 @@ import Footer from "../layout/Footer";
 import "../layout/common.css";
 import "../styles/board.css";
 
-function Community() {
-  // =========================
-  // 1. 더미 게시글 데이터
-  // =========================
-  const posts = [
-    {
-      id: 1,
-      category: "자유",
-      title: "첫 번째 게시글 제목입니다",
-      content: "첫 번째 게시글 내용 테스트",
-      author: "홍길동",
-      date: "2026-05-10",
-      views: 12,
-      likes: 7,
-      comments: 3,
-    },
-    {
-      id: 2,
-      category: "질문",
-      title: "두 번째 게시글입니다",
-      content: "React 관련 질문입니다",
-      author: "김철수",
-      date: "2026-05-11",
-      views: 5,
-      likes: 2,
-      comments: 1,
-    },
-    {
-      id: 3,
-      category: "공지",
-      title: "공지입니다",
-      content: "공지 테스트",
-      author: "홍길동",
-      date: "2026-05-14",
-      views: 8,
-      likes: 20,
-      comments: 0,
-    },
-  ];
+function Resources() {
+  // 더미 데이터
+  const dummyPosts = Array.from({ length: 100 }, (_, index) => ({
+    id: index + 1,
+    category: ["수업 자료", "스터디 자료", "대회/공모전"][index % 3],
+    title: `테스트 게시글 ${index + 1}`,
+    content: "테스트 내용입니다",
+    author: "테스터",
+    date: "2026-05-20",
+    views: index * 3,
+    likes: index,
+    comments: index % 5,
+  }));
+  const posts = dummyPosts;
 
-  // =========================
-  // 2. 상태
-  // =========================
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("카테고리");
+  const [category, setCategory] = useState("전체");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // =========================
-  // 3. 필터 + 최신순 정렬
-  // =========================
+  const POSTS_PER_PAGE = 5;
+  const PAGE_GROUP_SIZE = 5;
+
+  // 필터 정렬
   const filteredPosts = posts
     .filter((post) => {
-      const matchCategory =
-        category === "카테고리" || post.category === category;
+      const matchCategory = category === "전체" || post.category === category;
 
       const matchSearch =
         post.title.includes(search) || post.content.includes(search);
@@ -67,22 +40,31 @@ function Community() {
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  // 페이지네이션 관련
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
+  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  // 현재 보여줄 페이지 번호 그룹
+  const startPage =
+    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
+
+  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
+
   return (
     <>
       <Navbar />
-
-      {/* 메인 */}
       <div className="board-page-wrapper">
         <main className="board-page">
           <div className="board-container">
-            {/* 제목 */}
             <div className="board-title-area">
               <h1 className="board-page-title">자료실</h1>
-              <div className="title-line"></div>
+              <div className="board-title-line"></div>
             </div>
 
-            {/* 본문 */}
-            <div className="board-main-area">
+            {/* 메뉴 영역 */}
+            <div className="board-menu-area">
               {/* 글쓰기 */}
               <a href="/post-write">
                 <button type="button" className="write-btn">
@@ -95,12 +77,15 @@ function Community() {
                 <select
                   className="form-control board-category-select"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 >
-                  <option>카테고리</option>
-                  <option>자유</option>
-                  <option>질문</option>
-                  <option>공지</option>
+                  <option>전체</option>
+                  <option>수업 자료</option>
+                  <option>스터디 자료</option>
+                  <option>대회/공모전</option>
                 </select>
 
                 <div className="input-group board-search-input">
@@ -109,7 +94,10 @@ function Community() {
                     className="form-control search-input"
                     placeholder="검색"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   />
 
                   <span className="input-group-btn">
@@ -125,12 +113,12 @@ function Community() {
 
               {/* 게시글 리스트 */}
               <section className="board-list">
-                {filteredPosts.map((post) => (
+                {currentPosts.map((post) => (
                   <a href="/post-detail" className="board-link" key={post.id}>
                     <article className="board-card">
                       <div className="board-category">{post.category}</div>
 
-                      <div className="board-main">
+                      <div className="board-body">
                         <h2 className="board-title">{post.title}</h2>
 
                         <p className="board-info">
@@ -147,6 +135,53 @@ function Community() {
                   </a>
                 ))}
               </section>
+
+              {/* 페이지네이션 */}
+              <div className="pagination">
+                {/* 이전 그룹 */}
+                {startPage > 1 && (
+                  <button
+                    className="page-btn"
+                    onClick={() => setCurrentPage(startPage - 1)}
+                  >
+                    &lt;
+                  </button>
+                )}
+
+                {/* 페이지 번호 */}
+                {Array.from(
+                  {
+                    length: endPage - startPage + 1,
+                  },
+                  (_, index) => {
+                    const pageNumber = startPage + index;
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        className={
+                          currentPage === pageNumber
+                            ? "page-btn active"
+                            : "page-btn"
+                        }
+                        onClick={() => setCurrentPage(pageNumber)}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  },
+                )}
+
+                {/* 다음 그룹 */}
+                {endPage < totalPages && (
+                  <button
+                    className="page-btn"
+                    onClick={() => setCurrentPage(endPage + 1)}
+                  >
+                    &gt;
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </main>
@@ -157,4 +192,4 @@ function Community() {
   );
 }
 
-export default Community;
+export default Resources;
