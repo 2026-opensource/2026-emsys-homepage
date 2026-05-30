@@ -3,6 +3,7 @@ import { useState } from "react";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import "../styles/post-detail.css";
+import "../styles/board.css";
 
 function PostDetail() {
   // =========================
@@ -70,8 +71,12 @@ function PostDetail() {
               <div className="board-category">자유</div>
 
               <div className="detail-title-content">
-                <h1 className="detail-title">게시글 제목</h1>
-                <p className="detail-info">작성일 2026.05.10 · 조회수 6</p>
+                <h1 className="detail-title">
+                  게시글 제목입니다. 목이 도대체 왜
+                </h1>
+                <p className="detail-info">
+                  홍길동 · 작성일 2026.05.10 · 조회수 6
+                </p>
               </div>
             </div>
           </section>
@@ -122,20 +127,30 @@ function PostDetail() {
               className={`comment-expand ${commentOpen ? "open" : ""}`}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="comment-title">댓글</h2>
+              <h2 className="comment-title">💬 댓글</h2>
 
               <div className="comment-list">
                 <div className="comment-card">
                   <div className="comment-main">
-                    <h3 className="comment-writer">24000</h3>
+                    <p className="comment-writer">24000</p>
                     <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
                   </div>
                 </div>
 
                 <div className="comment-card">
                   <div className="comment-main">
-                    <h3 className="comment-writer">user2</h3>
+                    <p className="comment-writer">테스트</p>
                     <p className="comment-text">두 번째 댓글</p>
+                  </div>
+
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
                   </div>
                 </div>
               </div>
@@ -160,7 +175,7 @@ function PostDetail() {
 
               <div className="comment-card">
                 <div className="comment-main">
-                  <h3 className="comment-writer">24000</h3>
+                  <p className="comment-writer">테스트</p>
                   <p className="comment-text">가장 최신 댓글 미리보기...</p>
                 </div>
               </div>

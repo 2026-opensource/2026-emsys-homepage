@@ -2,7 +2,7 @@ body {
   background-color: var(--bg-main);
   color: var(--text-main);
   padding-top: 70px;
-  font-family: "Pretendard", sans-serif;
+  font-family: "Inter", "Noto Sans KR", sans-serif;
 }
 
 a,

@@ -1,114 +1,111 @@
-import React, { useEffect } from "react";
+import React, { useState, useRef, useMemo } from "react";
+import JoditEditor from "jodit-react";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 
 import "../layout/common.css";
 import "../styles/post-write.css";
-
-import $ from "jquery";
-import "summernote/dist/summernote-lite.css";
-import "summernote/dist/summernote-lite.js";
-
-// 🔥 중요: summernote 로드 이후에 jQuery 연결
-window.$ = window.jQuery = $;
+import "../styles/board.css";
 
 function PostWrite() {
-  useEffect(() => {
-    const el = $("#summernote");
+  const editor = useRef(null);
+  const [category, setCategory] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-    if (!el.length) return;
+  // 에디터 기본 설정 (높이, 언어, 플레이스홀더 등)
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: "내용을 입력하세요.",
+    height: 450,
+    language: "ko", // 한국어 툴바 지원
+    toolbarButtonSize: "middle",
+    // 툴바에 너무 많은 버튼이 나오는 게 싫다면 아래 배열을 수정해서 뺄 수 있습니다.
+    buttons: [
+      "source", "|",
+      "bold", "strikethrough", "underline", "italic", "|",
+      "ul", "ol", "|",
+      "outdent", "indent", "|",
+      "font", "fontsize", "brush", "paragraph", "|",
+      "image", "video", "table", "link", "|",
+      "align", "undo", "redo", "|",
+      "hr", "eraser", "fullsize"
+    ]
+  }), []);
 
-    // 🔥 이미 생성된 editor 있으면 제거 (중복 방지)
-    if (el.next(".note-editor").length) {
-      try {
-        el.summernote("destroy");
-      } catch (e) {}
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!category) return alert("게시판을 선택해주세요.");
+    if (!title.trim()) return alert("제목을 입력해주세요.");
+    if (!content || content === "<p><br></p>") return alert("내용을 입력해주세요.");
 
-    // Summernote 초기화
-    el.summernote({
-      height: 320,
-      minHeight: 300,
-      maxHeight: 380,
-      placeholder: "내용을 입력하세요.",
-      toolbar: [
-        ["style", ["style"]],
-        ["fontsize", ["fontsize"]],
-        ["font", ["bold", "underline", "clear"]],
-        ["color", ["color"]],
-        ["para", ["ul", "ol", "paragraph"]],
-        ["insert", ["link", "picture"]],
-        ["view", ["fullscreen"]],
-      ],
-      fontSizes: ["10", "14", "18", "24", "36", "48", "64"],
-    });
-
-    // cleanup
-    return () => {
-      try {
-        if (el.next(".note-editor").length) {
-          el.summernote("destroy");
-        }
-      } catch (e) {}
-    };
-  }, []);
+    const postData = { category, title, content };
+    console.log("🚀 서버로 전송될 데이터:", postData);
+  };
 
   return (
     <>
       <Navbar />
 
-      <section className="post-write-box">
-        <div className="write-container container">
-          <div className="board-header">
+      <main className="board-page">
+        <div className="write-container">
+          <div className="write-top-area">
             <h3 className="write-board-title">게시글 작성</h3>
 
-            <div className="board-button">
-              <button
-                className="cancel-write-btn btn btn-default"
-                type="button"
-              >
+            <div className="write-buttons-area">
+              <button className="cancel-write-btn btn btn-default" type="button">
                 목록으로
               </button>
 
-              <button className="post-write-btn btn btn-default" type="button">
+              <button className="post-write-btn btn btn-default" type="button" onClick={handleSubmit}>
                 등록
               </button>
             </div>
           </div>
 
-          <hr className="header-divider" />
-
           <div className="form-group">
-            <form className="title-box">
-              <select className="category-select" required>
-                <option value="" disabled hidden>
-                  게시판 선택
-                </option>
-                <option value="general">전체 글</option>
-                <option value="free">자유게시판</option>
-                <option value="notice">공지사항</option>
-                <option value="contest">대회/공모전</option>
-              </select>
+            <form className="write-form" onSubmit={handleSubmit}>
+              <div className="title-box">
+                <select 
+                  className="category-select" 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
+                  <option value="" disabled>게시판 선택</option>
+                  <option value="general">전체 글</option>
+                  <option value="free">자유게시판</option>
+                  <option value="notice">공지사항</option>
+                  <option value="contest">대회/공모전</option>
+                </select>
 
-              <input
-                className="title-input-box form-control"
-                type="text"
-                placeholder="제목을 입력해주세요."
-                required
-              />
-            </form>
+                <input
+                  className="title-input-box form-control"
+                  type="text"
+                  placeholder="제목을 입력해주세요."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
 
-            <form className="content-box">
-              <textarea
-                id="summernote"
-                className="form-control post-content"
-                required
-              />
+              <div className="content-box">
+                {/* Jodit 에디터가 들어가는 곳 (툴바 자동 생성!) */}
+                <JoditEditor
+                  ref={editor}
+                  value={content}
+                  config={config}
+                  // 글자가 입력될 때마다 상태 업데이트
+                  onBlur={(newContent) => setContent(newContent)}
+                  onChange={(newContent) => {}}
+                />
+              </div>
             </form>
           </div>
         </div>
-      </section>
+      </main>
 
       <Footer />
     </>

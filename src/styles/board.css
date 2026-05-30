@@ -23,7 +23,7 @@ body {
   padding: 0;
   background-color: var(--bg-main);
   color: var(--text-main);
-  font-family: "Pretendard", sans-serif;
+  font-family: "Inter", "Noto Sans KR", sans-serif;
 }
 
 a,
@@ -182,7 +182,6 @@ a:active {
   outline: none;
   box-shadow: none !important;
 }
-
 
 /*------
 본문 요소

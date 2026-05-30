@@ -1,8 +1,13 @@
 @import "tw-animate-css";
 @import "@fontsource-variable/geist";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+em {
+  /*도저히 해결법이 안보여서 일단 여기에 작성해요. 글에 기울임체 있으면 적용시켜주는 코드입니다.
+  게시글이 아니라 다른 곳에도 영향 주는데, 문제 생기면 수정 부탁드려요*/
+  font-style: italic;
+  transform: skewX(-12deg);
+  display: inline-block;
+}
 
 :root {
   --text: #6b6375;
@@ -72,7 +77,6 @@ body {
 
 h1,
 h2 {
-  font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
 }
@@ -185,14 +189,5 @@ code {
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
-  }
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
   }
 }
