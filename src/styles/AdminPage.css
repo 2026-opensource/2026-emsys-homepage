@@ -9,6 +9,11 @@
   --warning-orange: #ff9800;
 }
 
+
+.admin-main{
+  padding-top: 100px !important;
+}
+
 .admin-page * {
   box-sizing: border-box;
   

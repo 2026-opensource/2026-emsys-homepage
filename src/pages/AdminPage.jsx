@@ -66,7 +66,7 @@ const AdminPage = () => {
 
     // 게시글 상세보기로 이동
     const goToPostDetail = (postId) => {
-        navigate(`/post-detail?id=${postId}`);
+        navigate(`/posts/${postId}`);
     };
 
     const filteredPosts = posts.filter(p => {
