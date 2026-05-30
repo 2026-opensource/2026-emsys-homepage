@@ -13,6 +13,7 @@ const postRoutes = require("./routes/post.routes");
 const commentRoutes = require("./routes/comment.routes");
 const eventRoutes = require("./routes/event.routes");
 const financeRoutes = require("./routes/finance.routes");
+const uploadRoutes = require("./routes/upload.routes");
 
 const app = express();
 
@@ -23,7 +24,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // 서버 정상 작동 확인용 
 app.get("/", (req, res) => {
@@ -33,7 +35,7 @@ app.get("/", (req, res) => {
 // Swagger 문서 페이지
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// 프로필 이미지
+// 업로드 이미지
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // API 라우터
@@ -45,6 +47,7 @@ app.use("/api/event", eventRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/upload", uploadRoutes);
 
 
 // 에러 처리 미들웨어는 항상 마지막에 배치

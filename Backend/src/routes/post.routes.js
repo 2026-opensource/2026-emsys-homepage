@@ -47,6 +47,32 @@ router.get('/', postController.getAllPosts);
 
 /**
  * @swagger
+ * /api/posts/{id}/view:
+ *   post:
+ *     summary: 게시글 조회수 증가
+ *     description: 게시글 상세 페이지에 처음 진입했을 때 조회수를 1 증가시킵니다.
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 게시글 ID
+ *     responses:
+ *       200:
+ *         description: 조회수 증가 성공
+ *       401:
+ *         description: 로그인 필요
+ *       404:
+ *         description: 게시글을 찾을 수 없음
+ */
+router.post('/:id/view', requireAuth, postController.increaseViewCount);
+
+/**
+ * @swagger
  * /api/posts/{id}:
  *   get:
  *     summary: 게시글 상세 조회

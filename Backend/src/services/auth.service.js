@@ -346,6 +346,64 @@ async function changePassword(body) {
     };
 }
 
+async function getMe(userId) {
+    // users 테이블에서 현재 로그인한 사용자 기본 정보 조회
+    // 비밀번호는 프론트로 보내면 안 되므로 select에 넣지 않음
+    const user = await prisma.users.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            student_id: true,
+            role: true,
+            status: true,
+            profile_image: true,
+            visit_count: true,
+            created_at: true,
+        },
+    });
+
+    if (!user) {
+        const error = new Error("사용자 정보를 찾을 수 없습니다.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // 내가 작성한 글 수
+    // posts 테이블에서 author_id가 현재 사용자 id인 글 개수를 가져옴
+    const postCount = await prisma.posts.count({
+        where: {
+            author_id: userId,
+        },
+    });
+
+    // 내가 작성한 댓글 수
+    // comments 테이블에서 author_id가 현재 사용자 id인 댓글 개수를 가져옴
+    const commentCount = await prisma.comments.count({
+        where: {
+            author_id: userId,
+        },
+    });
+
+    // 내가 좋아요한 글 수
+    // post_likes 테이블에서 user_id가 현재 사용자 id인 좋아요 개수를 가져옴
+    const likedPostCount = await prisma.post_likes.count({
+        where: {
+            user_id: userId,
+        },
+    });
+
+    return {
+        ...user,
+        post_count: postCount,
+        comment_count: commentCount,
+        liked_post_count: likedPostCount,
+    };
+}
+
 async function updateProfileImage(userId, file) {
     if (!file || !file.filename) {
         const error = new Error("업로드된 이미지 파일 정보가 올바르지 않습니다.");
@@ -462,6 +520,7 @@ module.exports = {
     findEmail,
     verifyPasswordUser,
     changePassword,
+    getMe,
     updateProfileImage,
     resetProfileImage,
 };

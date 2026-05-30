@@ -62,7 +62,7 @@ function Gallery() {
           <div className="row">
             {posts.map((post) => (
               <div className="col-sm-3" key={post.id}>
-                <Link to="/post-detail">
+                <Link to="/posts">
                   <div className="gallery-post">
                     <section className="post-image-box">
                       <img

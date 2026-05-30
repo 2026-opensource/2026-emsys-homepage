@@ -8,7 +8,7 @@ import Mypage from "./pages/Mypage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import FindAccount from "./pages/FindAccount";
-import ChangePassword  from "./pages/ChangePassword";
+import ChangePassword from "./pages/ChangePassword";
 
 import AdminPage from "./pages/Admin-page";
 import PostDetail from "./pages/PostDetail";
@@ -37,7 +37,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/find-account" element={<FindAccount />} />
-        <Route path="/change-password" element={<ChangePassword  />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+
+
+        <Route path="/admin-page" element={<AdminPage />} />
+        <Route path="/community/write" element={<PostWrite />} />
+        <Route path="/resources/write" element={<PostWrite />} />
+        <Route path="/gallery/write" element={<PostWrite />} />
+        <Route path="/posts/:id" element={<PostDetail />} />
+        <Route path="/posts/:id/edit" element={<PostWrite />} />
 
         <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
         <Route path="/post-detail" element={<PostDetail />} />

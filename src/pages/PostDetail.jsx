@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getPostById, togglePostLike, togglePostDislike, increasePostView, createComment, deletePost } from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import "../styles/post-detail.css";
 
 function PostDetail() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const fetchedRef = useRef(false);
+
   // =========================
   // 좋아요 / 싫어요 상태
   // =========================
@@ -13,32 +24,255 @@ function PostDetail() {
   const [message, setMessage] = useState("");
 
   const [commentOpen, setCommentOpen] = useState(false);
+  const [commentContent, setCommentContent] = useState("");
+
+  function getCategoryText(category) {
+    if (category === "notice") return "공지사항";
+    if (category === "free") return "자유";
+    if (category === "qna") return "질문";
+    if (category === "recruit") return "팀원 모집";
+    if (category === "study") return "스터디";
+    if (category === "project") return "과제/프로젝트";
+    if (category === "contest") return "대회/공모전";
+    if (category === "class") return "수업";
+    if (category === "event") return "행사";
+    return category;
+  }
+
+  function getListPath(board_type) {
+    if (board_type === "ARCHIVE") return "/resources";
+    if (board_type === "GALLERY") return "/gallery";
+    return "/community";
+  }
+
+  // 게시글 상세 정보 가져오기
+  useEffect(() => {
+    if (fetchedRef.current) {
+      return;
+    }
+
+    fetchedRef.current = true;
+
+    async function fetchPostDetail() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
+
+        const viewResult = await increasePostView(id);
+        const result = await getPostById(id);
+
+        console.log("게시글 상세 응답:", result);
+
+        setPost({
+          ...result.data,
+          view_count: viewResult.data.view_count,
+        });
+      } catch (error) {
+        console.error("게시글 상세 조회 실패:", error);
+
+        setErrorMessage(
+          error.response?.data?.message ||
+          "게시글을 불러오지 못했습니다."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPostDetail();
+  }, [id]);
+
+  // 학번 따오기용
+  function getStudentYear(studentId) {
+    if (!studentId) return "";
+
+    const id = String(studentId);
+
+    return id.slice(2, 4);
+  }
+
+  // 상세용: 학번 이름 (status)
+  function getUserDisplayName(user) {
+    if (!user) return "알 수 없음";
+
+    return `${getStudentYear(user.student_id)} ${user.name} (${user.status})`;
+  }
+
+  // 글 수정 시간
+  function isEdited(createdAt, updatedAt) {
+    if (!createdAt || !updatedAt) return false;
+
+    return new Date(updatedAt).getTime() > new Date(createdAt).getTime();
+  }
+
+  // 글 작성 날짜
+  function formatDate(date) {
+    if (!date) return "";
+
+    return date.slice(0, 10);
+  }
+
+  const handleDelete = async () => {
+    const isDelete = window.confirm(
+      "게시글을 삭제하면 복구할 수 없습니다. 삭제하시겠습니까?"
+    );
+
+    if (!isDelete) return;
+
+    try {
+      await deletePost(id);
+
+      alert("게시글이 삭제되었습니다.");
+      navigate(getListPath(post.board_type));
+    } catch (error) {
+      console.error("게시글 삭제 실패:", error);
+
+      setMessage(
+        error.response?.data?.message ||
+        "게시글 삭제에 실패했습니다."
+      );
+    }
+  };
 
   // =========================
   // 좋아요 클릭
   // =========================
-  const handleLike = () => {
-    if (dislike) {
-      setMessage("이미 싫어요를 누른 상태에서는 좋아요를 누를 수 없습니다.");
-      return;
-    }
+  const handleLike = async () => {
+    try {
+      const result = await togglePostLike(id);
 
-    setLike(!like);
-    if (like) setMessage("");
+      console.log("좋아요 응답:", result);
+
+      // 성공 메시지는 화면에 보여주지 않음
+      setMessage("");
+
+      // getPostById(id)를 다시 호출하면 조회수가 증가하므로,
+      // 백엔드 toggleLike 응답으로 받은 개수만 현재 post state에 반영
+      setPost({
+        ...post,
+        _count: {
+          ...post._count,
+          post_likes: result.data.likeCount,
+          post_dislikes: result.data.dislikeCount,
+        },
+      });
+    } catch (error) {
+      console.error("좋아요 처리 실패:", error);
+
+      setMessage(
+        error.response?.data?.message ||
+        "좋아요 처리에 실패했습니다."
+      );
+    }
   };
 
   // =========================
   // 싫어요 클릭
   // =========================
-  const handleDislike = () => {
-    if (like) {
-      setMessage("이미 좋아요를 누른 상태에서는 싫어요를 누를 수 없습니다.");
+  const handleDislike = async () => {
+    try {
+      const result = await togglePostDislike(id);
+
+      console.log("싫어요 응답:", result);
+
+      // 성공 메시지는 화면에 보여주지 않음
+      setMessage("");
+
+      // getPostById(id)를 다시 호출하면 조회수가 증가하므로,
+      // 백엔드 toggleDislike 응답으로 받은 개수만 현재 post state에 반영
+      setPost({
+        ...post,
+        _count: {
+          ...post._count,
+          post_likes: result.data.likeCount,
+          post_dislikes: result.data.dislikeCount,
+        },
+      });
+    } catch (error) {
+      console.error("싫어요 처리 실패:", error);
+
+      setMessage(
+        error.response?.data?.message ||
+        "싫어요 처리에 실패했습니다."
+      );
+    }
+  };
+
+  // =========================
+  // 댓글 작성
+  // =========================
+  const handleCommentSubmit = async () => {
+    if (!commentContent.trim()) {
+      setMessage("댓글 내용을 입력해주세요.");
       return;
     }
 
-    setDislike(!dislike);
-    if (dislike) setMessage("");
+    try {
+      const result = await createComment(id, commentContent);
+
+      console.log("댓글 작성 응답:", result);
+
+      setPost({
+        ...post,
+        comments: [result.data, ...(post.comments || [])],
+      });
+
+      setCommentContent("");
+      setMessage("");
+    } catch (error) {
+      console.error("댓글 작성 실패:", error);
+
+      setMessage(
+        error.response?.data?.message ||
+        "댓글 작성에 실패했습니다."
+      );
+    }
   };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="board-page">
+          <div className="detail-container">
+            <p>게시글을 불러오는 중...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <>
+        <Navbar />
+        <main className="board-page">
+          <div className="detail-container">
+            <p>{errorMessage}</p>
+            <button type="button" onClick={() => navigate(-1)}>
+              돌아가기
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!post) {
+    return (
+      <>
+        <Navbar />
+        <main className="board-page">
+          <div className="detail-container">
+            <p>게시글이 없습니다.</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -50,13 +284,29 @@ function PostDetail() {
               상단
           ========================= */}
           <div className="detail-top-area">
-            <a href="/community" className="back-link">
+            <button
+              type="button"
+              className="back-link"
+              onClick={() => navigate(getListPath(post.board_type))}
+            >
               &lt; 목록으로
-            </a>
+            </button>
 
             <div className="detail-top-buttons">
-              <button className="edit-btn">게시글 수정</button>
-              <button className="delete-btn">게시글 삭제</button>
+              <button
+                type="button"
+                className="edit-btn"
+                onClick={() => navigate(`/posts/${post.id}/edit`)}
+              >
+                게시글 수정
+              </button>
+              <button
+                type="button"
+                className="delete-btn"
+                onClick={handleDelete}
+              >
+                게시글 삭제
+              </button>
             </div>
           </div>
 
@@ -67,11 +317,20 @@ function PostDetail() {
             <div className="title-line"></div>
 
             <div className="detail-title-area">
-              <div className="board-category">자유</div>
+              <div className="board-category">
+                {getCategoryText(post.category)}
+              </div>
 
               <div className="detail-title-content">
-                <h1 className="detail-title">게시글 제목</h1>
-                <p className="detail-info">작성일 2026.05.10 · 조회수 6</p>
+                <h1 className="detail-title">{post.title}</h1>
+                <p className="detail-info">
+                  {getUserDisplayName(post.users)} · 작성일{" "}
+                  {isEdited(post.created_at, post.updated_at)
+                    ? formatDate(post.updated_at)
+                    : formatDate(post.created_at)}
+                  {isEdited(post.created_at, post.updated_at) && " (수정됨)"}
+                  {" "}· 조회수 {post.view_count ?? 0}
+                </p>
               </div>
             </div>
           </section>
@@ -79,26 +338,27 @@ function PostDetail() {
           {/* =========================
               본문
           ========================= */}
-          <section className="detail-content">
-            <p>작성된 게시글 내용은 이렇게 보이게 될 것.</p>
-          </section>
+          <section
+            className="detail-content"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
           {/* =========================
               좋아요 / 싫어요
           ========================= */}
           <section className="reaction-section">
             <button
-              className={`reaction-btn ${like ? "active" : ""}`}
+              className="reaction-btn"
               onClick={handleLike}
             >
-              👍 좋아요
+              👍 좋아요 {post._count?.post_likes ?? 0}
             </button>
 
             <button
-              className={`reaction-btn ${dislike ? "active" : ""}`}
+              className="reaction-btn"
               onClick={handleDislike}
             >
-              👎 싫어요
+              👎 싫어요 {post._count?.post_dislikes ?? 0}
             </button>
           </section>
 
@@ -107,7 +367,6 @@ function PostDetail() {
           {/* =========================
           💬 댓글
           ========================= */}
-
           <div className="comment-wrapper">
             {/* 바깥 클릭 감지용 배경 */}
             {commentOpen && (
@@ -125,19 +384,20 @@ function PostDetail() {
               <h2 className="comment-title">댓글</h2>
 
               <div className="comment-list">
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <h3 className="comment-writer">24000</h3>
-                    <p className="comment-text">첫 번째 댓글</p>
-                  </div>
-                </div>
-
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <h3 className="comment-writer">user2</h3>
-                    <p className="comment-text">두 번째 댓글</p>
-                  </div>
-                </div>
+                {post.comments?.length > 0 ? (
+                  post.comments.map((comment) => (
+                    <div className="comment-card" key={comment.id}>
+                      <div className="comment-main">
+                        <h3 className="comment-writer">
+                          {getUserDisplayName(comment.users)}
+                        </h3>
+                        <p className="comment-text">{comment.content}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="comment-text">아직 댓글이 없습니다.</p>
+                )}
               </div>
 
               <div className="comment-input-section">
@@ -145,9 +405,16 @@ function PostDetail() {
                   type="text"
                   className="comment-input"
                   placeholder="댓글을 입력하세요..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
                 />
 
-                <button className="comment-submit-btn">➤</button>
+                <button
+                  type="button"
+                  className="comment-submit-btn"
+                  onClick={handleCommentSubmit}
+                > ➤
+                </button>
               </div>
             </div>
 
@@ -156,14 +423,28 @@ function PostDetail() {
               className="comment-preview"
               onClick={() => setCommentOpen(true)}
             >
-              <h2 className="comment-title">💬 댓글 12개 보기</h2>
+              <h2 className="comment-title">
+                💬 댓글 {post.comments?.length ?? 0}개 보기
+              </h2>
 
-              <div className="comment-card">
-                <div className="comment-main">
-                  <h3 className="comment-writer">24000</h3>
-                  <p className="comment-text">가장 최신 댓글 미리보기...</p>
+              {post.comments?.length > 0 ? (
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <h3 className="comment-writer">
+                      {getUserDisplayName(post.comments[0].users)}
+                    </h3>
+                    <p className="comment-text">
+                      {post.comments[0].content}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-text">댓글이 없습니다.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

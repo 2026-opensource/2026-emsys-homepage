@@ -143,14 +143,7 @@ router.post("/login", authController.login);
  *       401:
  *         description: 인증 실패
  */
-
-router.get("/me", requireAuth, (req, res) => {
-    res.json({
-        success: true,
-        message: "인증 성공",
-        data: req.user,
-    });
-});
+router.get("/me", requireAuth, authController.getMe);
 
 /**
  * @swagger

@@ -224,9 +224,9 @@ function MyPage() {
             <section className="user-info-content2">
               <div className="user-history-box">
                 <p className="user-history">방문 : {user?.visit_count ?? 0} 회</p>
-                <p className="user-history">작성한 글 : {user?.visit_count ?? 0} 개</p>
-                <p className="user-history">작성한 댓글 : {user?.visit_count ?? 0} 개</p>
-                <p className="user-history">내가 좋아요한 글 : {user?.visit_count ?? 0} 개</p>
+                <p className="user-history">작성한 글 : {user?.post_count ?? 0} 개</p>
+                <p className="user-history">작성한 댓글 : {user?.comment_count ?? 0} 개</p>
+                <p className="user-history">내가 좋아요한 글 : {user?.liked_post_count ?? 0} 개</p>
               </div>
             </section>
           </div>
@@ -246,7 +246,7 @@ function MyPage() {
           <div className="section-box">
             <div className="board-list">
               {[1, 2, 3, 4, 5, 6].map((item) => (
-                <a key={item} href="./post-detail.html" className="board-link">
+                <a key={item} href="./posts.html" className="board-link">
                   <article className="board-card">
                     <div className="board-row">
                       <div className="board-category">자유</div>

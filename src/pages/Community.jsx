@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getPosts } from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -7,54 +9,64 @@ import "../layout/common.css";
 import "../styles/board.css";
 
 function Community() {
-  // =========================
-  // 1. 더미 게시글 데이터
-  // =========================
-  const posts = [
-    {
-      id: 1,
-      category: "자유",
-      title: "첫 번째 게시글 제목입니다",
-      content: "첫 번째 게시글 내용 테스트",
-      author: "홍길동",
-      date: "2026-05-10",
-      views: 12,
-      likes: 7,
-      comments: 3,
-    },
-    {
-      id: 2,
-      category: "질문",
-      title: "두 번째 게시글입니다",
-      content: "React 관련 질문입니다",
-      author: "김철수",
-      date: "2026-05-11",
-      views: 5,
-      likes: 2,
-      comments: 1,
-    },
-  ];
+  const navigate = useNavigate();
 
-  // =========================
-  // 2. 상태
-  // =========================
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("카테고리");
+  const [category, setCategory] = useState("all");
 
-  // =========================
-  // 3. 필터 + 최신순 정렬
-  // =========================
-  const filteredPosts = posts
-    .filter((post) => {
-      const matchCategory =
-        category === "카테고리" || post.category === category;
+  // 카테고리 key를 화면에 보여줄 한글로 변환
+  function getCategoryText(category) {
+    if (category === "notice") return "공지사항";
+    if (category === "free") return "자유";
+    if (category === "qna") return "질문";
+    if (category === "recruit") return "팀원 모집";
+    return category;
+  }
 
-      const matchSearch =
-        post.title.includes(search) || post.content.includes(search);
+  // 게시판 목록에서는 학번 이름
+  function getUserDisplayName(user) {
+    if (!user) return "알 수 없음";
 
-      return matchCategory && matchSearch;
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+    const studentYear = user.student_id?.slice(2, 4) || "";
+
+    return `${studentYear} ${user.name}`;
+  }
+
+  // DB에서 커뮤니티 게시글 목록 가져오기
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
+
+        const result = await getPosts({
+          board_type: "COMMUNITY",
+          category,
+          search,
+          page: 1,
+          limit: 10,
+        });
+
+        console.log("커뮤니티 게시글 목록 응답:", result);
+
+        setPosts(result.data);
+      } catch (error) {
+        console.error("게시글 목록 조회 실패:", error);
+
+        setErrorMessage(
+          error.response?.data?.message ||
+          "게시글 목록을 불러오지 못했습니다."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, [category, search]);
 
   return (
     <>
@@ -73,11 +85,13 @@ function Community() {
             {/* 본문 */}
             <div className="board-main-area">
               {/* 글쓰기 */}
-              <a href="/post-write">
-                <button type="button" className="write-btn">
-                  글쓰기
-                </button>
-              </a>
+              <button
+                type="button"
+                className="write-btn"
+                onClick={() => navigate("/community/write")}
+              >
+                글쓰기
+              </button>
 
               {/* 검색 영역 */}
               <div className="board-search-area">
@@ -86,10 +100,11 @@ function Community() {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option>카테고리</option>
-                  <option>자유</option>
-                  <option>질문</option>
-                  <option>공지</option>
+                  <option value="all">전체 글</option>
+                  <option value="free">자유</option>
+                  <option value="qna">질문</option>
+                  <option value="notice">공지사항</option>
+                  <option value="recruit">팀원 모집</option>
                 </select>
 
                 <div className="input-group board-search-input">
@@ -112,30 +127,47 @@ function Community() {
                 </div>
               </div>
 
+              {loading && <p className="board-message">게시글을 불러오는 중...</p>}
+
+              {errorMessage && <p className="board-error">{errorMessage}</p>}
+
               {/* 게시글 리스트 */}
-              <section className="board-list">
-                {filteredPosts.map((post) => (
-                  <a href="/post-detail" className="board-link" key={post.id}>
-                    <article className="board-card">
-                      <div className="board-category">{post.category}</div>
+              {!loading && !errorMessage && (
+                <section className="board-list">
+                  {posts.length === 0 ? (
+                    <p className="board-message">작성된 게시글이 없습니다.</p>
+                  ) : (
+                    posts.map((post) => (
+                      <button
+                        type="button"
+                        className="board-link"
+                        key={post.id}
+                        onClick={() => navigate(`/posts/${post.id}`)}
+                      >
+                        <article className="board-card">
+                          <div className="board-category">
+                            {getCategoryText(post.category)}
+                          </div>
 
-                      <div className="board-main">
-                        <h2 className="board-title">{post.title}</h2>
+                          <div className="board-main">
+                            <h2 className="board-title">{post.title}</h2>
 
-                        <p className="board-info">
-                          {post.author} · {post.date}
-                        </p>
-                      </div>
+                            <p className="board-info">
+                              {getUserDisplayName(post.users)} · {post.created_at?.slice(0, 10)}
+                            </p>
+                          </div>
 
-                      <div className="board-stats">
-                        <p>조회수 {post.views}</p>
-                        <p>좋아요 {post.likes}</p>
-                        <p>댓글 {post.comments}</p>
-                      </div>
-                    </article>
-                  </a>
-                ))}
-              </section>
+                          <div className="board-stats">
+                            <p>조회수 {post.view_count ?? 0}</p>
+                            <p>좋아요 {post._count?.post_likes ?? 0}</p>
+                            <p>댓글 {post._count?.comments ?? 0}</p>
+                          </div>
+                        </article>
+                      </button>
+                    ))
+                  )}
+                </section>
+              )}
             </div>
           </div>
         </main>

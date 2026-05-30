@@ -70,6 +70,21 @@ async function changePassword(req, res, next) {
     }
 }
 
+// 마이페이지 사용자 정보 조회
+async function getMe(req, res, next) {
+    try {
+        const result = await authService.getMe(req.user.id);
+
+        return res.status(200).json({
+            success: true,
+            message: "사용자 정보 조회 성공",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 async function updateProfileImage(req, res, next) {
     try {
         const result = await authService.updateProfileImage(
@@ -107,6 +122,7 @@ module.exports = {
     findEmail,
     verifyPasswordUser,
     changePassword,
+    getMe,
     updateProfileImage,
     resetProfileImage,
 };

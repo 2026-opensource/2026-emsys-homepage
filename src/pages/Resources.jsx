@@ -126,7 +126,7 @@ function Community() {
               {/* 게시글 리스트 */}
               <section className="board-list">
                 {filteredPosts.map((post) => (
-                  <a href="/post-detail" className="board-link" key={post.id}>
+                  <a href="/posts" className="board-link" key={post.id}>
                     <article className="board-card">
                       <div className="board-category">{post.category}</div>
 
