@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
 import "./calendar.css";
+import { getToken, getUserRole } from "../../utils/token";
+
+const ALLOWED_ROLES = ["OFFICER", "PRESIDENT"];
+const API_BASE = "/api/event";
+
+function getAuthToken() {
+  return getToken();
+}
 
 function MainCalendar() {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -17,6 +26,40 @@ function MainCalendar() {
   const [scheduleTitle, setScheduleTitle] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+
+  // 권한 확인
+  const userRole = getUserRole();
+  const canEdit = ALLOWED_ROLES.includes(userRole);
+
+  // 서버에서 일정 목록 로드
+  useEffect(() => {
+    fetchSchedules();
+  }, []);
+
+  async function fetchSchedules() {
+    try {
+      setLoading(true);
+      const res = await fetch(API_BASE);
+      const json = await res.json();
+
+      if (json.success) {
+        // FullCalendar용으로 start_time → start, end_time → end 변환
+        const converted = json.data.map((e) => ({
+          id: String(e.id),
+          title: e.title,
+          start: e.start_time ? e.start_time.slice(0, 16) : null,
+          end: e.end_time ? e.end_time.slice(0, 16) : null,
+        }));
+        setEvents(converted);
+      } else {
+        console.error("일정 조회 실패:", json.message);
+      }
+    } catch (error) {
+      console.error("일정 조회 오류:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function formatDate(date) {
     const year = date.getFullYear();
@@ -51,12 +94,10 @@ function MainCalendar() {
     const startDate = event.start.slice(0, 10);
     const endDate = event.end ? event.end.slice(0, 10) : startDate;
 
-    // 같은 날 일정이면 시간만 표시
     if (startDate === endDate) {
       return `${event.start.slice(11, 16)} ~ ${event.end.slice(11, 16)}`;
     }
 
-    // 여러 날에 걸친 일정이면 날짜 + 시간 표시
     return `${formatDateTimeText(event.start)} ~ ${formatDateTimeText(event.end)}`;
   }
 
@@ -64,7 +105,6 @@ function MainCalendar() {
     const durationA = getDuration(a);
     const durationB = getDuration(b);
 
-    // 1순위: 기간 긴 순
     if (durationA !== durationB) {
       return durationB - durationA;
     }
@@ -72,12 +112,10 @@ function MainCalendar() {
     const startA = getTimeValue(a.start);
     const startB = getTimeValue(b.start);
 
-    // 2순위: 기간 같으면 시작 시간 빠른 순
     if (startA !== startB) {
       return startA - startB;
     }
 
-    // 3순위: 제목순
     return a.title.localeCompare(b.title);
   }
 
@@ -128,7 +166,7 @@ function MainCalendar() {
     openScheduleList(clickedDate);
   }
 
-  function handleSaveSchedule(e) {
+  async function handleSaveSchedule(e) {
     e.preventDefault();
 
     if (new Date(startTime) > new Date(endTime)) {
@@ -136,28 +174,38 @@ function MainCalendar() {
       return;
     }
 
-    if (editingEventId) {
-      const updatedEvents = events.map((event) =>
-        event.id === editingEventId
-          ? {
-            ...event,
-            title: scheduleTitle,
-            start: startTime,
-            end: endTime,
-          }
-          : event
-      );
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+    // 기존 event.controller가 start_time, end_time 필드명 사용
+    const body = JSON.stringify({
+      title: scheduleTitle,
+      start_time: startTime,
+      end_time: endTime,
+    });
 
-      setEvents([...updatedEvents].sort(sortEventsByDurationThenStart));
-    } else {
-      const newSchedule = {
-        id: String(Date.now()),
-        title: scheduleTitle,
-        start: startTime,
-        end: endTime,
-      };
+    try {
+      let res;
 
-      setEvents([...events, newSchedule].sort(sortEventsByDurationThenStart));
+      if (editingEventId) {
+        res = await fetch(`${API_BASE}/${editingEventId}`, { method: "PUT", headers, body });
+      } else {
+        res = await fetch(API_BASE, { method: "POST", headers, body });
+      }
+
+      const json = await res.json();
+
+      if (!json.success) {
+        alert(json.message || "저장에 실패했습니다.");
+        return;
+      }
+
+      await fetchSchedules();
+    } catch (error) {
+      console.error("일정 저장 오류:", error);
+      alert("서버 오류가 발생했습니다.");
     }
 
     setIsModalOpen(false);
@@ -166,17 +214,32 @@ function MainCalendar() {
     setSelectedDate("");
   }
 
-  function handleDeleteSchedule() {
+  async function handleDeleteSchedule() {
     if (!editingEventId) return;
 
     const isDelete = window.confirm("이 일정을 삭제하시겠습니까?");
     if (!isDelete) return;
 
-    setEvents(
-      events
-        .filter((event) => event.id !== editingEventId)
-        .sort(sortEventsByDurationThenStart)
-    );
+    const token = getAuthToken();
+
+    try {
+      const res = await fetch(`${API_BASE}/${editingEventId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const json = await res.json();
+
+      if (!json.success) {
+        alert(json.message || "삭제에 실패했습니다.");
+        return;
+      }
+
+      await fetchSchedules();
+    } catch (error) {
+      console.error("일정 삭제 오류:", error);
+      alert("서버 오류가 발생했습니다.");
+    }
 
     setIsModalOpen(false);
     setIsListOpen(false);
@@ -196,6 +259,12 @@ function MainCalendar() {
 
   return (
     <section className="calendar-section">
+      {loading && (
+        <p style={{ textAlign: "center", color: "var(--text-muted)", marginBottom: "12px" }}>
+          불러오는 중...
+        </p>
+      )}
+
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -213,7 +282,6 @@ function MainCalendar() {
 
           return "none";
         }}
-        // duration 큰 것부터, 시작 시간 빠른 것 부터, 제목순
         eventOrder="-duration,start,title"
         eventOrderStrict={true}
         headerToolbar={{
@@ -248,7 +316,8 @@ function MainCalendar() {
                     key={event.id}
                     className="schedule-list-item"
                     type="button"
-                    onClick={() => openEditModal(event)}
+                    onClick={() => canEdit && openEditModal(event)}
+                    style={{ cursor: canEdit ? "pointer" : "default" }}
                   >
                     <span className="schedule-list-item-title">
                       {event.title}
@@ -266,18 +335,22 @@ function MainCalendar() {
               )}
             </div>
 
-            <button
-              className="schedule-list-add-btn"
-              type="button"
-              onClick={() => openAddModal(selectedDate)}
-            >
-              일정 등록
-            </button>
+            {/* 임원진만 등록 버튼 표시 */}
+            {canEdit && (
+              <button
+                className="schedule-list-add-btn"
+                type="button"
+                onClick={() => openAddModal(selectedDate)}
+              >
+                일정 등록
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {isModalOpen && (
+      {/* 임원진만 등록/수정 모달 열 수 있음 */}
+      {isModalOpen && canEdit && (
         <div className="schedule-modal-overlay">
           <div className="schedule-modal">
             <h2 className="schedule-modal-title">

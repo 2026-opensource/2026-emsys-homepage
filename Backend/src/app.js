@@ -49,7 +49,6 @@ app.use("/api/finance", financeRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/upload", uploadRoutes);
 
-
 // 에러 처리 미들웨어는 항상 마지막에 배치
 app.use(errorMiddleware);
 
