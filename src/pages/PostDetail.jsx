@@ -2,41 +2,30 @@ import { useState } from "react";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+
 import "../styles/post-detail.css";
 import "../styles/board.css";
 
 function PostDetail() {
-  // =========================
-  // 좋아요 / 싫어요 상태
-  // =========================
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [message, setMessage] = useState("");
-
   const [commentOpen, setCommentOpen] = useState(false);
 
-  // =========================
-  // 좋아요 클릭
-  // =========================
   const handleLike = () => {
     if (dislike) {
       setMessage("이미 싫어요를 누른 상태에서는 좋아요를 누를 수 없습니다.");
       return;
     }
-
     setLike(!like);
     if (like) setMessage("");
   };
 
-  // =========================
-  // 싫어요 클릭
-  // =========================
   const handleDislike = () => {
     if (like) {
       setMessage("이미 좋아요를 누른 상태에서는 싫어요를 누를 수 없습니다.");
       return;
     }
-
     setDislike(!dislike);
     if (dislike) setMessage("");
   };
@@ -47,10 +36,9 @@ function PostDetail() {
 
       <main className="board-page">
         <div className="detail-container">
-          {/* =========================
-              상단
-          ========================= */}
+          {/* 1. 상단 (목록으로, 수정/삭제 버튼) */}
           <div className="detail-top-area">
+            {/* 자료실은 자료실, 커뮤니티는 커뮤니티로 돌아가게 해야 함*/}
             <a href="/community" className="back-link">
               &lt; 목록으로
             </a>
@@ -61,9 +49,7 @@ function PostDetail() {
             </div>
           </div>
 
-          {/* =========================
-              제목
-          ========================= */}
+          {/* 2. 제목 및 정보 */}
           <section className="detail-header">
             <div className="title-line"></div>
 
@@ -71,9 +57,7 @@ function PostDetail() {
               <div className="board-category">자유</div>
 
               <div className="detail-title-content">
-                <h1 className="detail-title">
-                  게시글 제목입니다. 목이 도대체 왜
-                </h1>
+                <h1 className="detail-title">게시글 제목입니다.</h1>
                 <p className="detail-info">
                   홍길동 · 작성일 2026.05.10 · 조회수 6
                 </p>
@@ -81,16 +65,12 @@ function PostDetail() {
             </div>
           </section>
 
-          {/* =========================
-              본문
-          ========================= */}
+          {/* 3. 게시글 본문 */}
           <section className="detail-content">
             <p>작성된 게시글 내용은 이렇게 보이게 될 것.</p>
           </section>
 
-          {/* =========================
-              좋아요 / 싫어요
-          ========================= */}
+          {/* 4. 피드백 (좋아요 / 싫어요) */}
           <section className="reaction-section">
             <button
               className={`reaction-btn ${like ? "active" : ""}`}
@@ -109,12 +89,9 @@ function PostDetail() {
 
           <p className="reaction-message">{message}</p>
 
-          {/* =========================
-          💬 댓글
-          ========================= */}
-
+          {/* 5. 댓글 영역 */}
           <div className="comment-wrapper">
-            {/* 바깥 클릭 감지용 배경 */}
+            {/* 오버레이 (바깥 클릭 시 닫힘) */}
             {commentOpen && (
               <div
                 className="comment-overlay"
@@ -122,7 +99,7 @@ function PostDetail() {
               ></div>
             )}
 
-            {/* 펼쳐지는 댓글창 */}
+            {/* 활성화 시 펼쳐지는 댓글창 */}
             <div
               className={`comment-expand ${commentOpen ? "open" : ""}`}
               onClick={(e) => e.stopPropagation()}
@@ -135,7 +112,6 @@ function PostDetail() {
                     <p className="comment-writer">24000</p>
                     <p className="comment-text">첫 번째 댓글</p>
                   </div>
-
                   <div className="comment-actions">
                     <button className="comment-edit-btn">수정</button>
                     <button className="comment-delete-btn">삭제</button>
@@ -147,7 +123,6 @@ function PostDetail() {
                     <p className="comment-writer">테스트</p>
                     <p className="comment-text">두 번째 댓글</p>
                   </div>
-
                   <div className="comment-actions">
                     <button className="comment-edit-btn">수정</button>
                     <button className="comment-delete-btn">삭제</button>
@@ -161,7 +136,6 @@ function PostDetail() {
                   className="comment-input"
                   placeholder="댓글을 입력하세요..."
                 />
-
                 <button className="comment-submit-btn">➤</button>
               </div>
             </div>
