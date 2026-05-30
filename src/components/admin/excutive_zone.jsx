@@ -103,8 +103,8 @@ const ExecutiveTeamRoster = () => {
 
   return (
     <div className="admin-box executive-roster">
-      <div className="section-header">
-        <h2 className="box-title">
+      <div className="admin-section-header">
+        <h2 className="admin-box-title">
           <i className="fa-regular fa-address-card"></i> 임원 임명
         </h2>
       </div>

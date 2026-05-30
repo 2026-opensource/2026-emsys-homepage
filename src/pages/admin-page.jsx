@@ -16,6 +16,9 @@ const AdminPage = () => {
     const [postCategory, setPostCategory] = useState('');
     const [postSearch, setPostSearch] = useState('');
 
+    // 부원 검색
+    const [memberSearch, setMemberSearch] = useState('');
+
     const [availableMembers, setAvailableMembers] = useState([]);//부원 목록
 
     const [basketMembers, setBasketMembers] = useState([]);
@@ -43,9 +46,13 @@ const AdminPage = () => {
 
     const filteredPosts = posts.filter(p => {
         const matchCategory = !postCategory || p.category === postCategory;
-        const matchSearch = !postSearch || p.title.includes(postSearch) || p.author.includes(postSearch);
+        const matchSearch = !postSearch || p.title?.includes(postSearch) || p.users?.name?.includes(postSearch);
         return matchCategory && matchSearch;
     });
+
+    const filteredMembers = availableMembers.filter(m =>
+        !memberSearch || m.name.includes(memberSearch)
+    );
 
     const moveToBasket = (member) => {
         setAvailableMembers(availableMembers.filter(m => m.id !== member.id));
@@ -133,8 +140,8 @@ const AdminPage = () => {
                 <div className="admin-grid">
 
                     <div className="left-section admin-box">
-                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 className="box-title">{showFinance ? '회계 지출 통계' : '게시글 관리'}</h2>
+                        <div className="admin-section-header" >
+                            <h2 className="admin-box-title">{showFinance ? '회계 지출 통계' : '게시글 관리'}</h2>
                             <button
                                 className="status-badge mint"
                                 style={{ border: 'none', cursor: 'pointer', padding: '5px 10px' }}
@@ -148,9 +155,9 @@ const AdminPage = () => {
                             <FinanceStats />
                         ) : (
                             <>
-                                <div className="post-controls-row">
+                                <div className="admin-post-controls-row">
                                     <select
-                                        className="form-control board-category-select"
+                                        className="form-control admin-board-category-select"
                                         value={postCategory}
                                         onChange={(e) => setPostCategory(e.target.value)}
                                     >
@@ -160,20 +167,22 @@ const AdminPage = () => {
                                         <option value="공지">공지</option>
                                     </select>
 
-                                    <div className="input-group board-search-input">
+                                    <div className="input-group admin-board-search-input">
                                         <div className="modal-search-input-group">
                                             <input
                                                 type="text"
                                                 className="search-input"
                                                 placeholder="게시글 검색"
+                                                value={postSearch}
+                                                onChange={(e) => setPostSearch(e.target.value)}
                                             />
-                                            <button className="search-btn" type="button">
+                                            <button className="admin-search-btn" type="button">
                                                 <i className="fa-solid fa-magnifying-glass"></i>
                                             </button>
                                         </div>
                                     </div>
 
-                                    <button className="btn-danger" onClick={deletePosts}>
+                                    <button className="btn-danger btn-delete" onClick={deletePosts}>
                                         선택 삭제
                                     </button>
                                 </div>
@@ -190,14 +199,14 @@ const AdminPage = () => {
                                                     onChange={() => togglePostSelect(post.id)}
                                                 />
                                                 <div className="post-category">{post.category}</div>
-                                                <div className="post-content">
+                                                <div className="admin-post-content">
                                                     
                                                     <div className="post-text-group">
                                                         <h3>{post.title}</h3>
                                                         <p className="post-info"> {post.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
                                                     </div>
 
-                                                    <div className="post-stats">
+                                                    <div className="admin-post-stats">
                                                     <div>조회수 {post.view_count ||0}</div>
                                                     <div>좋아요 {post._count.post_likes || 0}</div>
                                                     <div>댓글 {post._count.comments || 0}</div>
@@ -216,8 +225,8 @@ const AdminPage = () => {
 
                         <div className="admin-box user-transfer-box">
                             <div className="user-box-header">
-                                <div className="section-header">
-                                    <h2 className="box-title">부원 목록</h2>
+                                <div className="admin-section-header">
+                                    <h2 className="admin-box-title">부원 목록</h2>
                                 </div>
                             </div>
 
@@ -226,6 +235,8 @@ const AdminPage = () => {
                                     type="text"
                                     className="search-input"
                                     placeholder="부원 이름 검색..."
+                                    value={memberSearch}
+                                    onChange={(e) => setMemberSearch(e.target.value)}
                                 />
                                 <button className="search-btn" type="button">
                                     <i className="fa-solid fa-magnifying-glass"></i>
@@ -236,7 +247,7 @@ const AdminPage = () => {
                                 <div className="available-members-view">
                                     <ul className="member-ul">
                                         {availableMembers.length === 0 && <p className="empty-text">대기 중인 회원이 없습니다.</p>}
-                                        {availableMembers.map(member => (
+                                        {filteredMembers.map(member => (
                                             <li key={member.id} onDoubleClick={() => moveToBasket(member)} className="member-item">
                                                 <span>{member.name}</span>
                                                 <span className={`status-badge ${member.status === '졸업' ? 'gray' : 'mint'}`}>
