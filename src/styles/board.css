@@ -172,10 +172,17 @@ a:active {
   background-color: var(--border-color);
 }
 
+/* 버튼이나 입력창에 클릭 시 테두리, 파란 그림자 제거 */
+.board-link:focus,
+.page-btn:focus,
+.write-btn:focus,
+.search-btn:focus,
 .search-input:focus,
 .board-category-select:focus {
+  outline: none;
   box-shadow: none !important;
 }
+
 
 /*------
 본문 요소

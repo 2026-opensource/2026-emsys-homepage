@@ -5,12 +5,13 @@ import Footer from "../layout/Footer";
 
 import "../layout/common.css";
 import "../styles/board.css";
+import { Link } from "react-router-dom";
 
 function Community() {
   // 더미 데이터
   const dummyPosts = Array.from({ length: 100 }, (_, index) => ({
     id: index + 1,
-    category: ["자유", "공지사항", "팀원 모집"][index % 3],
+    category: ["자유", "질문", "공지사항", "팀원 모집"][index % 4],
     title: `테스트 게시글 ${index + 1}`,
     content: "테스트 내용입니다",
     author: "테스터",
@@ -66,11 +67,9 @@ function Community() {
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
               {/* 글쓰기 */}
-              <a href="/post-write">
-                <button type="button" className="write-btn">
-                  글쓰기
-                </button>
-              </a>
+              <Link to="/post-write">
+                <button className="write-button btn btn-default">글쓰기</button>
+              </Link>
 
               {/* 검색 영역 */}
               <div className="board-search-area">
@@ -84,6 +83,7 @@ function Community() {
                 >
                   <option>전체</option>
                   <option>자유</option>
+                  <option>질문</option>
                   <option>공지사항</option>
                   <option>팀원 모집</option>
                 </select>
