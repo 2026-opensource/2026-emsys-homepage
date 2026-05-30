@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 20px 15px;
+  padding: 5px 15px;
   background-color: var(--border-color);
   border-radius: 10px;
   transition: all 0.2s;
@@ -143,7 +143,7 @@
   cursor: pointer;
 }
 
-.post-content {
+.admin-post-content {
   display: flex;
   padding: 15px 0 15px 15px;
   align-items: center;  
@@ -189,8 +189,7 @@
 }
 
 .admin-post-stats {
-  font-size: 10px;
-  display:flex;
+  font-size: 12px;
   gap:10px;
 }
 
@@ -486,8 +485,9 @@
 
 /* 반응형 */
 @container post-box (max-width: 500px) {
-  .post-content {
+  .admin-post-content {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .post-category {
@@ -504,10 +504,9 @@
   }
 
   .admin-post-stats {
-    width: 100%;
-    display: flex;
     gap: 6px;
     font-size: 9px;
+    display: flex; 
   }
 
   .admin-post-controls-row {
@@ -608,10 +607,11 @@
       align-items: center;
     }
 
-  .post-content {
+  .admin-post-content {
       display: flex;
       gap:0;
       flex-direction: column;
+      align-items: flex-start;
   }
 
   .post-category {
@@ -637,10 +637,9 @@
   }
 
   .admin-post-stats {
-      width: 100%;
       gap:10px;
-      display:flex;
       font-size: 10px;
+      display: flex; 
   }
 
   .left-section.admin-box {

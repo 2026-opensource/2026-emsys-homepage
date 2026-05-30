@@ -207,10 +207,10 @@ const AdminPage = () => {
                                                     </div>
 
                                                     <div className="admin-post-stats">
-                                                    <div>조회수 {post.view_count ||0}</div>
-                                                    <div>좋아요 {post._count.post_likes || 0}</div>
-                                                    <div>댓글 {post._count.comments || 0}</div>
-                                                </div>
+                                                        <div>조회수 {post.view_count ||0}</div>
+                                                        <div>좋아요 {post._count.post_likes || 0}</div>
+                                                        <div>댓글 {post._count.comments || 0}</div>
+                                                    </div>
                                                 </div>
                                                 
                                             </div>

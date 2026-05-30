@@ -15,7 +15,7 @@ const DangerZone = () => {
   );
 
   const handleSelectMember = (member) => {
-    setSelecteMember(member);
+    setSelectedMember(member);
     setSearchTerm('');
     setIsDropdownOpen(false);
   };
