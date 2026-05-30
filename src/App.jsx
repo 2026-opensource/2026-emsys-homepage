@@ -10,7 +10,7 @@ import Signup from "./pages/Signup";
 import FindAccount from "./pages/FindAccount";
 import ChangePassword from "./pages/ChangePassword";
 
-import AdminPage from "./pages/Admin-page";
+import AdminPage from "./pages/AdminPage";
 import PostDetail from "./pages/PostDetail";
 import PostWrite from "./pages/PostWrite";
 import Gallery from "./pages/Gallery";
@@ -40,7 +40,6 @@ function App() {
         <Route path="/change-password" element={<ChangePassword />} />
 
 
-        <Route path="/admin-page" element={<AdminPage />} />
         <Route path="/community/write" element={<PostWrite />} />
         <Route path="/resources/write" element={<PostWrite />} />
         <Route path="/gallery/write" element={<PostWrite />} />
