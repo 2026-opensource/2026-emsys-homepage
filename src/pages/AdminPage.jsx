@@ -70,11 +70,11 @@ const AdminPage = () => {
     };
 
     const filteredPosts = posts.filter(p => {
-        const archiveCategories = ['스터디', '대회/공모전', '과제/프로젝트', '수업'];
+        const archiveCategories = ['study', 'contest', 'project', 'class'];
         const matchCategory = !postCategory ||
             (postCategory === 'ARCHIVE' ? p.board_type === 'ARCHIVE' :
-            archiveCategories.includes(postCategory) ? p.board_type === 'ARCHIVE' && p.category === postCategory :
-            p.category === postCategory);
+                archiveCategories.includes(postCategory) ? p.board_type === 'ARCHIVE' && p.category === postCategory :
+                    p.category === postCategory);
         const matchSearch = !postSearch || p.title?.includes(postSearch) || p.users?.name?.includes(postSearch);
         return matchCategory && matchSearch;
     });
@@ -190,6 +190,20 @@ const AdminPage = () => {
         loadInitialData();
     }, []); // 딱 한번 실행되도록 빈 배열을 넣음
 
+    // 카테고리 key를 화면에 보여줄 한글로 변환
+    function getCategoryText(category) {
+        if (category === "notice") return "공지사항";
+        if (category === "free") return "자유";
+        if (category === "qna") return "질문";
+        if (category === "recruit") return "팀원 모집";
+        if (category === "study") return "스터디";
+        if (category === "project") return "과제/프로젝트";
+        if (category === "contest") return "대회/공모전";
+        if (category === "class") return "수업";
+        if (category === "event") return "행사";
+        return category;
+    }
+
     // 데이터를 가져오는 동안 보여줄 로딩 화면
     if (isLoading) {
         return <div style={{ textAlign: 'center', padding: '50px' }}>데이터를 불러오는 중입니다...</div>;
@@ -200,202 +214,202 @@ const AdminPage = () => {
         <>
             <Navbar />
             <div className="admin-page">
-            <div className="admin-main">
-                <div className="admin-grid">
+                <div className="admin-main">
+                    <div className="admin-grid">
 
-                    <div className="left-section admin-box">
-                        <div className="admin-section-header" >
-                            <h2 className="admin-box-title">{showFinance ? '회계 지출 통계' : '게시글 관리'}</h2>
-                            <button
-                                className="status-badge mint"
-                                style={{ border: 'none', cursor: 'pointer', padding: '5px 10px' }}
-                                onClick={() => setShowFinance(!showFinance)}
-                            >
-                                {showFinance ? '게시글 관리 보기' : '회계 통계 보기'}
-                            </button>
-                        </div>
-
-                        {showFinance ? (
-                            <FinanceStats />
-                        ) : (
-                            <>
-                                <div className="admin-post-controls-row">
-                                    <select
-                                        className="form-control admin-board-category-select"
-                                        value={postCategory}
-                                        onChange={(e) => setPostCategory(e.target.value)}
-                                    >
-                                        <option value="">전체</option>
-                                        <option value="공지사항">공지사항</option>
-                                        <option value="자유">자유</option>
-                                        <option value="질문">질문</option>
-                                        <option value="팀원 모집">팀원 모집</option>
-                                        <option value="ARCHIVE">자료실 전체</option>
-                                        <option value="스터디">스터디</option>
-                                        <option value="대회/공모전">대회/공모전</option>
-                                        <option value="과제/프로젝트">과제/프로젝트</option>
-                                        <option value="수업">수업</option>
-                                    </select>
-
-                                    <div className="input-group admin-board-search-input">
-                                        <div className="modal-search-input-group">
-                                            <input
-                                                type="text"
-                                                className="search-input"
-                                                placeholder="게시글 검색"
-                                                value={postSearch}
-                                                onChange={(e) => setPostSearch(e.target.value)}
-                                            />
-                                            <button className="admin-search-btn" type="button">
-                                                <i className="fa-solid fa-magnifying-glass"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <button className="btn-danger btn-delete" onClick={deletePosts}>
-                                        선택 삭제
-                                    </button>
-                                </div>
-
-                                <div className="post-list">
-                                    {filteredPosts.length === 0 ? (
-                                        <p style={{ textAlign: 'center', padding: '20px', color: '#888' }}>조건에 맞는 게시글이 없습니다.</p>
-                                    ) : (
-                                        filteredPosts.map(post => (
-                                            <div key={post.id} className="post-item" onClick={() => goToPostDetail(post.id)} style={{ cursor: 'pointer' }}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedPosts.includes(post.id)}
-                                                    onChange={() => togglePostSelect(post.id)}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                />
-                                                <div className="post-category">{post.category}</div>
-                                                <div className="admin-post-content">
-
-                                                    <div className="post-text-group">
-                                                        <h3>
-                                                            {post.title}
-                                                        </h3>
-                                                        <p className="post-info"> {post.users.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
-                                                    </div>
-
-                                                    <div className="admin-post-stats">
-                                                        <div>조회수 {post.view_count || 0}</div>
-                                                        <div>좋아요 {post._count.post_likes || 0}</div>
-                                                        <div>댓글 {post._count.comments || 0}</div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <div className={`right-section-wrapper ${isBasketOpen ? 'open' : ''}`}>
-
-                        <div className="admin-box user-transfer-box">
-                            <div className="user-box-header">
-                                <div className="admin-section-header">
-                                    <h2 className="admin-box-title">부원 목록</h2>
-                                </div>
-                            </div>
-
-                            <div className="modal-search-input-group">
-                                <input
-                                    type="text"
-                                    className="search-input"
-                                    placeholder="부원 이름 검색..."
-                                    value={memberSearch}
-                                    onChange={(e) => setMemberSearch(e.target.value)}
-                                />
-                                <button className="search-btn" type="button">
-                                    <i className="fa-solid fa-magnifying-glass"></i>
+                        <div className="left-section admin-box">
+                            <div className="admin-section-header" >
+                                <h2 className="admin-box-title">{showFinance ? '회계 지출 통계' : '게시글 관리'}</h2>
+                                <button
+                                    className="status-badge mint"
+                                    style={{ border: 'none', cursor: 'pointer', padding: '5px 10px' }}
+                                    onClick={() => setShowFinance(!showFinance)}
+                                >
+                                    {showFinance ? '게시글 관리 보기' : '회계 통계 보기'}
                                 </button>
                             </div>
 
-                            <div className="user-box-content">
-                                <div className="available-members-view">
-                                    <ul className="member-ul">
-                                        {availableMembers.length === 0 && <p className="empty-text">대기 중인 회원이 없습니다.</p>}
-                                        {filteredMembers.map(member => (
-                                            <li key={member.id} onDoubleClick={() => moveToBasket(member)} className="member-item">
-                                                <span>{member.name}</span>
-                                                <span className={`status-badge ${member.status === '졸업' ? 'gray' : 'mint'}`}>
-                                                    {member.status}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                            {showFinance ? (
+                                <FinanceStats />
+                            ) : (
+                                <>
+                                    <div className="admin-post-controls-row">
+                                        <select
+                                            className="form-control admin-board-category-select"
+                                            value={postCategory}
+                                            onChange={(e) => setPostCategory(e.target.value)}
+                                        >
+                                            <option value="">전체</option>
+                                            <option value="notice">공지사항</option>
+                                            <option value="free">자유</option>
+                                            <option value="qna">질문</option>
+                                            <option value="recurit">팀원 모집</option>
+                                            <option value="study">스터디</option>
+                                            <option value="project">과제/프로젝트</option>
+                                            <option value="contest">대회/공모전</option>
+                                            <option value="class">수업</option>
+                                            <option value="event">행사</option>
+                                        </select>
 
-                        <div className="admin-box basket-drawer-box">
-                            <div className="user-box-header">
-                                <div className="basket-section-header">
-                                    <h2 className="basket-title">
-                                        선택된 부원
-                                    </h2>
-                                    {basketMembers.length > 0 && (
-                                        <button className="reset-basket-btn" onClick={handleResetBasket} title="비우기">
-                                            <i className="fa-solid fa-arrow-rotate-left"></i>
+                                        <div className="input-group admin-board-search-input">
+                                            <div className="modal-search-input-group">
+                                                <input
+                                                    type="text"
+                                                    className="search-input"
+                                                    placeholder="게시글 검색"
+                                                    value={postSearch}
+                                                    onChange={(e) => setPostSearch(e.target.value)}
+                                                />
+                                                <button className="admin-search-btn" type="button">
+                                                    <i className="fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <button className="btn-danger btn-delete" onClick={deletePosts}>
+                                            선택 삭제
                                         </button>
-                                    )}
-                                </div>
+                                    </div>
 
-                                <div className="user-controls-row">
-                                    <select className="status-select" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
-                                        <option value="">상태 선택</option>
-                                        <option value="재학생">재학</option>
-                                        <option value="휴학생">휴학</option>
-                                        <option value="졸업생">졸업</option>
-                                    </select>
-                                    <button onClick={handleBatchUpdate} className="btn-apply">적용</button>
-                                    <button onClick={handleBatchDelete} className="btn-delete">탈퇴</button>
-                                </div>
-                            </div>
+                                    <div className="post-list">
+                                        {filteredPosts.length === 0 ? (
+                                            <p style={{ textAlign: 'center', padding: '20px', color: '#888' }}>조건에 맞는 게시글이 없습니다.</p>
+                                        ) : (
+                                            filteredPosts.map(post => (
+                                                <div key={post.id} className="post-item" onClick={() => goToPostDetail(post.id)} style={{ cursor: 'pointer' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedPosts.includes(post.id)}
+                                                        onChange={() => togglePostSelect(post.id)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                    <div className="post-category">{getCategoryText(post.category)}</div>
+                                                    <div className="admin-post-content">
 
-                            <div className="user-box-content">
-                                <div className="basket-members-view">
-                                    <ul className="member-ul">
-                                        {basketMembers.length === 0 && <p className="empty-text">더블클릭하여 담기</p>}
-                                        {basketMembers.map(member => (
-                                            <li key={member.id} onDoubleClick={() => moveToList(member)} className="member-item">
-                                                <span>{member.name} <span>({member.status})</span></span>
-                                                <button onClick={() => moveToList(member)} className="remove-btn">✕</button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
+                                                        <div className="post-text-group">
+                                                            <h3>
+                                                                {post.title}
+                                                            </h3>
+                                                            <p className="post-info"> {post.users.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
+                                                        </div>
+
+                                                        <div className="admin-post-stats">
+                                                            <div>조회수 {post.view_count || 0}</div>
+                                                            <div>좋아요 {post._count.post_likes || 0}</div>
+                                                            <div>댓글 {post._count.comments || 0}</div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
 
-                        <button
-                            className="drawer-toggle-btn"
-                            onClick={() => setIsBasketOpen(!isBasketOpen)}
-                        >
-                            {isBasketOpen ? <i className="fa-solid fa-angle-left"></i> : <i className="fa-solid fa-angle-right"></i>}
-                        </button>
-                    </div>
+                        <div className={`right-section-wrapper ${isBasketOpen ? 'open' : ''}`}>
 
+                            <div className="admin-box user-transfer-box">
+                                <div className="user-box-header">
+                                    <div className="admin-section-header">
+                                        <h2 className="admin-box-title">부원 목록</h2>
+                                    </div>
+                                </div>
+
+                                <div className="modal-search-input-group">
+                                    <input
+                                        type="text"
+                                        className="search-input"
+                                        placeholder="부원 이름 검색..."
+                                        value={memberSearch}
+                                        onChange={(e) => setMemberSearch(e.target.value)}
+                                    />
+                                    <button className="search-btn" type="button">
+                                        <i className="fa-solid fa-magnifying-glass"></i>
+                                    </button>
+                                </div>
+
+                                <div className="user-box-content">
+                                    <div className="available-members-view">
+                                        <ul className="member-ul">
+                                            {availableMembers.length === 0 && <p className="empty-text">대기 중인 회원이 없습니다.</p>}
+                                            {filteredMembers.map(member => (
+                                                <li key={member.id} onDoubleClick={() => moveToBasket(member)} className="member-item">
+                                                    <span>{member.name}</span>
+                                                    <span className={`status-badge ${member.status === '졸업' ? 'gray' : 'mint'}`}>
+                                                        {member.status}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="admin-box basket-drawer-box">
+                                <div className="user-box-header">
+                                    <div className="basket-section-header">
+                                        <h2 className="basket-title">
+                                            선택된 부원
+                                        </h2>
+                                        {basketMembers.length > 0 && (
+                                            <button className="reset-basket-btn" onClick={handleResetBasket} title="비우기">
+                                                <i className="fa-solid fa-arrow-rotate-left"></i>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="user-controls-row">
+                                        <select className="status-select" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+                                            <option value="">상태 선택</option>
+                                            <option value="재학생">재학</option>
+                                            <option value="휴학생">휴학</option>
+                                            <option value="졸업생">졸업</option>
+                                        </select>
+                                        <button onClick={handleBatchUpdate} className="btn-apply">적용</button>
+                                        <button onClick={handleBatchDelete} className="btn-delete">탈퇴</button>
+                                    </div>
+                                </div>
+
+                                <div className="user-box-content">
+                                    <div className="basket-members-view">
+                                        <ul className="member-ul">
+                                            {basketMembers.length === 0 && <p className="empty-text">더블클릭하여 담기</p>}
+                                            {basketMembers.map(member => (
+                                                <li key={member.id} onDoubleClick={() => moveToList(member)} className="member-item">
+                                                    <span>{member.name} <span>({member.status})</span></span>
+                                                    <button onClick={() => moveToList(member)} className="remove-btn">✕</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                className="drawer-toggle-btn"
+                                onClick={() => setIsBasketOpen(!isBasketOpen)}
+                            >
+                                {isBasketOpen ? <i className="fa-solid fa-angle-left"></i> : <i className="fa-solid fa-angle-right"></i>}
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
+
+                {role === 'PRESIDENT' && (
+                    <div className="admin-bottom-grid">
+                        <div className="bottom-grid-left">
+                            <ExecutiveZone />
+                        </div>
+                        <div className="bottom-grid-right">
+                            <DangerZone />
+                        </div>
+                    </div>
+                )}
+
             </div>
-
-            {role === 'PRESIDENT' && (
-                <div className="admin-bottom-grid">
-                    <div className="bottom-grid-left">
-                        <ExecutiveZone />
-                    </div>
-                    <div className="bottom-grid-right">
-                        <DangerZone />
-                    </div>
-                </div>
-            )}
-
-        </div>
             <Footer />
         </>
     );

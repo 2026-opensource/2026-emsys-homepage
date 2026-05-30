@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getToken } from "../utils/token";
 
 // 백엔드 기본 주소 (프론트와 포트가 다르다면 백엔드가 켜진 5000번 포트를 적습니다)
-const BASE_URL = 'http://172.30.64.239:5000/api'; 
+const BASE_URL = 'http://172.27.64.84:5000/api'; 
 
 const authHeaders = () => ({
     headers: {
