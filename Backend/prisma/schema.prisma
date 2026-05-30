@@ -38,6 +38,7 @@ model finances {
   item_name   String?   @db.VarChar(255)
   amount      Int?
   category    String?   @db.VarChar(255)
+  semester    String?   @db.VarChar(20)
   uploaded_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
 }
 

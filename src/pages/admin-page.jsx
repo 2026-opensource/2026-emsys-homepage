@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/AdminPage.css';
-import { fetchMembers, fetchPosts, fetchExecutives } from '../api/adminAPI.js';
+import Navbar from '../layout/Nav';
+import Footer from '../layout/Footer';
+import { useNavigate } from 'react-router-dom';
+import '../layout/common.css';
+import '../styles/adminPage.css';
+import { getUserRole } from "../utils/token"
+import { fetchMembers, fetchPosts, fetchExecutives, deletePost, updateUsersStatus, withdrawUsers } from '../api/adminAPI.js';
 import DangerZone from '../components/admin/danger_zone.jsx';
 import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
 
 const AdminPage = () => {
+    const navigate = useNavigate();
     const [showFinance, setShowFinance] = useState(false);
 
     //전체 게시글
@@ -26,6 +32,8 @@ const AdminPage = () => {
     const [isBasketOpen, setIsBasketOpen] = useState(false);
 
 
+    const role = getUserRole();
+
     // 동작 실행 함수들
     const togglePostSelect = (postId) => {
         setSelectedPosts(prev =>
@@ -33,19 +41,40 @@ const AdminPage = () => {
         );
     };
 
-    const deletePosts = () => {
+    const deletePosts = async () => {
         if (selectedPosts.length === 0) {
             alert('삭제할 게시글을 하나 이상 선택해주세요.');
             return;
         }
-        if (window.confirm(`선택한 ${selectedPosts.length}개의 게시글을 삭제하시겠습니까?`)) {
+        if (!window.confirm(`선택한 ${selectedPosts.length}개의 게시글을 삭제하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            // 선택된 게시글 전부 순서대로 삭제 요청
+            await Promise.all(selectedPosts.map(postId => deletePost(postId)));
+
+            // 성공하면 로컬 state에서도 제거
             setPosts(prev => prev.filter(p => !selectedPosts.includes(p.id)));
             setSelectedPosts([]);
+            alert(`${selectedPosts.length}개의 게시글이 삭제되었습니다.`);
+        } catch (error) {
+            console.error('게시글 삭제 중 오류:', error);
+            alert('일부 게시글 삭제에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
+    // 게시글 상세보기로 이동
+    const goToPostDetail = (postId) => {
+        navigate(`/post-detail?id=${postId}`);
+    };
+
     const filteredPosts = posts.filter(p => {
-        const matchCategory = !postCategory || p.category === postCategory;
+        const archiveCategories = ['스터디', '대회/공모전', '과제/프로젝트', '수업'];
+        const matchCategory = !postCategory ||
+            (postCategory === 'ARCHIVE' ? p.board_type === 'ARCHIVE' :
+            archiveCategories.includes(postCategory) ? p.board_type === 'ARCHIVE' && p.category === postCategory :
+            p.category === postCategory);
         const matchSearch = !postSearch || p.title?.includes(postSearch) || p.users?.name?.includes(postSearch);
         return matchCategory && matchSearch;
     });
@@ -65,30 +94,63 @@ const AdminPage = () => {
         setAvailableMembers([...availableMembers, member]);
     };
 
-    const handleBatchUpdate = () => {
+    const handleBatchUpdate = async () => {
         if (basketMembers.length === 0) return alert('바구니에 회원을 먼저 담아주세요!');
         if (!selectedStatus) return alert('변경할 상태를 선택해주세요.');
 
-        const updatedBasket = basketMembers.map(member => ({
-            ...member,
-            status: selectedStatus
-        }));
+        try {
+            const userIds = basketMembers.map(m => Number(m.id));
+            await updateUsersStatus(userIds, selectedStatus);
 
-        setAvailableMembers(prev => [...prev, ...updatedBasket]);
+            // 성공하면 로컬 state도 반영
+            const updatedBasket = basketMembers.map(member => ({
+                ...member,
+                status: selectedStatus
+            }));
+            setAvailableMembers(prev => [...prev, ...updatedBasket]);
 
-        alert(`바구니에 담긴 ${basketMembers.length}명의 상태를 '${selectedStatus}'(으)로 일괄 변경합니다!`);
-        setBasketMembers([]);
-        setSelectedStatus('');
-        setIsBasketOpen(false);
-    };
-
-    const handleBatchDelete = () => {
-        if (basketMembers.length === 0) return alert('바구니에 탈퇴시킬 회원을 담아주세요!');
-        if (window.confirm(`정말 바구니에 있는 ${basketMembers.length}명을 일괄 탈퇴 처리하시겠습니까?`)) {
-            alert('일괄 탈퇴가 완료되었습니다.');
+            alert(`${basketMembers.length}명의 상태를 '${selectedStatus}'(으)로 변경했습니다.`);
             setBasketMembers([]);
             setSelectedStatus('');
             setIsBasketOpen(false);
+        } catch (error) {
+            console.error('상태 변경 중 오류:', error);
+            alert('상태 변경에 실패했습니다. 다시 시도해주세요.');
+        }
+    };
+
+    const handleBatchDelete = async () => {
+        if (basketMembers.length === 0) return alert('바구니에 탈퇴시킬 회원을 담아주세요!');
+
+        const hasPrivileged = basketMembers.some(m => m.role === 'OFFICER' || m.role === 'PRESIDENT');
+        if (hasPrivileged) {
+            return alert('임원 또는 회장은 탈퇴 처리할 수 없습니다. 먼저 해임 후 탈퇴 처리해주세요.');
+        }
+
+        if (!window.confirm(`정말 바구니에 있는 ${basketMembers.length}명을 일괄 탈퇴 처리하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            const userIds = basketMembers.map(m => Number(m.id));
+            const allowedReasons = ['자진 탈퇴', '제명', '동아리 이동', '기타'];
+            const reason = prompt(
+                '탈퇴 사유를 입력하세요. (' + allowedReasons.join(', ') + ')'
+            );
+            if (reason === null) return;
+            if (!allowedReasons.includes(reason)) {
+                return alert('탈퇴 사유는 자진 탈퇴, 제명, 동아리 이동, 기타 중 하나여야 합니다.');
+            }
+            await withdrawUsers(userIds, reason);
+
+            setAvailableMembers(prev => prev.filter(m => !userIds.includes(m.id)));
+            setBasketMembers([]);
+            setSelectedStatus('');
+            setIsBasketOpen(false);
+            alert('일괄 탈퇴가 완료되었습니다.');
+        } catch (error) {
+            console.error('탈퇴 처리 오류:', error);
+            alert('탈퇴 처리에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
@@ -135,7 +197,9 @@ const AdminPage = () => {
 
 
     return (
-        <div className="admin-page">
+        <>
+            <Navbar />
+            <div className="admin-page">
             <div className="admin-main">
                 <div className="admin-grid">
 
@@ -161,10 +225,16 @@ const AdminPage = () => {
                                         value={postCategory}
                                         onChange={(e) => setPostCategory(e.target.value)}
                                     >
-                                        <option value="">카테고리</option>
+                                        <option value="">전체</option>
+                                        <option value="공지사항">공지사항</option>
                                         <option value="자유">자유</option>
                                         <option value="질문">질문</option>
-                                        <option value="공지">공지</option>
+                                        <option value="팀원 모집">팀원 모집</option>
+                                        <option value="ARCHIVE">자료실 전체</option>
+                                        <option value="스터디">스터디</option>
+                                        <option value="대회/공모전">대회/공모전</option>
+                                        <option value="과제/프로젝트">과제/프로젝트</option>
+                                        <option value="수업">수업</option>
                                     </select>
 
                                     <div className="input-group admin-board-search-input">
@@ -192,27 +262,30 @@ const AdminPage = () => {
                                         <p style={{ textAlign: 'center', padding: '20px', color: '#888' }}>조건에 맞는 게시글이 없습니다.</p>
                                     ) : (
                                         filteredPosts.map(post => (
-                                            <div key={post.id} className="post-item">
+                                            <div key={post.id} className="post-item" onClick={() => goToPostDetail(post.id)} style={{ cursor: 'pointer' }}>
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedPosts.includes(post.id)}
                                                     onChange={() => togglePostSelect(post.id)}
+                                                    onClick={(e) => e.stopPropagation()}
                                                 />
                                                 <div className="post-category">{post.category}</div>
                                                 <div className="admin-post-content">
-                                                    
+
                                                     <div className="post-text-group">
-                                                        <h3>{post.title}</h3>
-                                                        <p className="post-info"> {post.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
+                                                        <h3>
+                                                            {post.title}
+                                                        </h3>
+                                                        <p className="post-info"> {post.users.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
                                                     </div>
 
                                                     <div className="admin-post-stats">
-                                                        <div>조회수 {post.view_count ||0}</div>
+                                                        <div>조회수 {post.view_count || 0}</div>
                                                         <div>좋아요 {post._count.post_likes || 0}</div>
                                                         <div>댓글 {post._count.comments || 0}</div>
                                                     </div>
                                                 </div>
-                                                
+
                                             </div>
                                         ))
                                     )}
@@ -276,9 +349,9 @@ const AdminPage = () => {
                                 <div className="user-controls-row">
                                     <select className="status-select" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
                                         <option value="">상태 선택</option>
-                                        <option value="재학">재학</option>
-                                        <option value="휴학">휴학</option>
-                                        <option value="졸업">졸업</option>
+                                        <option value="재학생">재학</option>
+                                        <option value="휴학생">휴학</option>
+                                        <option value="졸업생">졸업</option>
                                     </select>
                                     <button onClick={handleBatchUpdate} className="btn-apply">적용</button>
                                     <button onClick={handleBatchDelete} className="btn-delete">탈퇴</button>
@@ -311,16 +384,20 @@ const AdminPage = () => {
                 </div>
             </div>
 
-            <div className="admin-bottom-grid">
-                <div className="bottom-grid-left">
-                    <ExecutiveZone />
+            {role === 'PRESIDENT' && (
+                <div className="admin-bottom-grid">
+                    <div className="bottom-grid-left">
+                        <ExecutiveZone />
+                    </div>
+                    <div className="bottom-grid-right">
+                        <DangerZone />
+                    </div>
                 </div>
-                <div className="bottom-grid-right">
-                    <DangerZone />
-                </div>
-            </div>
+            )}
 
         </div>
+            <Footer />
+        </>
     );
 };
 

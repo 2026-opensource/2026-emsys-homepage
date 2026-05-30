@@ -6,7 +6,7 @@ import "../styles/auth.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authApi";
-import { saveToken, isLoggedIn } from "../utils/token";
+import { saveToken, isLoggedIn, saveUserInfo } from "../utils/token";
 
 function Login() {
   const navigate = useNavigate();
@@ -58,6 +58,7 @@ function Login() {
       }
 
       saveToken(token);
+      saveUserInfo(result.data.user);
 
       alert("로그인이 완료되었습니다");
       navigate("/");

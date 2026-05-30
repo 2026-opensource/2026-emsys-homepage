@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchMembers, delegateMaster } from '../../api/adminAPI.js';
+import { getUserInfo } from '../../utils/token';
+import { removeToken, removeUserInfo } from '../../utils/token';
 import { AlertTriangle, X } from 'lucide-react';
 
 const DangerZone = () => {
+  const navigate = useNavigate();
+  const currentUser = getUserInfo();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -30,11 +35,10 @@ const DangerZone = () => {
       return alert('권한을 위임할 부원을 선택해 주세요.');
     }
 
-    const expectedText =
-    `${selectedMember.name}을 회장으로 임명`;
+    const expectedText = `${selectedMember.name}을 회장으로 임명`;
 
     const inputText = prompt(
-    `정말 권한을 위임하려면\n"${expectedText}"\n를 정확히 입력하세요.`
+      `정말 권한을 위임하려면\n"${expectedText}"\n를 정확히 입력하세요.`
     );
 
     if (inputText !== expectedText) {
@@ -46,8 +50,10 @@ const DangerZone = () => {
 
       alert(result.message);
 
-      setSelectedMember(null);
-      setSearchTerm('');
+      // 권한 위임 완료 후 토큰 삭제 후 홈으로 이동
+      removeToken();
+      removeUserInfo();
+      navigate('/');
 
     } catch (error) {
       alert(
@@ -62,7 +68,8 @@ const DangerZone = () => {
     const loadInitialData = async () => {
       try {
         const membersData = await fetchMembers();
-        setAllmembers(membersData.data || []);
+        const filtered = (membersData.data || []).filter(m => m.id !== currentUser?.id);
+        setAllmembers(filtered);
       }
       catch (error) {
         console.error("데이터를 불러오는데 실패했습니다", error);

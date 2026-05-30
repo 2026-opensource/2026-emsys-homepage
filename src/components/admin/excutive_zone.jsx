@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchMembers, fetchExecutives, appointExecutive, dismissExecutive } from '../../api/adminAPI.js';
+import { getUserInfo } from '../../utils/token';
 import '../../styles/masterSection.css';
 
 const ExecutiveTeamRoster = () => {
+
+  const currentUser = getUserInfo();
 
   // 임원 상태
   const [executives, setExecutives] = useState([]);
@@ -11,7 +14,7 @@ const ExecutiveTeamRoster = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 임원 등록을 위한 전체 부원 목록
+  // 임원 등록을 위한 전체 부원 목록 (회장 본인 제외)
   const [allMembers, setAllMembers] = useState([]);
 
   const filteredMembers = allMembers.filter(member =>
@@ -24,7 +27,6 @@ const ExecutiveTeamRoster = () => {
       const result = await fetchExecutives();
       setExecutives(result.data);
     }
-
     catch (error) {
       console.error(error);
     }
@@ -40,7 +42,6 @@ const ExecutiveTeamRoster = () => {
       await dismissExecutive(id);
       await loadExecutives();
     }
-
     catch (error) {
       console.error(error);
       alert('임원 해임 오류. 해임 실패');
@@ -64,19 +65,14 @@ const ExecutiveTeamRoster = () => {
     }
 
     try {
-      await appointExecutive(
-        member.id,
-        customRole
-      );
+      await appointExecutive(member.id, customRole);
       await loadExecutives();
       setIsModalOpen(false);
       setSearchTerm('');
     }
-
     catch (error) {
       console.error(error);
       alert('임원 임명 실패');
-
     }
   };
 
@@ -88,8 +84,12 @@ const ExecutiveTeamRoster = () => {
         const membersData = await fetchMembers();
 
         setExecutives(executiveData.data || []);
-        setAllMembers(membersData.data || []);
 
+        // 회장 본인은 목록에서 제외
+        const filtered = (membersData.data || []).filter(
+          m => m.id !== currentUser?.id
+        );
+        setAllMembers(filtered);
       }
       catch (error) {
         console.error("데이터를 불러오는데 실패했습니다.", error);
@@ -98,7 +98,7 @@ const ExecutiveTeamRoster = () => {
     };
 
     loadInitialData();
-  }, []); // 딱 한번 실행되도록 빈 배열을 넣음
+  }, []);
 
 
   return (
@@ -114,7 +114,7 @@ const ExecutiveTeamRoster = () => {
           <div key={exec.id} className="executive-card">
             <div className="executive-info">
               <h4 className="executive-name">{exec.name}</h4>
-              <p className="executive-role">{exec.role}</p>
+              <p className="executive-role">{exec.position || exec.role}</p>
             </div>
             <button
               onClick={() => handleDismiss(exec.id)}

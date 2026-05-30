@@ -6,7 +6,6 @@ async function getUsers(query) {
 
     const where = {};
 
-    // active=true 또는 active=false 필터
     if (active === "true") {
         where.is_active = true;
     }
@@ -15,19 +14,10 @@ async function getUsers(query) {
         where.is_active = false;
     }
 
-    // 이름 또는 학번 검색
     if (keyword) {
         where.OR = [
-            {
-                name: {
-                    contains: keyword,
-                },
-            },
-            {
-                student_id: {
-                    contains: keyword,
-                },
-            },
+            { name: { contains: keyword } },
+            { student_id: { contains: keyword } },
         ];
     }
 
@@ -45,9 +35,7 @@ async function getUsers(query) {
             deleted_at: true,
             created_at: true,
         },
-        orderBy: {
-            id: "asc",
-        },
+        orderBy: { id: "asc" },
     });
 
     return users;
@@ -69,19 +57,11 @@ async function updateUsersStatus(body) {
     }
 
     const result = await prisma.users.updateMany({
-        where: {
-            id: {
-                in: userIds,
-            },
-        },
-        data: {
-            status,
-        },
+        where: { id: { in: userIds } },
+        data: { status },
     });
 
-    return {
-        count: result.count,
-    };
+    return { count: result.count };
 }
 
 async function withdrawUsers(body) {
@@ -108,11 +88,7 @@ async function withdrawUsers(body) {
     }
 
     const result = await prisma.users.updateMany({
-        where: {
-            id: {
-                in: userIds,
-            },
-        },
+        where: { id: { in: userIds } },
         data: {
             is_active: false,
             withdraw_reason: withdrawReason,
@@ -121,20 +97,12 @@ async function withdrawUsers(body) {
         },
     });
 
-    return {
-        count: result.count,
-    };
+    return { count: result.count };
 }
 
-
 async function getOfficers() {
-
     const officers = await prisma.users.findMany({
-        where: {
-            role: "OFFICER",
-            is_active: true,
-        },
-
+        where: { role: "OFFICER", is_active: true },
         select: {
             id: true,
             name: true,
@@ -143,10 +111,7 @@ async function getOfficers() {
             position: true,
             profile_image: true,
         },
-
-        orderBy: {
-            student_id: "asc",
-        },
+        orderBy: { student_id: "asc" },
     });
 
     return officers;
@@ -162,9 +127,7 @@ async function dismissOfficer(userId) {
     }
 
     const targetUser = await prisma.users.findUnique({
-        where: {
-            id: targetUserId,
-        },
+        where: { id: targetUserId },
     });
 
     if (!targetUser) {
@@ -186,13 +149,8 @@ async function dismissOfficer(userId) {
     }
 
     const updatedUser = await prisma.users.update({
-        where: {
-            id: targetUserId,
-        },
-        data: {
-            role: "MEMBER",
-            position:null,
-        },
+        where: { id: targetUserId },
+        data: { role: "MEMBER", position: null },
         select: {
             id: true,
             email: true,
@@ -218,9 +176,7 @@ async function appointOfficer(userId, body) {
     }
 
     const targetUser = await prisma.users.findUnique({
-        where: {
-            id: targetUserId,
-        },
+        where: { id: targetUserId },
     });
 
     if (!targetUser) {
@@ -242,13 +198,8 @@ async function appointOfficer(userId, body) {
     }
 
     const updatedUser = await prisma.users.update({
-        where: {
-            id: targetUserId,
-        },
-        data: {
-            role: "OFFICER",
-            position,
-        },
+        where: { id: targetUserId },
+        data: { role: "OFFICER", position },
         select: {
             id: true,
             email: true,
@@ -274,14 +225,6 @@ async function delegatePresident(currentUserId, body) {
         throw error;
     }
 
-    const expectedText = `${targetUser.name}을 회장으로 임명`;
-
-    if (confirmText !== expectedText) {
-        const error = new Error('문구를 정확히 입력해주세요.');
-        error.statusCode = 400;
-        throw error;
-    }
-
     if (currentUserId === targetId) {
         const error = new Error("본인에게는 회장 권한을 위임할 수 없습니다.");
         error.statusCode = 400;
@@ -289,9 +232,7 @@ async function delegatePresident(currentUserId, body) {
     }
 
     const currentPresident = await prisma.users.findUnique({
-        where: {
-            id: currentUserId,
-        },
+        where: { id: currentUserId },
     });
 
     if (!currentPresident) {
@@ -307,14 +248,20 @@ async function delegatePresident(currentUserId, body) {
     }
 
     const targetUser = await prisma.users.findUnique({
-        where: {
-            id: targetId,
-        },
+        where: { id: targetId },
     });
 
     if (!targetUser) {
         const error = new Error("위임받을 사용자를 찾을 수 없습니다.");
         error.statusCode = 404;
+        throw error;
+    }
+
+    const expectedText = `${targetUser.name}을 회장으로 임명`;
+
+    if (confirmText !== expectedText) {
+        const error = new Error('문구를 정확히 입력해주세요.');
+        error.statusCode = 400;
         throw error;
     }
 
@@ -332,12 +279,8 @@ async function delegatePresident(currentUserId, body) {
 
     const result = await prisma.$transaction(async (tx) => {
         const oldPresident = await tx.users.update({
-            where: {
-                id: currentUserId,
-            },
-            data: {
-                role: "MEMBER",
-            },
+            where: { id: currentUserId },
+            data: { role: "MEMBER" },
             select: {
                 id: true,
                 email: true,
@@ -350,12 +293,8 @@ async function delegatePresident(currentUserId, body) {
         });
 
         const newPresident = await tx.users.update({
-            where: {
-                id: targetId,
-            },
-            data: {
-                role: "PRESIDENT",
-            },
+            where: { id: targetId },
+            data: { role: "PRESIDENT" },
             select: {
                 id: true,
                 email: true,
@@ -367,10 +306,7 @@ async function delegatePresident(currentUserId, body) {
             },
         });
 
-        return {
-            oldPresident,
-            newPresident,
-        };
+        return { oldPresident, newPresident };
     });
 
     return result;

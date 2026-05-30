@@ -17,7 +17,7 @@
 .left-section.admin-box {
   container-type: inline-size;
   container-name: post-box;
-  min-width: 360px;
+  min-width: 330px;
 }
 
 .admin-page {
@@ -55,7 +55,7 @@
   border-radius: 15px;
   padding: 25px;
   overflow: visible;
-  min-width: 360px;
+  min-width: 330px;
 }
 
 .admin-section-header {
