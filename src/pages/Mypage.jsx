@@ -145,7 +145,7 @@ function MyPage() {
 
   function getRoleText(role) {
     if (role === "PRESIDENT") return "회장";
-    if (role === "ADMIN") return "임원";
+    if (role === "OFFICER") return "임원";
     return "부원";
   }
 

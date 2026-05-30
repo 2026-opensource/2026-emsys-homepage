@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoGreen from "../assets/images/logo-green-removebg.png";
 
-import { isLoggedIn, removeToken } from "../utils/token";
+import { isLoggedIn, removeToken, removeUserInfo } from "../utils/token";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ function Navbar() {
 
   function handleLogout() {
     removeToken();
+    removeUserInfo();
     setLoggedIn(false);
     setMenuOpen(false);
     alert("로그아웃되었습니다.");
@@ -51,6 +52,7 @@ function Navbar() {
                 to="/"
                 onClick={() => {
                   removeToken();
+                  removeUserInfo();
                   setLoggedIn(false);
                   setMenuOpen(false);
                   alert("로그아웃되었습니다.");
