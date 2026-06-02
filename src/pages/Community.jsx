@@ -7,6 +7,7 @@ import Footer from "../layout/Footer";
 
 import "../layout/common.css";
 import "../styles/board.css";
+import { Link } from "react-router-dom";
 
 function Community() {
   const navigate = useNavigate();
@@ -16,6 +17,10 @@ function Community() {
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const POSTS_PER_PAGE = 5;
+  const PAGE_GROUP_SIZE = 5;
 
   // 카테고리 key를 화면에 보여줄 한글로 변환
   function getCategoryText(category) {
@@ -68,37 +73,51 @@ function Community() {
     fetchPosts();
   }, [category, search]);
 
+  // 페이지네이션 관련
+  const filteredPosts = posts;
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
+  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  // 현재 보여줄 페이지 번호 그룹
+  const startPage =
+    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
+
+  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
+
   return (
     <>
       <Navbar />
-
-      {/* 메인 */}
       <div className="board-page-wrapper">
         <main className="board-page">
           <div className="board-container">
-            {/* 제목 */}
             <div className="board-title-area">
               <h1 className="board-page-title">커뮤니티</h1>
-              <div className="title-line"></div>
+              <div className="board-title-line"></div>
             </div>
 
-            {/* 본문 */}
-            <div className="board-main-area">
+            {/* 메뉴 영역 */}
+            <div className="board-menu-area">
               {/* 글쓰기 */}
-              <button
-                type="button"
-                className="write-btn"
-                onClick={() => navigate("/community/write")}
-              >
+              <Link to="/community/write" className="write-btn">
+                {/*링크 안에 버튼 넣는거 별로 안 좋다고 하는데 어떻게 생각함?*/} 
+                <button className="write-button btn btn-default">글쓰기</button>
+              </Link>
+              {/* 이거 추천한데
+              <Link to="/community/write" className="write-btn">
                 글쓰기
-              </button>
-
+              </Link>
+              */}
               {/* 검색 영역 */}
               <div className="board-search-area">
                 <select
                   className="form-control board-category-select"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 >
                   <option value="all">전체 글</option>
                   <option value="free">자유</option>
@@ -113,7 +132,10 @@ function Community() {
                     className="form-control search-input"
                     placeholder="검색"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   />
 
                   <span className="input-group-btn">
@@ -137,19 +159,18 @@ function Community() {
                   {posts.length === 0 ? (
                     <p className="board-message">작성된 게시글이 없습니다.</p>
                   ) : (
-                    posts.map((post) => (
-                      <button
-                        type="button"
+                    currentPosts.map((post) => (
+                      <a
+                        href={`/posts/${post.id}`}
                         className="board-link"
                         key={post.id}
-                        onClick={() => navigate(`/posts/${post.id}`)}
                       >
                         <article className="board-card">
                           <div className="board-category">
                             {getCategoryText(post.category)}
                           </div>
 
-                          <div className="board-main">
+                          <div className="board-body">
                             <h2 className="board-title">{post.title}</h2>
 
                             <p className="board-info">
@@ -163,15 +184,61 @@ function Community() {
                             <p>댓글 {post._count?.comments ?? 0}</p>
                           </div>
                         </article>
-                      </button>
+                      </a>
                     ))
                   )}
                 </section>
               )}
+              {/* 페이지네이션 */}
+              <div className="pagination">
+                {/* 이전 그룹 */}
+                {startPage > 1 && (
+                  <button
+                    className="page-btn"
+                    onClick={() => setCurrentPage(startPage - 1)}
+                  >
+                    &lt;
+                  </button>
+                )}
+
+                {/* 페이지 번호 */}
+                {Array.from(
+                  {
+                    length: endPage - startPage + 1,
+                  },
+                  (_, index) => {
+                    const pageNumber = startPage + index;
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        className={
+                          currentPage === pageNumber
+                            ? "page-btn active"
+                            : "page-btn"
+                        }
+                        onClick={() => setCurrentPage(pageNumber)}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  },
+                )}
+
+                {/* 다음 그룹 */}
+                {endPage < totalPages && (
+                  <button
+                    className="page-btn"
+                    onClick={() => setCurrentPage(endPage + 1)}
+                  >
+                    &gt;
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </main>
-      </div>
+        </main >
+      </div >
 
       <Footer />
     </>

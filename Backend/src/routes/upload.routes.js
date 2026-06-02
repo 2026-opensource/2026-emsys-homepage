@@ -32,21 +32,4 @@ const postImageStorage = multer.diskStorage({
     },
 });
 
-const uploadPostImage = multer({
-    storage: postImageStorage,
-    limits: {
-        fileSize: 10 * 1024 * 1024,
-    },
-    fileFilter: imageFileFilter,
-});
-
-router.post("/posts/image", requireAuth, uploadPostImage.single("image"), (req, res) => {
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/posts/${req.file.filename}`;
-
-    return res.status(200).json({
-        success: true,
-        imageUrl,
-    });
-});
-
 module.exports = router;

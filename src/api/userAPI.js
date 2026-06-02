@@ -2,6 +2,7 @@ import axios from "axios";
 import { getToken } from "../utils/token"
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("API_BASE_URL:", API_BASE_URL); // API_BASE_URL이 올바르게 로드되는지 확인
 
 export async function getMyInfo(formData) {
     const token = getToken();

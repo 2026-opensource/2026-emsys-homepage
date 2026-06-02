@@ -4,7 +4,9 @@ import { getPostById, togglePostLike, togglePostDislike, increasePostView, creat
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+
 import "../styles/post-detail.css";
+import "../styles/board.css";
 
 function PostDetail() {
   const navigate = useNavigate();
@@ -22,7 +24,6 @@ function PostDetail() {
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [message, setMessage] = useState("");
-
   const [commentOpen, setCommentOpen] = useState(false);
   const [commentContent, setCommentContent] = useState("");
 
@@ -280,17 +281,12 @@ function PostDetail() {
 
       <main className="board-page">
         <div className="detail-container">
-          {/* =========================
-              상단
-          ========================= */}
+          {/* 1. 상단 (목록으로, 수정/삭제 버튼) */}
           <div className="detail-top-area">
-            <button
-              type="button"
-              className="back-link"
-              onClick={() => navigate(getListPath(post.board_type))}
-            >
+            {/* 자료실은 자료실, 커뮤니티는 커뮤니티로 돌아가게 해야 함*/}
+            <a href={getListPath(post.board_type)} className="back-link">
               &lt; 목록으로
-            </button>
+            </a>
 
             <div className="detail-top-buttons">
               <button
@@ -310,9 +306,7 @@ function PostDetail() {
             </div>
           </div>
 
-          {/* =========================
-              제목
-          ========================= */}
+          {/* 2. 제목 및 정보 */}
           <section className="detail-header">
             <div className="title-line"></div>
 
@@ -343,9 +337,7 @@ function PostDetail() {
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          {/* =========================
-              좋아요 / 싫어요
-          ========================= */}
+          {/* 4. 피드백 (좋아요 / 싫어요) */}
           <section className="reaction-section">
             <button
               className="reaction-btn"
@@ -368,7 +360,7 @@ function PostDetail() {
           💬 댓글
           ========================= */}
           <div className="comment-wrapper">
-            {/* 바깥 클릭 감지용 배경 */}
+            {/* 오버레이 (바깥 클릭 시 닫힘) */}
             {commentOpen && (
               <div
                 className="comment-overlay"
@@ -376,29 +368,36 @@ function PostDetail() {
               ></div>
             )}
 
-            {/* 펼쳐지는 댓글창 */}
+            {/* 활성화 시 펼쳐지는 댓글창 */}
             <div
               className={`comment-expand ${commentOpen ? "open" : ""}`}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="comment-title">댓글</h2>
+              <h2 className="comment-title">💬 댓글</h2>
 
               <div className="comment-list">
-                {post.comments?.length > 0 ? (
-                  post.comments.map((comment) => (
-                    <div className="comment-card" key={comment.id}>
-                      <div className="comment-main">
-                        <h3 className="comment-writer">
-                          {getUserDisplayName(comment.users)}
-                        </h3>
-                        <p className="comment-text">{comment.content}</p>
+                {
+                  post.comments?.length > 0 ? (
+                    post.comments.map((comment) => (
+                      <div className="comment-card" key={comment.id}>
+                        <div className="comment-main">
+                          <h3 className="comment-writer">
+                            {getUserDisplayName(comment.users)}
+                          </h3>
+                          <p className="comment-text">{comment.content}</p>
+                        </div>
+
+                        <div className="comment-actions">
+                          <button className="comment-edit-btn">수정</button>
+                          <button className="comment-delete-btn">삭제</button>
+                        </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="comment-text">아직 댓글이 없습니다.</p>
-                )}
-              </div>
+                    ))
+                  ) : (
+                    <p className="comment-text">아직 댓글이 없습니다.</p>
+                  )
+                }
+              </div >
 
               <div className="comment-input-section">
                 <input
@@ -408,47 +407,48 @@ function PostDetail() {
                   value={commentContent}
                   onChange={(e) => setCommentContent(e.target.value)}
                 />
-
                 <button
                   type="button"
                   className="comment-submit-btn"
                   onClick={handleCommentSubmit}
                 > ➤
                 </button>
-              </div>
-            </div>
+              </div >
+            </div >
 
             {/* 댓글 미리보기 */}
-            <div
+            < div
               className="comment-preview"
-              onClick={() => setCommentOpen(true)}
+              onClick={() => setCommentOpen(true)
+              }
             >
               <h2 className="comment-title">
                 💬 댓글 {post.comments?.length ?? 0}개 보기
               </h2>
 
-              {post.comments?.length > 0 ? (
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <h3 className="comment-writer">
-                      {getUserDisplayName(post.comments[0].users)}
-                    </h3>
-                    <p className="comment-text">
-                      {post.comments[0].content}
-                    </p>
+              {
+                post.comments?.length > 0 ? (
+                  <div className="comment-card">
+                    <div className="comment-main">
+                      <h3 className="comment-writer">
+                        {getUserDisplayName(post.comments[0].users)}
+                      </h3>
+                      <p className="comment-text">
+                        {post.comments[0].content}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <p className="comment-text">댓글이 없습니다.</p>
+                ) : (
+                  <div className="comment-card">
+                    <div className="comment-main">
+                      <p className="comment-text">댓글이 없습니다.</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
-        </div>
-      </main>
+        </div >
+      </main >
 
       <Footer />
     </>

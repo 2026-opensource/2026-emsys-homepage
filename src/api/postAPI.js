@@ -156,24 +156,3 @@ export async function createComment(postId, content) {
 
     return response.data;
 }
-
-// 게시글 이미지 업로드
-export async function uploadPostImage(file) {
-    const token = getToken();
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const response = await axios.post(
-        `${API_BASE_URL}/api/upload/posts/image`,
-        formData,
-        {
-            headers: {
-                "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-
-    return response.data;
-}

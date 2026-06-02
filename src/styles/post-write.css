@@ -14,55 +14,72 @@ body {
 }
 
 .write-container {
-  border: 3px solid var(--border-color);
-  border-radius: 10px;
-  padding-bottom: 20px;
-  padding-left: 30px;
-  padding-right: 30px;
-  padding-top: 10px;
-  max-width: 900px;
-  margin: 90px auto;
+  width: 100%;
+  max-width: 1200px;
+  margin: 50px auto 0 auto;
+  gap: 2%;
+  padding: 60px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
 }
 
-.board-header {
+/* 목록 + 버튼 전체 */
+.write-top-area {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
-  color: var(--point-mint);
+  gap: 3%;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 15px;
 }
 
 .write-board-title {
-  font-size: 24px;
+  color: var(--point-mint);
+  font-size: 32px;
   font-weight: 700;
 }
 
-.cancel-write-btn {
-  background-color: var(--text-muted);
-  font-size: 16px;
-  font-weight: bolder;
-  border: 0;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 20px;
-  padding-right: 20px;
-  margin-right: 10px;
+/* 수정/삭제 버튼 영역 */
+.write-buttons-area {
+  display: flex;
+  gap: 12px;
 }
 
+/* 버튼 공통 */
+.cancel-write-btn,
+.post-write-btn {
+  width: 100px;
+  max-width: 30vw;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 수정 버튼 */
 .post-write-btn {
   background-color: var(--point-mint);
-  font-size: 16px;
-  font-weight: bolder;
-  border: 0;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 20px;
-  padding-right: 20px;
+  color: black;
 }
 
-.header-divider {
-  border: 2px solid var(--point-mint);
-  margin-top: 0;
+/* 삭제 버튼 */
+.cancel-write-btn {
+  background-color: red;
+  color: white;
+}
+
+.post-write-btn:hover,
+.cancel-write-btn:hover {
+  opacity: 0.8;
+}
+
+.form-group {
+  margin-top: 20px;
 }
 
 .title-box {
@@ -90,31 +107,64 @@ body {
   border-radius: 6px;
 }
 
-.note-btn-group {
-  background-color: transparent;
+.jodit {
+  --jd-color-panel: ;
+  --jd-color-background-default: #333333;
+  --jd-color-text: #ffffff;
+  --jd-color-border: #555555;
+  --jd-color-background-light-gray: var(--border-color);
+  --jd-color-button-background-hover: var(--bg-box);
+  --jd-color-button-background-hover-opacity40: var(--bg-box);
+  --jd-color-button-background-hover-opacity60: var(--bg-box);
+  --jd-font-default: "Pretendard", sans-serif;
+  --jd-color-text-icons: white;
+  --jd-dark-background-darknes: red;
 }
 
-.note-toolbar {
-  background-color: var(--bg-box) !important;
-  border-bottom: 3px solid var(--border-color) !important;
-  border-top: 3px solid var(--border-color) !important;
+
+
+.jodit-wysiwyg ul li::marker {
+  color: #ffffff !important;
 }
 
-.note-btn {
-  background-color: var(--bg-box) !important;
+.jodit-wysiwyg ul {
+  padding-left: 20px !important;
+}
+
+.jodit-wysiwyg ol {
+  padding-left: 20px !important;
+}
+
+.jodit-wysiwyg li {
+  list-style-position: outside !important;
+}
+
+.jodit-container{
   border: 2px solid var(--border-color) !important;
-  color: var(--text-main) !important;
 }
 
-.note-editable {
-  color: var(--text-main);
-  background-color: var(--bg-main);
+.jodit-toolbar-button svg {
+  width: 20px !important;
+  height: 20px !important;
+  fill: #ffffff !important;
+  
 }
-.note-btn:hover,
-.note-btn:focus,
-.note-btn.active {
-  background-color: var(--border-color) !important;
-  color: var(--text-main) !important;
+
+.jodit-popup__content{
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+}
+
+.jodit-status-bar {
+  border-bottom: 2px solid var(--border-color);
+}
+
+.jodit_hovered{
+  background-color: var(--text-muted) !important;
+}
+
+.jodit-xpath {
+  display: none !important;
 }
 
 @media (max-width: 768px) {

@@ -48,6 +48,7 @@ exports.createComment = async (req, res) => {
           select: {
             name: true,
             student_id: true,
+            status: true,
           },
         },
       },
