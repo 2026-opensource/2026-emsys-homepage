@@ -1,0 +1,43 @@
+:root {
+    --bg-main: #333333;
+    --bg-box: #444444;
+    --text-main: #ffffff;
+    --text-muted: #aaaaaa;
+    --point-mint: #00ffa3;
+    --border-color: #555555;
+    --danger-red: #dc3545;
+    --warning-orange: #ff9800;
+}
+
+body{
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.landing-hero {
+    background-color: var(--bg-main);
+}
+
+.hero-title {
+    font-size: 80px;
+    font-weight: bold;
+    color: white;
+    letter-spacing: -0.05em;
+}
+
+.blink-cursor {
+    color: #00ffa3;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
