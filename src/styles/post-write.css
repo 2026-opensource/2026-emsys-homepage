@@ -172,3 +172,42 @@ body {
     margin: 0px 10px;
   }
 }
+
+/* 에디터 안 이미지 스타일 */
+.jodit-wysiwyg img {
+  max-width: 480px !important;
+  height: auto !important;
+  display: inline-block !important;
+  margin: 8px !important;
+  vertical-align: top !important;
+}
+
+.jodit-popup {
+  display: none !important;
+}
+
+.jodit-resizer,
+.jodit-resizer__handler {
+  display: none !important;
+}
+
+.jodit-dialog__box,
+.jodit-dialog__box * {
+  color: #222 !important;
+}
+
+.jodit-dialog__box input,
+.jodit-dialog__box textarea,
+.jodit-dialog__box select {
+  background-color: #fff !important;
+  color: #222 !important;
+  border: 1px solid #999 !important;
+}
+
+.jodit-dialog__box button {
+  color: #222 !important;
+}
+
+.jodit-dialog__box .jodit-button__text {
+  color: #222 !important;
+}

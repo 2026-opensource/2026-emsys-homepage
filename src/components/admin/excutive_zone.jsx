@@ -1,63 +1,111 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchMembers, fetchExecutives, appointExecutive, dismissExecutive } from '../../api/adminAPI.js';
+import { getUserInfo } from '../../utils/token';
 import '../../styles/masterSection.css';
 
 const ExecutiveTeamRoster = () => {
-  
+
+  const currentUser = getUserInfo();
+
   // 임원 상태
-  const [executives, setExecutives] = useState([
-    { id: 101, name: '25 탁우림', role: '부회장', image: '{{DATA:IMAGE:IMAGE_1}}' },
-    { id: 102, name: '24 이나연', role: '학습부장', image: '{{DATA:IMAGE:IMAGE_2}}' }
-  ]);
+  const [executives, setExecutives] = useState([]);
 
   //  모달 및 검색창 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 3. [가상 데이터] 전체 부원 목록
-  const [allMembers] = useState([
-    { id: 1, name: '23 황금독수리 하늘을 날다', role: '소프트웨어학과 '},
-    { id: 2, name: '22 칼빔면에 육회 한사바리 와르르찹찹', role: '소프트웨어학과 '},
-    { id: 3, name: '21 박서준', role: '소프트웨어학과 '},
-    { id: 101, name: 'Dr. Elias Vance', role: '교수 위원', image: '{{DATA:IMAGE:IMAGE_1}}' }
-  ]);
-
-  // 해임 기능
-  const handleDismiss = (id) => {
-    if (window.confirm('해당 임원을 해임하시겠습니까?')) {
-      setExecutives(executives.filter(exec => exec.id !== id));
-    }
-  };
-
-  // 임원 새 임명 실행 기능
-  const handleAppoint = (member) => {
-    if (executives.some(exec => exec.id === member.id)) return;
-
-    const customRole = prompt(`[${member.name}] 님의 직책 :`, "Executive Member");
-    if (customRole === null) return;
-
-    setExecutives([
-      ...executives,
-      {
-        id: member.id,
-        name: member.name,
-        role: customRole || 'Executive Member',
-        image: member.image
-      }
-    ]);
-
-    setIsModalOpen(false);
-    setSearchTerm('');
-  };
+  // 임원 등록을 위한 전체 부원 목록 (회장 본인 제외)
+  const [allMembers, setAllMembers] = useState([]);
 
   const filteredMembers = allMembers.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 부원 불러오기
+  const loadExecutives = async () => {
+    try {
+      const result = await fetchExecutives();
+      setExecutives(result.data);
+    }
+    catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 해임 기능
+  const handleDismiss = async (id) => {
+    if (!window.confirm('해당 임원을 해임하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await dismissExecutive(id);
+      await loadExecutives();
+    }
+    catch (error) {
+      console.error(error);
+      alert('임원 해임 오류. 해임 실패');
+    }
+  };
+
+  // 임원 새 임명 실행 기능
+  const handleAppoint = async (member) => {
+
+    if (executives.some(exec => exec.id === member.id)) {
+      return;
+    }
+
+    const customRole = prompt(
+      `[${member.name}] 님의 직책 :`,
+      "학습부장"
+    );
+
+    if (customRole === null) {
+      return;
+    }
+
+    try {
+      await appointExecutive(member.id, customRole);
+      await loadExecutives();
+      setIsModalOpen(false);
+      setSearchTerm('');
+    }
+    catch (error) {
+      console.error(error);
+      alert('임원 임명 실패');
+    }
+  };
+
+  // 백엔드에서 데이터 불러오기
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        const executiveData = await fetchExecutives();
+        const membersData = await fetchMembers();
+
+        setExecutives(executiveData.data || []);
+
+        // 회장 본인은 목록에서 제외
+        const filtered = (membersData.data || []).filter(
+          m => m.id !== currentUser?.id
+        );
+        setAllMembers(filtered);
+      }
+      catch (error) {
+        console.error("데이터를 불러오는데 실패했습니다.", error);
+        alert("서버와 연결할 수 없습니다.");
+      }
+    };
+
+    loadInitialData();
+  }, []);
+
+
   return (
     <div className="admin-box executive-roster">
-      <div className="section-header">
-        <h2 className="box-title">
-          <i class="fa-regular fa-address-card"></i> 임원 임명
+      <div className="admin-section-header">
+        <h2 className="admin-box-title">
+          <i className="fa-regular fa-address-card"></i> 임원 임명
         </h2>
       </div>
 
@@ -66,9 +114,9 @@ const ExecutiveTeamRoster = () => {
           <div key={exec.id} className="executive-card">
             <div className="executive-info">
               <h4 className="executive-name">{exec.name}</h4>
-              <p className="executive-role">{exec.role}</p>
+              <p className="executive-role">{exec.position || exec.role}</p>
             </div>
-            <button 
+            <button
               onClick={() => handleDismiss(exec.id)}
               className="btn-danger"
             >
@@ -76,9 +124,9 @@ const ExecutiveTeamRoster = () => {
             </button>
           </div>
         ))}
-        
+
         <button className="appoint-new-btn" onClick={() => setIsModalOpen(true)}>
-          <i class="fa-solid fa-user-plus"></i>
+          <i className="fa-solid fa-user-plus"></i>
           <span>임원 추가</span>
         </button>
       </div>
@@ -89,7 +137,7 @@ const ExecutiveTeamRoster = () => {
             <div className="modal-header">
               <h3 className="modal-title">새 임원 임명</h3>
               <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>
-                <i class="fa-solid fa-xmark"></i>
+                <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
 
@@ -116,8 +164,8 @@ const ExecutiveTeamRoster = () => {
                 filteredMembers.map(member => {
                   const isAlreadyExec = executives.some(exec => exec.id === member.id);
                   return (
-                    <div 
-                      key={member.id} 
+                    <div
+                      key={member.id}
                       className={`modal-member-item ${isAlreadyExec ? 'disabled' : ''}`}
                       onClick={() => !isAlreadyExec && handleAppoint(member)}
                     >

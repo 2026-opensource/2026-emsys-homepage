@@ -80,7 +80,7 @@
 }
 
 /* ========================================
-   게시글 본문 영역
+  게시글 본문 영역
 ======================================== */
 .detail-title-area {
   display: flex;
@@ -113,8 +113,15 @@
   word-break: break-word;
 }
 
+.detail-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 10px;
+  vertical-align: top;
+}
+
 /* ========================================
-   피드백(좋아요/싫어요) 영역
+  피드백(좋아요/싫어요) 영역
 ======================================== */
 .reaction-section {
   display: flex;
@@ -224,15 +231,17 @@
   align-items: flex-start;
 }
 
-.comment-writer {
-  font-size: 16px;
-  font-weight: 700;
-}
-
 .comment-writer,
 .comment-text {
+  font-size: 16px;
   padding: 0 15px;
   align-items: center;
+}
+
+/* 댓글 작성 날짜 정보 스타일 (작성자보다 크기 작고, 색 어둡게) */
+.comment-date-info {
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
 .comment-actions {
@@ -288,6 +297,18 @@
   background-color: var(--bg-box);
   color: var(--text-main);
   padding: 0 16px;
+}
+
+/* 댓글 수정 입력창 디자인 */
+.comment-card .comment-main {
+  flex: 1;
+  width: 100%;
+}
+
+.comment-card .comment-main .comment-input {
+  width: 100%;
+  min-width: 500px;
+  margin-left: 10px;
 }
 
 .comment-submit-btn {

@@ -1,3 +1,13 @@
+:root {
+  --bg-main: #333333;
+  --bg-box: #444444;
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --point-mint: #00ffa3;
+  --border-color: #555555;
+  --danger-red: #dc3545;
+  --warning-orange: #ff9800;
+}
 
 .finance-inside-content {
     display: flex;
@@ -49,35 +59,11 @@
     gap: 8px;
     border-top: 1px solid #f1f1f5;
     padding-top: 15px;
+    justify-content:space-between;
 }
 
 .finance-hidden-input {
     display: none;
-}
-
-.finance-excel-label {
-    cursor: pointer;
-    height: 34px;
-    padding: 6px 12px;
-    font-size: 13px;
-    margin: 0;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    color: #555;
-    border-radius: 4px;
-    text-align: center;
-    line-height: 20px;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.finance-excel-label:hover {
-    background-color: #f5f5f7;
-    border-color: #adadad;
 }
 
 .finance-upload-btn {
@@ -87,4 +73,77 @@
     align-items: center;
     gap: 4px;
     white-space: nowrap;
+}
+
+/* 상단 학기별/월별 탭*/
+.finance-tab-wrapper {
+    display: flex;
+    gap: 0;
+    margin-bottom: 16px;
+}
+
+.finance-tab-btn {
+    padding: 8px 20px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.finance-tab-btn.active {
+    color: var(--point-mint);
+    border: 2px solid var(--point-mint);
+    background-color: #00ffa22d;
+    font-weight: 700;
+}
+
+
+/* 학기 선택 탭 */
+.finance-semester-tab-wrapper {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    background-color: #3a3a3a;
+    border-radius: 100px;
+    padding: 4px;
+    width: fit-content;
+}
+
+.finance-semester-tab-btn {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 100px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.finance-semester-tab-btn:hover:not(.active) {
+    color: var(--text-main);
+}
+
+.finance-semester-tab-btn.active {
+    background: var(--point-mint);
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.finance-title{
+    color:var(--point-mint);
+    font-size: 20px;
+}
+.finance-subtitle{
+    color:var(--text-main);
+    font-size: 15px;
 }

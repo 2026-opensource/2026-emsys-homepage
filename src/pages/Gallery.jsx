@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import Pagination from "../components/Pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -24,7 +25,6 @@ function Gallery() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const POSTS_PER_PAGE = 12;
-  const PAGE_GROUP_SIZE = 5;
 
   const filteredPosts = posts.filter(
     (post) =>
@@ -37,10 +37,6 @@ function Gallery() {
   const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
-  const startPage =
-    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
-  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
-
   return (
     <>
       <Navbar />
@@ -51,6 +47,8 @@ function Gallery() {
               <h1 className="board-page-title">갤러리</h1>
               <div className="board-title-line"></div>
             </div>
+
+            <hr className="header-divider" />
 
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
@@ -85,18 +83,17 @@ function Gallery() {
                   </span>
                 </div>
               </div>
-
               <div className="gallery-box">
                 <div className="row">
                   {currentPosts.map((post) => (
                     <div className="col-sm-3" key={post.id}>
-                      <Link to="/post-detail">
+                      <Link to={`/post-detail/${post.id}`}>
                         <div className="gallery-post">
                           <section className="post-image-box">
                             <img
                               className="post-image img-responsive"
                               src={post.image}
-                              alt="엠시스 로고"
+                              alt="사진"
                             />
                           </section>
 
@@ -111,56 +108,15 @@ function Gallery() {
                   ))}
                 </div>
               </div>
-              {/* 페이지네이션 */}
-              <div className="pagination">
-                {/* 이전 그룹 */}
-                {startPage > 1 && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(startPage - 1)}
-                  >
-                    &lt;
-                  </button>
-                )}
-
-                {/* 페이지 번호 */}
-                {Array.from(
-                  {
-                    length: endPage - startPage + 1,
-                  },
-                  (_, index) => {
-                    const pageNumber = startPage + index;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        className={
-                          currentPage === pageNumber
-                            ? "page-btn active"
-                            : "page-btn"
-                        }
-                        onClick={() => setCurrentPage(pageNumber)}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  },
-                )}
-
-                {/* 다음 그룹 */}
-                {endPage < totalPages && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(endPage + 1)}
-                  >
-                    &gt;
-                  </button>
-                )}
-              </div>
+                          <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
-        </main>
-      </div>
+        </main >
+      </div >
       <Footer />
     </>
   );

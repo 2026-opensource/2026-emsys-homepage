@@ -27,3 +27,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+Backend/data/
+
+Backend/uploads/posts/*
+Backend/uploads/profile-images/*

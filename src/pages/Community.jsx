@@ -1,57 +1,79 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getPosts } from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import Pagination from "../components/Pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
 import { Link } from "react-router-dom";
 
 function Community() {
-  // 더미 데이터
-  const dummyPosts = Array.from({ length: 100 }, (_, index) => ({
-    id: index + 1,
-    category: ["자유", "질문", "공지사항", "팀원 모집"][index % 4],
-    title: `테스트 게시글 제목은 길게길게 해보겠습니다 테스트 게시글 제목은 길게길게 해보겠습니다 테스트 게시글 제목은 길게길게 해보겠습니다${index + 1}`,
-    content: "테스트 내용입니다",
-    author: "테스터",
-    date: "2026-05-20",
-    views: index * 3,
-    likes: index,
-    comments: index % 5,
-  }));
-  const posts = dummyPosts;
+  const navigate = useNavigate();
 
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("전체");
+  const [category, setCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const POSTS_PER_PAGE = 5;
-  const PAGE_GROUP_SIZE = 5;
+  const POSTS_PER_PAGE = 10;
 
-  // 필터 정렬
-  const filteredPosts = posts
-    .filter((post) => {
-      const matchCategory = category === "전체" || post.category === category;
+  // 카테고리 key를 화면에 보여줄 한글로 변환
+  function getCategoryText(category) {
+    if (category === "notice") return "공지사항";
+    if (category === "free") return "자유";
+    if (category === "qna") return "질문";
+    if (category === "recruit") return "팀원 모집";
+    return category;
+  }
 
-      const matchSearch =
-        post.title.includes(search) || post.content.includes(search);
+  // 게시판 목록에서는 학번 이름
+  function getUserDisplayName(user) {
+    if (!user) return "알 수 없음";
 
-      return matchCategory && matchSearch;
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+    const studentYear = user.student_id?.slice(2, 4) || "";
 
-  // 페이지네이션 관련
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
-  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
-  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+    return `${studentYear} ${user.name}`;
+  }
 
-  // 현재 보여줄 페이지 번호 그룹
-  const startPage =
-    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
+  // DB에서 커뮤니티 게시글 목록 가져오기
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
 
-  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
+        const result = await getPosts({
+          board_type: "COMMUNITY",
+          category,
+          search,
+          page: currentPage,
+          limit: POSTS_PER_PAGE,
+        });
+
+        console.log("커뮤니티 게시글 목록 응답:", result);
+
+        setPosts(result.data);
+        setTotalPages(result.pagination?.totalPages || 1);
+      } catch (error) {
+        console.error("게시글 목록 조회 실패:", error);
+
+        setErrorMessage(
+          error.response?.data?.message ||
+          "게시글 목록을 불러오지 못했습니다."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, [category, search, currentPage]);
 
   return (
     <>
@@ -67,10 +89,14 @@ function Community() {
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
               {/* 글쓰기 */}
-              <Link to="/post-write">
+              <Link to="/community/write">
                 <button className="board-write-btn btn btn-default">글쓰기</button>
               </Link>
-
+              {/* 이거 추천한데
+              <Link to="/community/write" className="write-btn">
+                글쓰기
+              </Link>
+              */}
               {/* 검색 영역 */}
               <div className="board-search-area">
                 <select
@@ -81,11 +107,11 @@ function Community() {
                     setCurrentPage(1);
                   }}
                 >
-                  <option>전체</option>
-                  <option>자유</option>
-                  <option>질문</option>
-                  <option>공지사항</option>
-                  <option>팀원 모집</option>
+                  <option value="all">전체 글</option>
+                  <option value="free">자유</option>
+                  <option value="qna">질문</option>
+                  <option value="notice">공지사항</option>
+                  <option value="recruit">팀원 모집</option>
                 </select>
 
                 <div className="input-group board-search-input">
@@ -111,81 +137,56 @@ function Community() {
                 </div>
               </div>
 
+              {loading && <p className="board-message">게시글을 불러오는 중...</p>}
+
+              {errorMessage && <p className="board-error">{errorMessage}</p>}
+
               {/* 게시글 리스트 */}
-              <section className="board-list">
-                {currentPosts.map((post) => (
-                  <a href="/post-detail" className="board-link" key={post.id}>
-                    <article className="board-card">
-                      <div className="board-category">{post.category}</div>
-
-                      <div className="board-body">
-                        <h2 className="board-title">{post.title}</h2>
-
-                        <p className="board-info">
-                          {post.author} · {post.date}
-                        </p>
-                      </div>
-
-                      <div className="board-stats">
-                        <p>조회수 {post.views}</p>
-                        <p>좋아요 {post.likes}</p>
-                        <p>댓글 {post.comments}</p>
-                      </div>
-                    </article>
-                  </a>
-                ))}
-              </section>
-
-              {/* 페이지네이션 */}
-              <div className="pagination">
-                {/* 이전 그룹 */}
-                {startPage > 1 && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(startPage - 1)}
-                  >
-                    &lt;
-                  </button>
-                )}
-
-                {/* 페이지 번호 */}
-                {Array.from(
-                  {
-                    length: endPage - startPage + 1,
-                  },
-                  (_, index) => {
-                    const pageNumber = startPage + index;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        className={
-                          currentPage === pageNumber
-                            ? "page-btn active"
-                            : "page-btn"
-                        }
-                        onClick={() => setCurrentPage(pageNumber)}
+              {!loading && !errorMessage && (
+                <section className="board-list">
+                  {posts.length === 0 ? (
+                    <p className="board-message">작성된 게시글이 없습니다.</p>
+                  ) : (
+                    posts.map((post) => (
+                      <Link
+                        to={`/posts/${post.id}`}
+                        className="board-link"
+                        key={post.id}
                       >
-                        {pageNumber}
-                      </button>
-                    );
-                  },
-                )}
+                        <article className="board-card">
+                          <div className="board-category">
+                            {getCategoryText(post.category)}
+                          </div>
 
-                {/* 다음 그룹 */}
-                {endPage < totalPages && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(endPage + 1)}
-                  >
-                    &gt;
-                  </button>
-                )}
-              </div>
+                          <div className="board-body">
+                            <h2 className="board-title">{post.title}</h2>
+
+                            <p className="board-info">
+                              {getUserDisplayName(post.users)} · {post.created_at?.slice(0, 10)}
+                            </p>
+                          </div>
+
+                          <div className="board-stats">
+                            <p>조회수 {post.view_count ?? 0}</p>
+                            <p>좋아요 {post._count?.post_likes ?? 0}</p>
+                            <p>댓글 {post._count?.comments ?? 0}</p>
+                          </div>
+                        </article>
+                      </Link>
+                    ))
+                  )}
+                </section>
+              )}
+              {/* 페이지네이션 */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
-        </main>
-      </div>
+        </main >
+      </div >
 
       <Footer />
     </>

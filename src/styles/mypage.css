@@ -270,89 +270,174 @@ body {
     font-weight: 600;
 }
 
+.profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.profile-image-change-label {
+    position: relative;
+    display: block;
+    width: 140px;
+    height: 140px;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.profile-image {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.55);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: bold;
+
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.profile-image-change-label:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.profile-file-input {
+    display: none !important;
+}
+
+.profile-reset-btn {
+    padding: 5px;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.profile-reset-btn:hover {
+    color: var(--point-mint);
+    border-color: var(--point-mint);
+}
+
 /* ========================================
     모바일 반응형 위함
 ======================================== */
 @media (max-width: 768px) {
     .mypage-container {
         width: 100%;
-        max-width: 100%;
-        margin: 100px auto;
-        padding: 20px 16px;
-        zoom: 1;
+        padding: 20px 15px;
+        box-sizing: border-box;
     }
 
     .mypage-text {
         font-size: 36px;
         text-align: center;
-        margin-bottom: 24px;
-        text-align: left;
-        padding: 0px 0px 0px 10px;
+    }
+
+    .user-info-box {
+        width: 100%;
+        padding: 20px 15px;
+        box-sizing: border-box;
     }
 
     .section-title {
         font-size: 24px;
-        text-align: left;
-    }
-
-    .user-info-box,
-    .my-posts-box {
-        width: 100%;
-        min-width: 0;
-        height: auto;
-        min-height: 0;
-        padding: 20px;
     }
 
     .user-info-body {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 20px;
+        gap: 25px;
+    }
+
+    .profile-image-section {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 30px 0px 0px 0px;
+    }
+
+    .profile-image-change-label {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
     }
 
     .profile-image {
-        width: 110px;
-        height: 110px;
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-image-overlay {
+        width: 120px;
+        height: 120px;
+        font-size: 13px;
     }
 
     .user-info-content1,
     .user-info-content2 {
         width: 100%;
-        padding: 0;
     }
 
-    .user-info-inner-box {
-        border-right: none;
-        padding: 0;
+    .user-info-inner-box,
+    .user-history-box {
+        width: 100%;
     }
 
     .user-info-row {
         display: flex;
         flex-direction: column;
-        margin: 12px 0;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 16px;
     }
 
     .user-info-label {
-        width: 100%;
-        text-align: left;
-        padding: 0 0 6px 0;
         font-size: 14px;
+        font-weight: bold;
+        text-align: left;
     }
 
     .user-info-value {
         width: 100%;
-        font-size: 14px;
-        padding: 10px 12px;
-    }
-
-    .user-history-box {
-        width: 100%;
-        text-align: left;
+        font-size: 15px;
+        word-break: break-all;
     }
 
     .user-history {
-        font-size: 14px;
+        font-size: 15px;
+        padding-left: 10px;
+    }
+
+    .my-posts-box {
+        width: 100%;
+        padding: 20px 15px;
+        box-sizing: border-box;
     }
 
     .posts-header {

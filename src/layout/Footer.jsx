@@ -22,9 +22,9 @@ function Footer() {
           {/* 오른쪽 영역 */}
           <div className="col-sm-6 text-right">
             <div className="footer-description-contact">
-              회장 최봉규 010-0000-0000
+              회장 최봉규 010-9559-7869
               <br />
-              부회장 탁우림 010-0000-0000
+              부회장 탁우림 010-3405-6428
             </div>
 
             <div className="footer-socials">
