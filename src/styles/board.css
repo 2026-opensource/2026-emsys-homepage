@@ -91,7 +91,7 @@ a:active {
 }
 
 /* 글쓰기 버튼 */
-.write-btn {
+.board-write-btn {
   width: 12%;
   min-width: 120px;
   height: 42px;
@@ -99,12 +99,12 @@ a:active {
   border-radius: 10px;
   background-color: var(--point-mint);
   color: black;
-  font-size: 20px;
+  font-size: clamp(16px, 4vw, 20px);
   font-weight: 700;
   margin-right: auto;
 }
 
-.write-btn:hover {
+.board-write-btn:hover {
   opacity: 0.8;
 }
 
@@ -175,7 +175,7 @@ a:active {
 /* 버튼이나 입력창에 클릭 시 테두리, 파란 그림자 제거 */
 .board-link:focus,
 .page-btn:focus,
-.write-btn:focus,
+.board-write-btn:focus,
 .search-btn:focus,
 .search-input:focus,
 .board-category-select:focus {
@@ -211,8 +211,7 @@ a:active {
 
 /* 카테고리 */
 .board-category {
-  width: 12%;
-  min-width: 80px;
+  width: clamp(80px, 10vw, 110px);
   height: 40px;
   display: flex;
   align-items: center;
@@ -220,8 +219,9 @@ a:active {
   border-radius: 10px;
   background-color: var(--text-muted);
   color: black;
-  font-size: 16px;
+  font-size: clamp(14px, 3vw, 16px);
   font-weight: 700;
+  white-space: nowrap;
 }
 /* 메인 영역 */
 .board-body {
@@ -232,7 +232,7 @@ a:active {
 /* 글 제목 */
 .board-title {
   margin: 10px 0;
-  font-size: 32px;
+  font-size: clamp(24px, 4vw, 32px);
   font-weight: 700;
   overflow: hidden;
   display: -webkit-box;
@@ -244,20 +244,26 @@ a:active {
 /* 작성자 */
 .board-info {
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 오른쪽 통계 */
 .board-stats {
+  display: flex;
   width: 15%;
-  min-width: 100px;
+  min-width: 120px;
+  flex-direction: column;
 }
 
 .board-stats p {
   text-align: right;
   color: var(--text-main);
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
   margin: 5px 0;
+  white-space: nowrap;
 }
 
 .board-stats p:last-child {
@@ -288,6 +294,42 @@ a:active {
 
 @media (max-width: 768px) {
   .board-page {
-    padding: 70px 20px;
+    padding: 30px 15px; /* 모바일에서는 여백을 더 줄임 */
+  }
+
+  .board-search-area {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 10px;
+  }
+
+  .board-search-input {
+    flex: 2;
+  }
+
+  /* 게시글 카드 레이아웃 수직 변경 */
+  .board-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .board-category {
+    height: 30px;
+  }
+
+  .board-stats {
+    width: 100%;
+    flex-direction: row; /* 모바일에서는 가로로 배치 */
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 5px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+  }
+
+  .board-stats p {
+    margin: 0;
   }
 }

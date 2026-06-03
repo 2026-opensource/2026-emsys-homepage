@@ -191,6 +191,7 @@
   border-radius: 15px;
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
   padding: 24px;
+  padding-bottom: 0px; /* 입력창과 겹치지 않도록 여유 공간 확보 */
   z-index: 10;
   opacity: 0;
   transform: translateY(30px);
@@ -276,6 +277,7 @@
   gap: 10px;
   padding-top: 12px;
   padding-bottom: 10px;
+  background-color: var(--bg-main);
 }
 
 .comment-input {

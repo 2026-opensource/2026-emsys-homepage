@@ -12,7 +12,7 @@ function Community() {
   const dummyPosts = Array.from({ length: 100 }, (_, index) => ({
     id: index + 1,
     category: ["자유", "질문", "공지사항", "팀원 모집"][index % 4],
-    title: `테스트 게시글 ${index + 1}`,
+    title: `테스트 게시글 제목은 길게길게 해보겠습니다 테스트 게시글 제목은 길게길게 해보겠습니다 테스트 게시글 제목은 길게길게 해보겠습니다${index + 1}`,
     content: "테스트 내용입니다",
     author: "테스터",
     date: "2026-05-20",
@@ -68,7 +68,7 @@ function Community() {
             <div className="board-menu-area">
               {/* 글쓰기 */}
               <Link to="/post-write">
-                <button className="write-button btn btn-default">글쓰기</button>
+                <button className="board-write-btn btn btn-default">글쓰기</button>
               </Link>
 
               {/* 검색 영역 */}

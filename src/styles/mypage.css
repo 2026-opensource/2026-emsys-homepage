@@ -181,27 +181,27 @@ body {
     width: 100%;
 }
 
-.board-list {
+.mypage-board-list {
     display: flex;
     flex-direction: column;
     gap: 18px;
 }
 
 /* 게시글 카드 전체 링크 */
-.board-link {
+.mypage-board-link {
     display: block;
     width: 100%;
     color: var(--text-main);
     text-decoration: none;
 }
 
-.board-link:hover {
+.mypage-board-link:hover {
     color: var(--point-mint);
     text-decoration: none;
 }
 
 /* 게시글 카드 */
-.board-card {
+.mypage-board-card {
     width: 100%;
     padding: 28px 30px;
     border-radius: 18px;
@@ -211,13 +211,13 @@ body {
         background-color 0.2s ease;
 }
 
-.board-link:hover .board-card {
+.mypage-board-link:hover .mypage-board-card {
     transform: translateY(-2px);
     background-color: #666666;
 }
 
 /* 카드 내부 배치 */
-.board-row {
+.mypage-board-row {
     width: 100%;
     display: grid;
     grid-template-columns: 90px 1fr 110px;
@@ -226,7 +226,7 @@ body {
 }
 
 /* 카테고리 버튼 */
-.board-category {
+.mypage-board-category {
     width: 100px;
     text-align: center;
     border-radius: 10px;
@@ -237,11 +237,11 @@ body {
 }
 
 /* 제목 + 작성자 */
-.board-main {
+.mypage-board-main {
     min-width: 0;
 }
 
-.board-title {
+.mypage-board-title {
     margin: 0 0 10px 0;
     font-size: 24px;
     font-weight: 700;
@@ -251,7 +251,7 @@ body {
     text-overflow: ellipsis;
 }
 
-.board-info {
+.mypage-board-info {
     margin: 0;
     text-align: left;
     color: #bdbdbd;
@@ -259,11 +259,11 @@ body {
 }
 
 /* 조회수 / 좋아요 / 댓글 */
-.board-stats {
+.mypage-board-stats {
     text-align: right;
 }
 
-.board-stats p {
+.mypage-board-stats p {
     margin: 0 0 4px 0;
     color: #f0f0f0;
     font-size: 16px;
@@ -364,17 +364,17 @@ body {
         font-size: 36px;
     }
 
-    .board-card {
+    .mypage-board-card {
         padding: 18px;
     }
 
-    .board-row {
+    .mypage-board-row {
         display: grid;
         grid-template-columns: 1fr;
         row-gap: 12px;
     }
 
-    .board-category {
+    .mypage-board-category {
         width: 100px;
         text-align: center;
         border-radius: 10px;
@@ -384,22 +384,22 @@ body {
         font-weight: 700;
     }
 
-    .board-title {
+    .mypage-board-title {
         font-size: 18px;
         white-space: normal;
         line-height: 1.4;
         color: var(--text-main);
     }
 
-    .board-info {
+    .mypage-board-info {
         font-size: 13px;
     }
 
-    .board-stats {
+    .mypage-board-stats {
         text-align: left;
     }
 
-    .board-stats p {
+    .mypage-board-stats p {
         display: inline-block;
         margin-right: 10px;
         font-size: 13px;

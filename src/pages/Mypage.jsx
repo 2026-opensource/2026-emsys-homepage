@@ -63,7 +63,7 @@ function MyPage() {
         <section className="my-posts-box">
           <div className="posts-header">
             <h2 className="section-title">내가 작성한 글</h2>
-            <a className="community-link" href="board-link">
+            <a className="community-link" href="mypage-board-link">
               +
             </a>
           </div>
@@ -71,21 +71,21 @@ function MyPage() {
           <hr className="header-divider" />
 
           <div className="section-box">
-            <div className="board-list">
+            <div className="mypage-board-list">
               {[1, 2, 3, 4, 5, 6].map((item) => (
-                <a key={item} href="./post-detail.html" className="board-link">
-                  <article className="board-card">
-                    <div className="board-row">
+                <a key={item} href="./post-detail.html" className="mypage-board-link">
+                  <article className="mypage-board-card">
+                    <div className="mypage-board-row">
                       <div className="board-category">자유</div>
 
-                      <div className="board-main">
-                        <h2 className="board-title">
+                      <div className="mypage-board-main">
+                        <h2 className="mypage-board-title">
                           첫 번째 게시글 제목입니다
                         </h2>
-                        <p className="board-info">홍길동 · 2026-05-10</p>
+                        <p className="mypage-board-info">홍길동 · 2026-05-10</p>
                       </div>
 
-                      <div className="board-stats">
+                      <div className="mypage-board-stats">
                         <p>조회수 12</p>
                         <p>좋아요 7</p>
                         <p>댓글 3</p>

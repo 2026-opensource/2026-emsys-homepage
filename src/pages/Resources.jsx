@@ -67,7 +67,7 @@ function Resources() {
             <div className="board-menu-area">
               {/* 글쓰기 */}
               <a href="/post-write">
-                <button type="button" className="write-btn">
+                <button type="button" className="board-write-btn">
                   글쓰기
                 </button>
               </a>

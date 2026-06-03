@@ -117,6 +117,96 @@ function PostDetail() {
                     <button className="comment-delete-btn">삭제</button>
                   </div>
                 </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-writer">24000</p>
+                    <p className="comment-text">첫asd 번째 댓글</p>
+                  </div>
+                  <div className="comment-actions">
+                    <button className="comment-edit-btn">수정</button>
+                    <button className="comment-delete-btn">삭제</button>
+                  </div>
+                </div>
 
                 <div className="comment-card">
                   <div className="comment-main">

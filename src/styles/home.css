@@ -19,10 +19,6 @@
   padding: 0 30px;
 }
 
-.row {
-  display: flex;
-}
-
 .section-divider {
   display: flex;
   justify-content: center;
@@ -260,8 +256,16 @@
    반응형 (Media Queries)
 ========================= */
 @media (max-width: 768px) {
-  .row {
+  .grey-row {
     flex-direction: column;
+  }
+
+  .mint-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .mint-row > div {
+    width: 50%;
   }
 
   .left-box {

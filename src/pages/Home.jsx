@@ -19,8 +19,8 @@ function Home() {
             <div className="top-divider"></div>
           </div>
 
-          <div className="row">
-            <div className="col-md-6 left-box">
+          <div className="row grey-row">
+            <div className="col-sm-6 left-box">
               <a
                 href="https://www.instagram.com/cbnu_emsys?igsh=MTl4ZXo0Nno4aHJ5Zg=="
                 className="content-wrapper-link"
@@ -44,7 +44,7 @@ function Home() {
               </a>
             </div>
 
-            <div className="col-md-6 right-box">
+            <div className="col-sm-6 right-box">
               <a href="/resources" className="content-wrapper-link">
                 <div className="content-wrapper">
                   <div className="title-group">
@@ -74,8 +74,8 @@ function Home() {
             <div className="line"></div>
           </div>
 
-          <div className="row">
-            <div className="col-sm-3">
+          <div className="row mint-row">
+            <div className="col-6 col-sm-3">
               <a href="/gallery">
                 <div className="shortcut-item">
                   <i className="fa-regular fa-image"></i>
@@ -84,7 +84,7 @@ function Home() {
               </a>
             </div>
 
-            <div className="col-sm-3">
+            <div className="col-6 col-sm-3">
               <a href="/community">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-circle-exclamation"></i>
@@ -93,7 +93,7 @@ function Home() {
               </a>
             </div>
 
-            <div className="col-sm-3">
+            <div className="col-6 col-sm-3">
               <a href="/community">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-users"></i>
@@ -102,7 +102,7 @@ function Home() {
               </a>
             </div>
 
-            <div className="col-sm-3">
+            <div className="col-6 col-sm-3">
               <a href="https://software.cbnu.ac.kr/sub040301">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-location-dot"></i>
