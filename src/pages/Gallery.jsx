@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import Pagination from "../components/Pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -24,7 +25,6 @@ function Gallery() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const POSTS_PER_PAGE = 12;
-  const PAGE_GROUP_SIZE = 5;
 
   const filteredPosts = posts.filter(
     (post) =>
@@ -36,10 +36,6 @@ function Gallery() {
   const indexOfLastPost = currentPage * POSTS_PER_PAGE;
   const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-  const startPage =
-    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
-  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
 
   return (
     <>
@@ -112,52 +108,11 @@ function Gallery() {
                   ))}
                 </div>
               </div>
-              {/* 페이지네이션 */}
-              <div className="pagination">
-                {/* 이전 그룹 */}
-                {startPage > 1 && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(startPage - 1)}
-                  >
-                    &lt;
-                  </button>
-                )}
-
-                {/* 페이지 번호 */}
-                {Array.from(
-                  {
-                    length: endPage - startPage + 1,
-                  },
-                  (_, index) => {
-                    const pageNumber = startPage + index;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        className={
-                          currentPage === pageNumber
-                            ? "page-btn active"
-                            : "page-btn"
-                        }
-                        onClick={() => setCurrentPage(pageNumber)}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  },
-                )}
-
-                {/* 다음 그룹 */}
-                {endPage < totalPages && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(endPage + 1)}
-                  >
-                    &gt;
-                  </button>
-                )}
-              </div>
+                          <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         </main >

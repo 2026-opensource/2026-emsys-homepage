@@ -4,6 +4,7 @@ import { getPosts } from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import Pagination from "../components/Pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -21,7 +22,6 @@ function Community() {
   const [totalPages, setTotalPages] = useState(1);
 
   const POSTS_PER_PAGE = 10;
-  const PAGE_GROUP_SIZE = 5;
 
   // 카테고리 key를 화면에 보여줄 한글로 변환
   function getCategoryText(category) {
@@ -75,12 +75,6 @@ function Community() {
     fetchPosts();
   }, [category, search, currentPage]);
 
-  // 현재 보여줄 페이지 번호 그룹
-  const startPage =
-    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
-
-  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
-
   return (
     <>
       <Navbar />
@@ -96,7 +90,7 @@ function Community() {
             <div className="board-menu-area">
               {/* 글쓰기 */}
               <Link to="/community/write" className="write-btn">
-                {/*링크 안에 버튼 넣는거 별로 안 좋다고 하는데 어떻게 생각함?*/} 
+                {/*링크 안에 버튼 넣는거 별로 안 좋다고 하는데 어떻게 생각함?*/}
                 <button className="write-btn">글쓰기</button>
               </Link>
               {/* 이거 추천한데
@@ -185,52 +179,11 @@ function Community() {
                 </section>
               )}
               {/* 페이지네이션 */}
-              <div className="pagination">
-                {/* 이전 그룹 */}
-                {startPage > 1 && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(startPage - 1)}
-                  >
-                    &lt;
-                  </button>
-                )}
-
-                {/* 페이지 번호 */}
-                {Array.from(
-                  {
-                    length: endPage - startPage + 1,
-                  },
-                  (_, index) => {
-                    const pageNumber = startPage + index;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        className={
-                          currentPage === pageNumber
-                            ? "page-btn active"
-                            : "page-btn"
-                        }
-                        onClick={() => setCurrentPage(pageNumber)}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  },
-                )}
-
-                {/* 다음 그룹 */}
-                {endPage < totalPages && (
-                  <button
-                    type="button"
-                    className="page-btn"
-                    onClick={() => setCurrentPage(endPage + 1)}
-                  >
-                    &gt;
-                  </button>
-                )}
-              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         </main >
