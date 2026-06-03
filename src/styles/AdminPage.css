@@ -195,17 +195,15 @@
 }
 
 .admin-post-stats {
-  font-size: 12px;
+  font-size: 10px;
   gap:10px;
 }
 
-/* 부원 및 양도 */
+/* 부원 */
 .user-controls-row {
   display: flex;
   gap: 10px;
-  align-items: center;
-  margin-top: 12px; 
-  justify-content: flex-start;
+  margin:12px 0 12px 0;
 }
 
 .user-box-content {
@@ -274,8 +272,6 @@
   border: none;             
   overflow: hidden;
   pointer-events: none;     
-  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  z-index: 1;
 }
 
 /* 데스크탑 서랍형 토글 기능 동작 */
@@ -318,9 +314,7 @@
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  z-index: 10;
   font-size: 25px;
-  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .right-section-wrapper.open .drawer-toggle-btn {    
@@ -504,7 +498,7 @@
 
   .admin-post-stats {
     gap: 6px;
-    font-size: 9px;
+    font-size: 8px;
     display: flex; 
   }
 

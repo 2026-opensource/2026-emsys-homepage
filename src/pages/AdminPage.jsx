@@ -198,7 +198,7 @@ const AdminPage = () => {
         return category;
     }
 
-    // 데이터를 가져오는 동안 보여줄 로딩 화면
+    // 데이터를 가져오는 동안의 로딩 화면
     if (isLoading) {
         return <div style={{ textAlign: 'center', padding: '50px' }}>데이터를 불러오는 중입니다...</div>;
     }
@@ -310,7 +310,7 @@ const AdminPage = () => {
                                         <h2 className="admin-box-title">부원 목록</h2>
                                     </div>
                                 </div>
-
+                                
                                 <div className="modal-search-input-group">
                                     <input
                                         type="text"
