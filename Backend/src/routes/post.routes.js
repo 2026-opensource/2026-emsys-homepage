@@ -1,7 +1,18 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const postController = require('../controllers/post.controller');
-const { requireAuth } = require('../middlewares/auth.middleware');
+
+const postController = require("../controllers/post.controller");
+const { requireAuth } = require("../middlewares/auth.middleware");
+const { uploadPostImages } = require("../middlewares/post.middleware");
+const uploadErrorHandler = require("../middlewares/uploadError.middleware");
+
+// 게시글 이미지 업로드 라우터
+router.post(
+    "/upload/post-images",
+    requireAuth,
+    uploadPostImages.array("images", 100), // 최대 100장 이미지 업로드 허용
+    postController.uploadPostImages
+);
 
 /**
  * @swagger
@@ -277,5 +288,7 @@ router.post('/:postId/like', requireAuth, postController.toggleLike);
  *         description: 로그인 필요
  */
 router.post('/:postId/dislike', requireAuth, postController.toggleDislike);
+
+router.use(uploadErrorHandler);
 
 module.exports = router;

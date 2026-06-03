@@ -1,29 +1,56 @@
 const express = require("express");
 const path = require("path");
 const multer = require("multer");
+const fs = require("fs");
 const authController = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
+const uploadDir = path.join(__dirname, "../../uploads/profile-images");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, "../../uploads/profile-images"));
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
     },
-    filename: (req, file, cb) => {
+    filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
-        cb(null, `${req.user.id}-${Date.now()}${ext}`);
+        const fileName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
+
+        cb(null, fileName);
     },
 });
 
-const upload = multer({
-    storage,
+const allowedProfileImageTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+];
+
+const allowedProfileImageExtensions = [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp",
+];
+
+const uploadProfileImage = multer({
+    storage: profileImageStorage,
     limits: {
         fileSize: 5 * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith("image/")) {
-            return cb(new Error("이미지 파일만 업로드할 수 있습니다."));
+        const ext = path.extname(file.originalname).toLowerCase();
+
+        const isValidMimeType = allowedProfileImageTypes.includes(file.mimetype);
+        const isValidExtension = allowedProfileImageExtensions.includes(ext);
+
+        if (!isValidMimeType || !isValidExtension) {
+            return cb(new Error("PNG, JPG, JPEG, WEBP 이미지만 업로드할 수 있습니다."));
         }
 
         cb(null, true);

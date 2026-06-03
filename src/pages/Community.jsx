@@ -18,8 +18,9 @@ function Community() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const POSTS_PER_PAGE = 5;
+  const POSTS_PER_PAGE = 10;
   const PAGE_GROUP_SIZE = 5;
 
   // 카테고리 key를 화면에 보여줄 한글로 변환
@@ -51,13 +52,14 @@ function Community() {
           board_type: "COMMUNITY",
           category,
           search,
-          page: 1,
-          limit: 10,
+          page: currentPage,
+          limit: POSTS_PER_PAGE,
         });
 
         console.log("커뮤니티 게시글 목록 응답:", result);
 
         setPosts(result.data);
+        setTotalPages(result.pagination?.totalPages || 1);
       } catch (error) {
         console.error("게시글 목록 조회 실패:", error);
 
@@ -71,14 +73,7 @@ function Community() {
     }
 
     fetchPosts();
-  }, [category, search]);
-
-  // 페이지네이션 관련
-  const filteredPosts = posts;
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
-  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
-  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+  }, [category, search, currentPage]);
 
   // 현재 보여줄 페이지 번호 그룹
   const startPage =
@@ -102,7 +97,7 @@ function Community() {
               {/* 글쓰기 */}
               <Link to="/community/write" className="write-btn">
                 {/*링크 안에 버튼 넣는거 별로 안 좋다고 하는데 어떻게 생각함?*/} 
-                <button className="write-button btn btn-default">글쓰기</button>
+                <button className="write-btn">글쓰기</button>
               </Link>
               {/* 이거 추천한데
               <Link to="/community/write" className="write-btn">
@@ -159,9 +154,9 @@ function Community() {
                   {posts.length === 0 ? (
                     <p className="board-message">작성된 게시글이 없습니다.</p>
                   ) : (
-                    currentPosts.map((post) => (
-                      <a
-                        href={`/posts/${post.id}`}
+                    posts.map((post) => (
+                      <Link
+                        to={`/posts/${post.id}`}
                         className="board-link"
                         key={post.id}
                       >
@@ -184,7 +179,7 @@ function Community() {
                             <p>댓글 {post._count?.comments ?? 0}</p>
                           </div>
                         </article>
-                      </a>
+                      </Link>
                     ))
                   )}
                 </section>
@@ -228,6 +223,7 @@ function Community() {
                 {/* 다음 그룹 */}
                 {endPage < totalPages && (
                   <button
+                    type="button"
                     className="page-btn"
                     onClick={() => setCurrentPage(endPage + 1)}
                   >

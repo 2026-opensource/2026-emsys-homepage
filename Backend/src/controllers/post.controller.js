@@ -2,15 +2,23 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 
 function extractPostImageUrls(content) {
   if (!content) return [];
 
-  const regex = /<img[^>]+src=["']([^"']+)["']/g;
   const urls = [];
 
+  const srcRegex = /<img[^>]+src=["']([^"']+)["']/g;
+  const displayRegex = /<img[^>]+data-display=["']([^"']+)["']/g;
+
   let match;
-  while ((match = regex.exec(content)) !== null) {
+
+  while ((match = srcRegex.exec(content)) !== null) {
+    urls.push(match[1]);
+  }
+
+  while ((match = displayRegex.exec(content)) !== null) {
     urls.push(match[1]);
   }
 
@@ -20,12 +28,20 @@ function extractPostImageUrls(content) {
 function deleteUploadedPostImage(imageUrl) {
   if (!imageUrl) return;
 
-  // 우리 서버 uploads/posts 이미지만 삭제
-  const uploadsIndex = imageUrl.indexOf("/uploads/posts/");
-  if (uploadsIndex === -1) return;
+  const allowedUploadPaths = [
+    "/uploads/post-images/thumbnails/",
+    "/uploads/post-images/display/",
+  ];
 
+  const matchedPath = allowedUploadPaths.find((uploadPath) =>
+    imageUrl.includes(uploadPath)
+  );
+
+  if (!matchedPath) return;
+
+  // 우리 서버 uploads/post-images 이미지만 삭제
+  const uploadsIndex = imageUrl.indexOf(matchedPath);
   const relativePath = imageUrl.slice(uploadsIndex + 1);
-  // uploads/posts/post-123.png
 
   const filePath = path.join(__dirname, "../../", relativePath);
 
@@ -556,6 +572,108 @@ exports.toggleDislike = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "서버 오류가 발생했습니다.",
+    });
+  }
+};
+
+// 게시글 이미지 업로드
+exports.uploadPostImages = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "업로드된 이미지가 없습니다.",
+      });
+    }
+
+    const thumbnailDir = path.join(
+      __dirname,
+      "../../uploads/post-images/thumbnails"
+    );
+
+    const displayDir = path.join(
+      __dirname,
+      "../../uploads/post-images/display"
+    );
+
+    if (!fs.existsSync(thumbnailDir)) {
+      fs.mkdirSync(thumbnailDir, { recursive: true });
+    }
+
+    if (!fs.existsSync(displayDir)) {
+      fs.mkdirSync(displayDir, { recursive: true });
+    }
+
+    const uploadedImages = [];
+
+    for (const file of req.files) {
+      const baseName = Date.now() + "-" + Math.round(Math.random() * 1e9);
+
+      const thumbnailFileName = `${baseName}.webp`;
+      const displayFileName = `${baseName}.jpg`;
+
+      const thumbnailPath = path.join(thumbnailDir, thumbnailFileName);
+      const displayPath = path.join(displayDir, displayFileName);
+
+      // 상세/목록 미리보기용: WebP 400px
+      await sharp(file.path)
+        .rotate()
+        .resize({
+          width: 400,
+          withoutEnlargement: true,
+        })
+        .webp({
+          quality: 75,
+        })
+        .toFile(thumbnailPath);
+
+      // 클릭/저장용: JPEG 1600px
+      await sharp(file.path)
+        .rotate()
+        .resize({
+          width: 1600,
+          withoutEnlargement: true,
+        })
+        .jpeg({
+          quality: 82,
+          mozjpeg: true,
+        })
+        .toFile(displayPath);
+
+      // 임시 원본 삭제
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+
+      uploadedImages.push({
+        originalName: file.originalname,
+        thumbnailFileName,
+        displayFileName,
+        thumbnailUrl: `/uploads/post-images/thumbnails/${thumbnailFileName}`,
+        displayUrl: `/uploads/post-images/display/${displayFileName}`,
+        originalSize: file.size,
+      });
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "게시글 이미지가 업로드되었습니다.",
+      data: uploadedImages,
+    });
+  } catch (error) {
+    console.error("게시글 이미지 업로드 에러:", error);
+
+    if (req.files) {
+      req.files.forEach((file) => {
+        if (file.path && fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "게시글 이미지 업로드 중 오류가 발생했습니다.",
     });
   }
 };

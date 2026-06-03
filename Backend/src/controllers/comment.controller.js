@@ -106,7 +106,7 @@ exports.updateComment = async (req, res) => {
     }
 
     // MySQL의 NOW()로 한국 시간 저장
-    const updatedComment = await prisma.$executeRaw`
+    await prisma.$executeRaw`
       UPDATE comments 
       SET content = ${content.trim()}, updated_at = NOW() 
       WHERE id = ${parseInt(id)}
@@ -114,13 +114,16 @@ exports.updateComment = async (req, res) => {
 
     // 수정된 댓글 다시 조회
     const result = await prisma.comments.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: parseInt(id) },
+      include: {
+        users: { select: { name: true, student_id: true, status: true } }
+      }
     });
 
     res.status(200).json({
       success: true,
       message: "댓글이 수정되었습니다.",
-      data: updatedComment
+      data: result
     });
   } catch (error) {
     console.error("댓글 수정 에러:", error);

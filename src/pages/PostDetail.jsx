@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPostById, togglePostLike, togglePostDislike, increasePostView, createComment, deletePost } from "../api/postAPI";
+import {
+  getPostById, togglePostLike, togglePostDislike,
+  increasePostView, createComment, updateComment, deletePost, deleteComment
+} from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -18,14 +21,18 @@ function PostDetail() {
 
   const fetchedRef = useRef(false);
 
+  const [commentOpen, setCommentOpen] = useState(false);
+  const [commentContent, setCommentContent] = useState("");
+  const [editingCommentId
+    , setEditingCommentId] = useState(null);
+  const [editingCommentContent, setEditingCommentContent] = useState("");
+
   // =========================
   // 좋아요 / 싫어요 상태
   // =========================
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [message, setMessage] = useState("");
-  const [commentOpen, setCommentOpen] = useState(false);
-  const [commentContent, setCommentContent] = useState("");
 
   function getCategoryText(category) {
     if (category === "notice") return "공지사항";
@@ -230,6 +237,69 @@ function PostDetail() {
     }
   };
 
+  const handleCommentEditStart = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditingCommentContent(comment.content);
+  };
+  const handleCommentUpdate = async (commentId) => {
+    if (!editingCommentContent.trim()) {
+      setMessage("댓글 내용을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const result = await updateComment(commentId, editingCommentContent);
+
+      setPost({
+        ...post,
+        comments: post.comments.map((comment) =>
+          comment.id === commentId
+            ? {
+              ...comment,
+              content: result.data.content,
+              updated_at: result.data.updated_at,
+            }
+            : comment
+        ),
+      });
+
+      setEditingCommentId(null);
+      setEditingCommentContent("");
+      setMessage("");
+    } catch (error) {
+      console.error("댓글 수정 실패:", error);
+
+      setMessage(
+        error.response?.data?.message ||
+        "댓글 수정에 실패했습니다."
+      );
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    const isDelete = window.confirm("댓글을 삭제하시겠습니까?");
+
+    if (!isDelete) return;
+
+    try {
+      await deleteComment(commentId);
+
+      setPost({
+        ...post,
+        comments: post.comments.filter((comment) => comment.id !== commentId),
+      });
+
+      setMessage("");
+    } catch (error) {
+      console.error("댓글 삭제 실패:", error);
+
+      setMessage(
+        error.response?.data?.message ||
+        "댓글 삭제에 실패했습니다."
+      );
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -275,6 +345,14 @@ function PostDetail() {
     );
   }
 
+  const loginUser = JSON.parse(localStorage.getItem("userInfo"));
+
+  const isAuthor = Number(post?.author_id) === Number(loginUser?.id);
+  const isAdmin =
+    loginUser?.role === "PRESIDENT" || loginUser?.role === "OFFICER";
+
+  const canEditPost = isAuthor;
+  const canDeletePost = isAuthor || isAdmin;
   return (
     <>
       <Navbar />
@@ -289,20 +367,24 @@ function PostDetail() {
             </a>
 
             <div className="detail-top-buttons">
-              <button
-                type="button"
-                className="edit-btn"
-                onClick={() => navigate(`/posts/${post.id}/edit`)}
-              >
-                게시글 수정
-              </button>
-              <button
-                type="button"
-                className="delete-btn"
-                onClick={handleDelete}
-              >
-                게시글 삭제
-              </button>
+              {canEditPost && (
+                <button
+                  type="button"
+                  className="edit-btn"
+                  onClick={() => navigate(`/posts/${post.id}/edit`)}
+                >
+                  게시글 수정
+                </button>
+              )}
+              {canDeletePost && (
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={handleDelete}
+                >
+                  게시글 삭제
+                </button>
+              )}
             </div>
           </div>
 
@@ -364,7 +446,11 @@ function PostDetail() {
             {commentOpen && (
               <div
                 className="comment-overlay"
-                onClick={() => setCommentOpen(false)}
+                onClick={() => {
+                  setCommentOpen(false);
+                  setEditingCommentId(null);
+                  setEditingCommentContent("");
+                }}
               ></div>
             )}
 
@@ -382,14 +468,75 @@ function PostDetail() {
                       <div className="comment-card" key={comment.id}>
                         <div className="comment-main">
                           <h3 className="comment-writer">
-                            {getUserDisplayName(comment.users)}
+                            <span className="comment-writer-name"> 
+                              {getUserDisplayName(comment.users)} ·
+                            </span>
+                            <span className="comment-date-info">
+                              작성일{" "}{isEdited(comment.created_at, comment.updated_at)
+                                ? formatDate(comment.updated_at)
+                                : formatDate(comment.created_at)}
+                              {isEdited(comment.created_at, comment.updated_at) && " (수정됨)"}
+                            </span>
+
                           </h3>
-                          <p className="comment-text">{comment.content}</p>
+                          {editingCommentId === comment.id ? (
+                            <input
+                              type="text"
+                              className="comment-input"
+                              value={editingCommentContent}
+                              onChange={(e) => setEditingCommentContent(e.target.value)}
+                            />
+                          ) : (
+                            <p className="comment-text">{comment.content}</p>
+                          )}
                         </div>
 
                         <div className="comment-actions">
-                          <button className="comment-edit-btn">수정</button>
-                          <button className="comment-delete-btn">삭제</button>
+                          {(() => {
+                            const commentAuthorId = comment.user_id ?? comment.author_id;
+
+                            const isCommentAuthor =
+                              Number(commentAuthorId) === Number(loginUser?.id);
+
+                            const canEditComment = isCommentAuthor;
+                            const canDeleteComment = isCommentAuthor || isAdmin;
+
+                            return (
+                              <>
+                                {canEditComment && (
+                                  <>
+                                    {editingCommentId === comment.id ? (
+                                      <button
+                                        type="button"
+                                        className="comment-edit-btn"
+                                        onClick={() => handleCommentUpdate(comment.id)}
+                                      >
+                                        저장
+                                      </button>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        className="comment-edit-btn"
+                                        onClick={() => handleCommentEditStart(comment)}
+                                      >
+                                        수정
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+
+                                {canDeleteComment && (
+                                  <button
+                                    type="button"
+                                    className="comment-delete-btn"
+                                    onClick={() => handleCommentDelete(comment.id)}
+                                  >
+                                    삭제
+                                  </button >
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     ))

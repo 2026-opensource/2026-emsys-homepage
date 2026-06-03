@@ -156,3 +156,34 @@ export async function createComment(postId, content) {
 
     return response.data;
 }
+
+export const updateComment = async (commentId, content) => {
+    const token = getToken();
+
+    const response = await axios.put(
+        `${API_BASE_URL}/api/comment/${commentId}`,
+        { content },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return response.data;
+};
+
+export const deleteComment = async (commentId) => {
+    const token = getToken();
+
+    const response = await axios.delete(
+        `${API_BASE_URL}/api/comment/${commentId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return response.data;
+};
