@@ -4,6 +4,7 @@ const multer = require("multer");
 const fs = require("fs");
 const authController = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
+const uploadErrorHandler = require("../middlewares/uploadError.middleware");
 
 const router = express.Router();
 
@@ -12,12 +13,12 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
+const profileImageStorage  = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        const ext = path.extname(file.originalname);
+        const ext = path.extname(file.originalname).toLowerCase();
         const fileName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
 
         cb(null, fileName);
@@ -208,7 +209,7 @@ router.get("/me", requireAuth, authController.getMe);
 router.patch(
     "/me/profile-image",
     requireAuth,
-    upload.single("profileImage"),
+    uploadProfileImage.single("profileImage"),
     authController.updateProfileImage
 );
 
@@ -299,5 +300,7 @@ router.post("/verify-password-user", authController.verifyPasswordUser);
  *         description: 서버 오류
  */
 router.patch("/password", authController.changePassword);
+
+router.use(uploadErrorHandler);
 
 module.exports = router;

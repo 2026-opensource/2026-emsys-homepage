@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { createPost, getPostById, updatePost } from "../api/postAPI";
+import {
+  createPost, getPostById, updatePost,
+  uploadPostImages, deleteUnusedPostImages,
+} from "../api/postAPI";
 import JoditEditor from "jodit-react";
 
 import Navbar from "../layout/Nav";
@@ -14,25 +17,6 @@ function PostWrite() {
   const navigate = useNavigate();
   const location = useLocation();
   const editor = useRef(null);
-  // 에디터 기본 설정 (높이, 언어, 플레이스홀더 등)
-  const config = useMemo(() => ({
-    readonly: false,
-    placeholder: "내용을 입력하세요.",
-    height: 450,
-    language: "ko", // 한국어 툴바 지원
-    toolbarButtonSize: "middle",
-    // 툴바에 너무 많은 버튼이 나오는 게 싫다면 아래 배열을 수정해서 뺄 수 있습니다.
-    buttons: [
-      "source", "|",
-      "bold", "strikethrough", "underline", "italic", "|",
-      "ul", "ol", "|",
-      "outdent", "indent", "|",
-      "font", "fontsize", "brush", "paragraph", "|",
-      "image", "video", "table", "link", "|",
-      "align", "undo", "redo", "|",
-      "hr", "eraser", "fullsize"
-    ]
-  }), []);
 
   const { id } = useParams();
   const isEditMode = Boolean(id);
@@ -53,7 +37,101 @@ function PostWrite() {
     content: "",
   });
 
+  const [uploadedImages, setUploadedImages] = useState([]);
+
   const board_type = formData.board_type;
+
+  const editorButtons = [
+    "bold", "strikethrough", "underline", "italic", "|",
+    "ul", "ol", "|",
+    "font", "fontsize", "brush", "paragraph", "|",
+    "uploadImages", "video", "table", "link", "|",
+    "align", "undo", "redo", "|",
+    "hr", "eraser"
+  ];
+
+  // 에디터 기본 설정 (높이, 언어, 플레이스홀더 등)
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: "내용을 입력하세요.",
+    height: 450,
+    language: "ko",
+    toolbarButtonSize: "middle",
+
+    // 반응형 툴바가 기본 버튼 섞는 것 방지
+    toolbarAdaptive: false,
+
+    // 이미지 클릭 시 리사이즈 테두리/핸들 방지
+    allowResizeX: false,
+    allowResizeY: false,
+
+    askBeforePasteHTML: false,
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_clear_html",
+
+    disablePlugins: ["image-processor", "image-properties"],
+
+    // 화면 크기에 상관없이 항상 같은 버튼 보이도록 설정
+    buttons: editorButtons,
+    buttonsMD: editorButtons,
+    buttonsSM: editorButtons,
+    buttonsXS: editorButtons,
+
+    controls: {
+      uploadImages: {
+        icon: "image",
+        tooltip: "사진 업로드",
+        exec: async (jodit) => {
+          const input = document.createElement("input");
+
+          input.type = "file";
+          input.accept = "image/png,image/jpeg,image/jpg,image/webp";
+          input.multiple = true;
+
+          input.onchange = async () => {
+            const files = Array.from(input.files || []);
+
+            if (files.length === 0) return;
+
+            try {
+              const result = await uploadPostImages(files);
+
+              setUploadedImages((prev) => [...prev, ...result.data]);
+
+              const imageHtml = result.data
+                .map(
+                  (image) => `
+                  <p>
+      <img class="post-editor-image"
+        src="${image.thumbnailUrl}"
+        data-display="${image.displayUrl}"
+        alt="${image.originalName}"
+      />
+    </p>
+    `
+                )
+                .join("");
+              jodit.s.insertHTML(imageHtml);
+
+              setFormData((prev) => ({
+                ...prev,
+                content: jodit.value,
+              }));
+            } catch (error) {
+              console.error("이미지 업로드 실패:", error);
+
+              alert(
+                error.response?.data?.message ||
+                "이미지 업로드에 실패했습니다."
+              );
+            }
+          };
+
+          input.click();
+        },
+      },
+    },
+  }), []);
 
   function getListPath(board_type) {
     if (board_type === "ARCHIVE") return "/resources";
@@ -94,6 +172,15 @@ function PostWrite() {
     });
   }
 
+  function getUnusedImages(content, uploadedImages) {
+    return uploadedImages.filter((image) => {
+      return (
+        !content.includes(image.thumbnailUrl) &&
+        !content.includes(image.displayUrl)
+      );
+    });
+  }
+
   async function handleSubmit(e) {
     // form 제출 시 페이지 새로고침 방지
     e.preventDefault();
@@ -127,6 +214,12 @@ function PostWrite() {
       if (isEditMode) {
         const result = await updatePost(id, postData);
 
+        const unusedImages = getUnusedImages(postData.content, uploadedImages);
+
+        if (unusedImages.length > 0) {
+          await deleteUnusedPostImages(unusedImages);
+        }
+
         console.log("글 수정 응답:", result);
         alert("게시글이 수정되었습니다.");
 
@@ -134,10 +227,15 @@ function PostWrite() {
       } else {
         const result = await createPost(postData);
 
+        const unusedImages = getUnusedImages(postData.content, uploadedImages);
+
+        if (unusedImages.length > 0) {
+          await deleteUnusedPostImages(unusedImages);
+        }
+
         console.log("글 작성 응답:", result);
         alert("게시글이 작성되었습니다.");
 
-        // 게시글 작성 성공 후 해당 게시판 목록으로 이동
         navigate(getListPath(board_type));
       }
     } catch (error) {

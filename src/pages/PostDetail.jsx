@@ -416,6 +416,15 @@ function PostDetail() {
           ========================= */}
           <section
             className="detail-content"
+            onClick={(e) => {
+              if (e.target.tagName !== "IMG") return;
+
+              const displayUrl = e.target.dataset.display;
+
+              if (displayUrl) {
+                window.open(displayUrl, "_blank");
+              }
+            }}
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
@@ -468,7 +477,7 @@ function PostDetail() {
                       <div className="comment-card" key={comment.id}>
                         <div className="comment-main">
                           <h3 className="comment-writer">
-                            <span className="comment-writer-name"> 
+                            <span className="comment-writer-name">
                               {getUserDisplayName(comment.users)} ·
                             </span>
                             <span className="comment-date-info">

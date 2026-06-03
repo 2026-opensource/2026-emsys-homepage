@@ -14,6 +14,13 @@ router.post(
     postController.uploadPostImages
 );
 
+// 게시글 이미지 삭제 라우터
+router.delete(
+    "/upload/post-images",
+    requireAuth,
+    postController.deleteUnusedPostImages
+);
+
 /**
  * @swagger
  * /api/posts:

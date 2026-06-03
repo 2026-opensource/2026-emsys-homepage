@@ -4,6 +4,17 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 
+// 한글 파일명 깨짐 방지 함수
+function fixKoreanFileName(fileName) {
+  if (!fileName) return "";
+
+  try {
+    return Buffer.from(fileName, "latin1").toString("utf8");
+  } catch (error) {
+    return fileName;
+  }
+}
+
 function extractPostImageUrls(content) {
   if (!content) return [];
 
@@ -23,6 +34,36 @@ function extractPostImageUrls(content) {
   }
 
   return urls;
+}
+
+function extractPostImages(content) {
+  if (!content) return [];
+
+  const regex = /<img[^>]*src=["']([^"']+)["'][^>]*>/g;
+  const images = [];
+
+  let match;
+  let index = 0;
+
+  while ((match = regex.exec(content)) !== null) {
+    const imgTag = match[0];
+    const thumbnailUrl = match[1];
+
+    const displayMatch = imgTag.match(/data-display=["']([^"']+)["']/);
+    const altMatch = imgTag.match(/alt=["']([^"']*)["']/);
+
+    images.push({
+      thumbnail_url: thumbnailUrl,
+      display_url: displayMatch ? displayMatch[1] : thumbnailUrl,
+      original_name: altMatch ? altMatch[1] : null,
+      caption: null,
+      sort_order: index,
+    });
+
+    index++;
+  }
+
+  return images;
 }
 
 function deleteUploadedPostImage(imageUrl) {
@@ -54,22 +95,22 @@ function deleteUploadedPostImage(imageUrl) {
 exports.getAllPosts = async (req, res) => {
   try {
     const { category, search, page = 1, limit = 10, board_type = 'COMMUNITY' } = req.query;
-    
+
     const where = { board_type };
-    
+
     if (category && category !== 'all') {
       where.category = category;
     }
-    
+
     if (search) {
       where.OR = [
         { title: { contains: search } },
         { content: { contains: search } }
       ];
     }
-    
+
     const totalCount = await prisma.posts.count({ where });
-    
+
     const posts = await prisma.posts.findMany({
       where,
       skip: (parseInt(page) - 1) * parseInt(limit),
@@ -84,9 +125,9 @@ exports.getAllPosts = async (req, res) => {
         }
       }
     });
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       data: posts,
       pagination: {
         total: totalCount,
@@ -111,8 +152,8 @@ exports.getPostById = async (req, res) => {
       include: {
         users: { select: { name: true, profile_image: true, student_id: true, status: true } },
         comments: {
-          include: { 
-            users: { select: { name: true, student_id: true, status: true } } 
+          include: {
+            users: { select: { name: true, student_id: true, status: true } }
           },
           orderBy: { created_at: 'desc' }
         },
@@ -172,14 +213,14 @@ exports.createPost = async (req, res) => {
     const { board_type, category, title, content } = req.body;
     const author_id = req.user.id;
     const userRole = req.user.role;
-    
+
     if (!title || !content) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "제목과 내용을 입력해주세요." 
+      return res.status(400).json({
+        success: false,
+        message: "제목과 내용을 입력해주세요."
       });
     }
-    
+
     // board_type 검증
     const validBoardTypes = ['COMMUNITY', 'GALLERY', 'ARCHIVE'];
     if (board_type && !validBoardTypes.includes(board_type)) {
@@ -188,7 +229,7 @@ exports.createPost = async (req, res) => {
         message: "올바른 게시판 타입이 아닙니다. (COMMUNITY, GALLERY, ARCHIVE 중 하나)"
       });
     }
-    
+
     // category 검증 추가!
     if ((board_type || "COMMUNITY") === "COMMUNITY" && category) {
       const validCategories = ["notice", "free", "qna", "recruit"];
@@ -200,23 +241,23 @@ exports.createPost = async (req, res) => {
         });
       }
     }
-    
+
     // 갤러리는 임원 이상만 작성 가능
     if (board_type === 'GALLERY' && userRole !== 'OFFICER' && userRole !== 'PRESIDENT') {
-      return res.status(403).json({ 
-        success: false, 
-        message: "갤러리 게시판은 임원 이상만 작성할 수 있습니다." 
+      return res.status(403).json({
+        success: false,
+        message: "갤러리 게시판은 임원 이상만 작성할 수 있습니다."
       });
     }
-    
+
     // 자료실도 임원 이상만 작성 가능
     if (board_type === 'ARCHIVE' && userRole !== 'OFFICER' && userRole !== 'PRESIDENT') {
-      return res.status(403).json({ 
-        success: false, 
-        message: "자료실 게시판은 임원 이상만 작성할 수 있습니다." 
+      return res.status(403).json({
+        success: false,
+        message: "자료실 게시판은 임원 이상만 작성할 수 있습니다."
       });
     }
-    
+
     // 공지사항 카테고리는 임원 이상만 작성 가능
     if (category === "notice" && userRole !== "OFFICER" && userRole !== "PRESIDENT") {
       return res.status(403).json({
@@ -234,6 +275,20 @@ exports.createPost = async (req, res) => {
         author_id: author_id,
       },
     });
+    const postImages = extractPostImages(content);
+
+    if (postImages.length > 0) {
+      await prisma.post_images.createMany({
+        data: postImages.map((image) => ({
+          post_id: newPost.id,
+          thumbnail_url: image.thumbnail_url,
+          display_url: image.display_url,
+          original_name: image.original_name,
+          caption: image.caption,
+          sort_order: image.sort_order,
+        })),
+      });
+    }
     res.status(201).json({ success: true, message: "게시글이 작성되었습니다.", data: newPost });
   } catch (error) {
     console.error("게시글 작성 에러:", error);
@@ -322,6 +377,26 @@ exports.updatePost = async (req, res) => {
       WHERE id = ${postId}
     `;
 
+    // 기존 이미지 DB 기록 삭제
+    await prisma.post_images.deleteMany({
+      where: { post_id: postId },
+    });
+
+    // 수정된 content 기준으로 이미지 DB 재저장
+    const postImages = extractPostImages(content);
+
+    if (postImages.length > 0) {
+      await prisma.post_images.createMany({
+        data: postImages.map((image) => ({
+          post_id: postId,
+          thumbnail_url: image.thumbnail_url,
+          display_url: image.display_url,
+          original_name: image.original_name,
+          caption: image.caption,
+          sort_order: image.sort_order,
+        })),
+      });
+    }
     // 수정된 게시글 다시 조회
     const updatedPost = await prisma.posts.findUnique({
       where: { id: postId },
@@ -329,7 +404,6 @@ exports.updatePost = async (req, res) => {
 
     // DB 수정 성공 후, 본문에서 제거된 이미지 파일 삭제
     removedImageUrls.forEach(deleteUploadedPostImage);
-
     return res.status(200).json({
       success: true,
       message: "게시글이 수정되었습니다.",
@@ -454,7 +528,7 @@ exports.toggleLike = async (req, res) => {
           id: existingLike.id,
         },
       });
-    } 
+    }
     // 좋아요를 안 눌렀으면 좋아요 추가
     else {
       await prisma.post_likes.create({
@@ -535,7 +609,7 @@ exports.toggleDislike = async (req, res) => {
           id: existingDislike.id,
         },
       });
-    } 
+    }
     // 싫어요를 안 눌렀으면 싫어요 추가
     else {
       await prisma.post_dislikes.create({
@@ -646,7 +720,7 @@ exports.uploadPostImages = async (req, res) => {
       }
 
       uploadedImages.push({
-        originalName: file.originalname,
+        originalName: fixKoreanFileName(file.originalname),
         thumbnailFileName,
         displayFileName,
         thumbnailUrl: `/uploads/post-images/thumbnails/${thumbnailFileName}`,
@@ -674,6 +748,38 @@ exports.uploadPostImages = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "게시글 이미지 업로드 중 오류가 발생했습니다.",
+    });
+  }
+};
+
+// 업로드했지만 게시글에 사용하지 않은 이미지 삭제
+// 이미지 업로드하면 폴더에 저장되고 안 사라지는거 방지하기 위함
+exports.deleteUnusedPostImages = async (req, res) => {
+  try {
+    const { images } = req.body;
+
+    if (!Array.isArray(images)) {
+      return res.status(400).json({
+        success: false,
+        message: "삭제할 이미지 목록이 올바르지 않습니다.",
+      });
+    }
+
+    images.forEach((image) => {
+      deleteUploadedPostImage(image.thumbnailUrl);
+      deleteUploadedPostImage(image.displayUrl);
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "사용하지 않는 이미지가 삭제되었습니다.",
+    });
+  } catch (error) {
+    console.error("미사용 이미지 삭제 에러:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "이미지 삭제 중 오류가 발생했습니다.",
     });
   }
 };

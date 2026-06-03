@@ -80,7 +80,7 @@
 }
 
 /* ========================================
-   게시글 본문 영역
+  게시글 본문 영역
 ======================================== */
 .detail-title-area {
   display: flex;
@@ -113,8 +113,15 @@
   word-break: break-word;
 }
 
+.detail-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 10px;
+  vertical-align: top;
+}
+
 /* ========================================
-   피드백(좋아요/싫어요) 영역
+  피드백(좋아요/싫어요) 영역
 ======================================== */
 .reaction-section {
   display: flex;

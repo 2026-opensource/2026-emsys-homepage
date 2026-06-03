@@ -137,6 +137,7 @@ export async function togglePostDislike(postId) {
     return response.data;
 }
 
+// 댓글 작성, 수정, 삭제
 export async function createComment(postId, content) {
     const token = getToken();
 
@@ -187,3 +188,45 @@ export const deleteComment = async (commentId) => {
 
     return response.data;
 };
+
+// 게시글 이미지 업로드, 삭제
+export async function uploadPostImages(files) {
+    const token = getToken();
+    const formData = new FormData();
+
+    files.forEach((file) => {
+        formData.append("images", file);
+    });
+
+    const response = await axios.post(
+        `${API_BASE_URL}/api/posts/upload/post-images`,
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+
+    return response.data;
+}
+
+export async function deleteUnusedPostImages(images) {
+    const token = getToken();
+
+    const response = await axios.delete(
+        `${API_BASE_URL}/api/posts/upload/post-images`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            data: {
+                images,
+            },
+        }
+    );
+
+    return response.data;
+}
