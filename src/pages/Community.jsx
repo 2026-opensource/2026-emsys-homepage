@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
+
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -12,12 +13,13 @@ import { Link } from "react-router-dom";
 
 function Community() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); //short cut을 위한 카테고리 selector
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState(searchParams.get("category") || "all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 

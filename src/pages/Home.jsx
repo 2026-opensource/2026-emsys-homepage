@@ -123,7 +123,7 @@ function Home() {
             </div>
 
             <div className="col-6 col-sm-3">
-              <a href="/community">
+              <a href="/community?category=notice">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-circle-exclamation"></i>
                   <h4>공지사항</h4>

@@ -321,6 +321,68 @@
   font-weight: bold;
 }
 
+.img-viewer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-viewer-img {
+  max-width: 80vw;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.img-viewer-close {
+  position: fixed;   /* overlay 기준 고정 */
+  top: 15px;
+  right: 15px;
+  font-size: 30px;
+  color:var(--text-muted);
+  background-color:transparent;
+  border: none;
+}
+
+.img-viewer-download {
+  position: fixed;
+  top: 15px;
+  right: 70px;
+  font-size: 30px;
+  color:var(--text-muted);
+}
+
+.img-viewer-next, .img-viewer-prev{
+  position: fixed;
+  background-color: transparent;
+  border: none;
+  font-size: 30px;
+  color:var(--text-muted);
+}
+
+.img-viewer-prev {
+  left: 2vw;
+}
+
+.img-viewer-next {
+  right: 2vw;
+}
+
+.img-viewer-next:hover, 
+.img-viewer-prev:hover, 
+.img-viewer-close:hover, 
+.img-viewer-download:hover {
+  color:var(--point-mint);
+}
+
+.img-viewer-count {
+  position: fixed;
+  bottom: 2vw;
+  font-size: 18px;
+}
 /* ========================================
    반응형 웹 스타일 (모바일)
 ======================================== */
@@ -341,3 +403,4 @@
     font-size: 14px;
   }
 }
+

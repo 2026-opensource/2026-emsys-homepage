@@ -4,6 +4,7 @@ import {
   getPostById, togglePostLike, togglePostDislike,
   increasePostView, createComment, updateComment, deletePost, deleteComment
 } from "../api/postAPI";
+import DOMPurify from "dompurify";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -23,13 +24,13 @@ function PostDetail() {
 
   const [commentOpen, setCommentOpen] = useState(false);
   const [commentContent, setCommentContent] = useState("");
-  const [editingCommentId
-    , setEditingCommentId] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
 
-  // =========================
+  const [viewerImages, setViewerImages] = useState([]); // 전체 이미지 목록
+  const [viewerIndex, setViewerIndex] = useState(0);    // 현재 이미지의 인덱스
+
   // 좋아요 / 싫어요 상태
-  // =========================
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [message, setMessage] = useState("");
@@ -353,15 +354,29 @@ function PostDetail() {
 
   const canEditPost = isAuthor;
   const canDeletePost = isAuthor || isAdmin;
+
+  const handleImageClick = (e) => {
+    if (e.target.tagName !== "IMG") return;
+
+    const allImgs = [...e.currentTarget.querySelectorAll("img")];
+    const urls = allImgs.map(img => img.dataset.display || img.src);
+    const clickedUrl = e.target.dataset.display || e.target.src;
+    const index = urls.indexOf(clickedUrl);
+
+    setViewerImages(urls);
+    setViewerIndex(index);
+  };
+
+
   return (
     <>
       <Navbar />
 
       <main className="board-page">
         <div className="detail-container">
-          {/* 1. 상단 (목록으로, 수정/삭제 버튼) */}
+          {/* 상단 (목록으로, 수정/삭제 버튼) */}
           <div className="detail-top-area">
-            {/* 자료실은 자료실, 커뮤니티는 커뮤니티로 돌아가게 해야 함*/}
+            {/* 자료실은 자료실, 커뮤니티는 커뮤니티로 돌아가게 */}
             <a href={getListPath(post.board_type)} className="back-link">
               &lt; 목록으로
             </a>
@@ -388,7 +403,7 @@ function PostDetail() {
             </div>
           </div>
 
-          {/* 2. 제목 및 정보 */}
+          {/* 제목 및 정보 */}
           <section className="detail-header">
             <div className="title-line"></div>
 
@@ -411,24 +426,48 @@ function PostDetail() {
             </div>
           </section>
 
-          {/* =========================
-              본문
-          ========================= */}
+          {/* 본문 */}
           <section
             className="detail-content"
-            onClick={(e) => {
-              if (e.target.tagName !== "IMG") return;
-
-              const displayUrl = e.target.dataset.display;
-
-              if (displayUrl) {
-                window.open(displayUrl, "_blank");
-              }
-            }}
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            onClick={handleImageClick}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
 
-          {/* 4. 피드백 (좋아요 / 싫어요) */}
+          {viewerImages.length > 0 && (
+            <div className="img-viewer-overlay">
+              <button className="img-viewer-close" onClick={() => setViewerImages([])}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+
+              {viewerImages.length > 1 && (
+                <button className="img-viewer-prev" onClick={() => setViewerIndex(
+                  viewerIndex === 0 ? viewerImages.length - 1 : viewerIndex - 1
+                )}>
+                  <i className="fa-solid fa-angle-left"></i>
+                </button>
+              )}
+
+              <img className="img-viewer-img" src={viewerImages[viewerIndex]} alt="원본 이미지" />
+
+              {viewerImages.length > 1 && (
+                <button className="img-viewer-next" onClick={() => setViewerIndex(
+                  viewerIndex === viewerImages.length - 1 ? 0 : viewerIndex + 1
+                )}>
+                  <i className="fa-solid fa-angle-right"></i>
+                </button>
+              )}
+
+              <a className="img-viewer-download" href={viewerImages[viewerIndex]} download onClick={(e) => e.stopPropagation()}>
+                <i className="fa-solid fa-download"></i>
+              </a>
+
+              <span className="img-viewer-count">
+                {viewerIndex + 1} / {viewerImages.length}
+              </span>
+            </div>
+          )}
+
+          {/* 좋아요 / 싫어요 */}
           <section className="reaction-section">
             <button
               className="reaction-btn"
@@ -447,9 +486,7 @@ function PostDetail() {
 
           <p className="reaction-message">{message}</p>
 
-          {/* =========================
-          💬 댓글
-          ========================= */}
+          {/* 댓글 */}
           <div className="comment-wrapper">
             {/* 오버레이 (바깥 클릭 시 닫힘) */}
             {commentOpen && (
@@ -463,7 +500,7 @@ function PostDetail() {
               ></div>
             )}
 
-            {/* 활성화 시 펼쳐지는 댓글창 */}
+            {/* 펼쳐지는 댓글창 */}
             <div
               className={`comment-expand ${commentOpen ? "open" : ""}`}
               onClick={(e) => e.stopPropagation()}

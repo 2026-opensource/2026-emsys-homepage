@@ -188,7 +188,7 @@ body {
     margin-bottom: 10px;
 }
 
-/* ID 찾기/PW 변경 페이지 스타일 */
+/* ID 찾기/PW 탭 */
 .find-tabs {
     width: 120%;
     border-bottom: none;
@@ -200,12 +200,12 @@ body {
 }
 
 .tab-content>.tab-pane {
-    /* tab-pane 클래스는 기본적으로 숨김 처리 */
+    /* tab-pane 클래스는 기본 숨김*/
     display: none;
 }
 
 .tab-content>.active {
-    /* active 클래스가 있는 탭은 보이도록 설정 */
+    /* active 클래스가 있는 탭은 보이게! */
     display: block;
     animation: tabFadeIn 0.25s ease-in-out;
 }
@@ -229,7 +229,7 @@ body {
 }
 
 .find-tabs>li>a {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: bold;
     color: var(--text-muted);
     background-color: var(--bg-main);
@@ -265,10 +265,19 @@ body {
     gap: 8px;
 }
 
-
-
 .result-email {
     color: var(--text-main);
     font-weight: 600;
 }
 
+@media (max-width: 500px) {
+   .find-tabs>li>a {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 360px) {
+    body {
+        min-width: 360px;
+    }
+}

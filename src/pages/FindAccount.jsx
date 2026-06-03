@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import "../layout/common.css";
 import "../styles/auth.css";
-import { findEmail, verifyPasswordUser, changePassword } from "../api/authAPI";
+import { findEmail, verifyPasswordUser } from "../api/authAPI";
 
 function FindAccount() {
     const [activeTab, setActiveTab] = useState("find-id");
@@ -13,10 +14,8 @@ function FindAccount() {
     const [foundEmail, setFoundEmail] = useState(null);
 
     // 비밀번호 변경
-    const [pwStep, setPwStep] = useState(1); // 1: 정보확인, 2: 비밀번호 입력
+    const navigate = useNavigate();
     const [pwForm, setPwForm] = useState({ name: '', student_id: '', email: '' });
-    const [resetToken, setResetToken] = useState('');
-    const [newPwForm, setNewPwForm] = useState({ newPassword: '', newPasswordConfirm: '' });
 
     async function handleFindId(e) {
         e.preventDefault();
@@ -27,29 +26,13 @@ function FindAccount() {
             alert(err.response?.data?.message || '일치하는 사용자 정보를 찾을 수 없습니다.');
         }
     }
-
     async function handleVerifyUser(e) {
         e.preventDefault();
         try {
             const res = await verifyPasswordUser(pwForm);
-            setResetToken(res.data.resetToken);
-            setPwStep(2);
+            navigate("/change-password", { state: { resetToken: res.data.resetToken } });
         } catch (err) {
             alert(err.response?.data?.message || '사용자 정보가 일치하지 않습니다.');
-        }
-    }
-
-    async function handleChangePassword(e) {
-        e.preventDefault();
-        try {
-            await changePassword({ resetToken, ...newPwForm });
-            alert('비밀번호가 변경되었습니다.');
-            setPwStep(1);
-            setPwForm({ name: '', student_id: '', email: '' });
-            setNewPwForm({ newPassword: '', newPasswordConfirm: '' });
-            setResetToken('');
-        } catch (err) {
-            alert(err.response?.data?.message || '비밀번호 변경에 실패했습니다.');
         }
     }
 
@@ -67,7 +50,7 @@ function FindAccount() {
                                     </a>
                                 </li>
                                 <li className={activeTab === "find-pw" ? "active" : ""}>
-                                    <a href="#find-pw" onClick={(e) => { e.preventDefault(); setActiveTab("find-pw"); setPwStep(1); }}>
+                                    <a href="#find-pw" onClick={(e) => { e.preventDefault(); setActiveTab("find-pw"); }}>
                                         비밀번호 변경
                                     </a>
                                 </li>
@@ -94,34 +77,22 @@ function FindAccount() {
                                 </div>
 
                                 <div className={activeTab === "find-pw" ? "tab-pane fade in active" : "tab-pane fade"}>
-                                    {pwStep === 1 ? (
-                                        <>
-                                            <h2 className="check-info-text">사용자 정보 확인</h2>
-                                            <form className="find-form" onSubmit={handleVerifyUser}>
-                                                <input className="input-box" type="text" placeholder="이름" value={pwForm.name}
-                                                    onChange={(e) => setPwForm({ ...pwForm, name: e.target.value })} required />
-                                                <input className="input-box" type="text" placeholder="학번" value={pwForm.student_id}
-                                                    onChange={(e) => setPwForm({ ...pwForm, student_id: e.target.value })} required />
-                                                <input className="input-box" type="email" placeholder="아이디(이메일)" value={pwForm.email}
-                                                    onChange={(e) => setPwForm({ ...pwForm, email: e.target.value })} required />
-                                                <button className="auth-btn" type="submit">비밀번호 변경하러 가기</button>
-                                            </form>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <h2 className="check-info-text">새 비밀번호 입력</h2>
-                                            <form className="find-form" onSubmit={handleChangePassword}>
-                                                <input className="input-box" type="password" placeholder="새 비밀번호" value={newPwForm.newPassword}
-                                                    onChange={(e) => setNewPwForm({ ...newPwForm, newPassword: e.target.value })} required />
-                                                <input className="input-box" type="password" placeholder="새 비밀번호 확인" value={newPwForm.newPasswordConfirm}
-                                                    onChange={(e) => setNewPwForm({ ...newPwForm, newPasswordConfirm: e.target.value })} required />
-                                                <button className="auth-btn" type="submit">변경 완료</button>
-                                            </form>
-                                        </>
-                                    )}
+
+
+                                    <h2 className="check-info-text">사용자 정보 확인</h2>
+                                    <form className="find-form" onSubmit={handleVerifyUser}>
+                                        <input className="input-box" type="text" placeholder="이름" value={pwForm.name}
+                                            onChange={(e) => setPwForm({ ...pwForm, name: e.target.value })} required />
+                                        <input className="input-box" type="text" placeholder="학번" value={pwForm.student_id}
+                                            onChange={(e) => setPwForm({ ...pwForm, student_id: e.target.value })} required />
+                                        <input className="input-box" type="email" placeholder="아이디(이메일)" value={pwForm.email}
+                                            onChange={(e) => setPwForm({ ...pwForm, email: e.target.value })} required />
+                                        <button className="auth-btn" type="submit">비밀번호 변경하러 가기</button>
+                                    </form>
                                     <p className="login-link">
                                         <a className="link-text" href="/login">로그인 페이지로 이동</a>
                                     </p>
+
                                 </div>
                             </div>
                         </div>
