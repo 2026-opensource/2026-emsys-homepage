@@ -89,9 +89,8 @@ function Community() {
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
               {/* 글쓰기 */}
-              <Link to="/community/write" className="write-btn">
-                {/*링크 안에 버튼 넣는거 별로 안 좋다고 하는데 어떻게 생각함?*/}
-                <button className="write-btn">글쓰기</button>
+              <Link to="/community/write">
+                <button className="board-write-btn btn btn-default">글쓰기</button>
               </Link>
               {/* 이거 추천한데
               <Link to="/community/write" className="write-btn">

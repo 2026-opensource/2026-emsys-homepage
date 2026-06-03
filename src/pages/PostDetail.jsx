@@ -486,7 +486,6 @@ function PostDetail() {
                                 : formatDate(comment.created_at)}
                               {isEdited(comment.created_at, comment.updated_at) && " (수정됨)"}
                             </span>
-
                           </h3>
                           {editingCommentId === comment.id ? (
                             <input

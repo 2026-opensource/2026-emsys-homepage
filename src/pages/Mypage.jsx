@@ -269,7 +269,7 @@ function MyPage() {
         <section className="my-posts-box">
           <div className="posts-header">
             <h2 className="section-title">내가 작성한 글</h2>
-            <a className="community-link" href="board-link">
+            <a className="community-link" href="mypage-board-link">
               +
             </a>
           </div>
@@ -277,20 +277,20 @@ function MyPage() {
           <hr className="header-divider" />
 
           <div className="section-box">
-            <div className="board-list">
+            <div className="mypage-board-list">
               {myPosts.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#888' }}>작성한 게시글이 없습니다.</p>
               ) : (
                 myPosts.map((post) => (
                   <a key={post.id} href={`/posts/${post.id}`} className="board-link">
-                    <article className="board-card">
-                      <div className="board-row">
+                    <article className="mypage-board-card">
+                      <div className="mypage-board-row">
                         <div className="board-category">{getCategoryText(post.category)}</div>
-                        <div className="board-main">
-                          <h2 className="board-title">{post.title}</h2>
-                          <p className="board-info">{post.users?.name} · {post.created_at?.slice(0, 10)}</p>
+                        <div className="mypage-board-main">
+                          <h2 className="mypage-board-title">{post.title}</h2>
+                          <p className="mypage-board-info">{post.users?.name} · {post.created_at?.slice(0, 10)}</p>
                         </div>
-                        <div className="board-stats">
+                        <div className="mypage-board-stats">
                           <p>조회수 {post.view_count ?? 0}</p>
                           <p>좋아요 {post._count?.post_likes ?? 0}</p>
                           <p>댓글 {post._count?.comments ?? 0}</p>

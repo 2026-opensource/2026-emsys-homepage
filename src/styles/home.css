@@ -1,4 +1,6 @@
-/* 메인페이지 전용 스타일 */
+/* =========================
+   메인페이지 공통 변수 및 레이아웃
+========================= */
 :root {
   --bg-main: #333333;
   --bg-box: #444444;
@@ -14,127 +16,136 @@
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 30px 30px;
-}
-
-/* =========================
-  About Section
-========================= */
-
-.about-section {
-  padding: 30px 50px 0;
-  background-color: var(--bg-main);
+  padding: 0 30px;
 }
 
 .section-divider {
-  border-color: var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  text-align: center;
   color: var(--border-color);
+}
+
+/* =========================
+   About Section
+========================= */
+.about-section {
+  background-color: var(--bg-main);
+}
+
+.top-divider {
+  flex: 1;
+  height: 1px;
+  margin: 8px 0;
+  background-color: var(--border-color);
 }
 
 .left-box,
 .right-box {
-  margin-top: 24px;
-  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .left-box {
   border-right: 1px solid var(--border-color);
 }
 
-@media (max-width: 991px) {
-  .left-box {
-    border-right: none;
-  }
-  .home-board-box {
-    margin-bottom: 15px;
-  }
+.right-box {
+  border-left: 1px solid var(--border-color);
 }
 
-.content-wrapper {
+/* 박스 영역 전체를 클릭 가능하도록 확장 */
+.content-wrapper-link {
+  display: block;
+  width: 100%;
   padding: 10px 20px;
+  box-sizing: border-box;
+  text-decoration: none;
 }
 
 .content-wrapper-link:hover {
   text-decoration: none;
 }
 
-.title-group {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.fa-instagram {
-  position: relative;
-  top: 10px;
-  display: inline-block;
-  margin-right: 10px;
-  font-size: 50px;
+.content-wrapper-link:hover .arr-btn {
   color: var(--point-mint);
 }
 
-.document-icon {
-  display: inline-block;
-  margin-right: 12px;
-  font-size: 32px;
+.content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.title-group,
+.description-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .about-title {
-  display: inline-block;
-  margin-top: 24px;
-  font-size: 20px;
+  margin: 0;
+  font-size: clamp(16px, 3vw, 20px);
   font-weight: bold;
   color: var(--point-mint);
-}
-
-.description-group {
-  margin-top: 24px;
+  white-space: nowrap;
 }
 
 .section-desc {
   margin-right: 10px;
+  font-size: clamp(9px, 1vw, 12px);
   vertical-align: middle;
-  font-size: 12px;
 }
 
 .arr-btn {
-  font-size: 18px;
+  font-size: clamp(12px, 1.5vw, 18px);
   color: var(--text-muted);
   transition: color 0.3s;
+  white-space: nowrap;
 }
 
-.content-wrapper-link:hover .arr-btn {
+/* 아이콘 스타일 */
+.fa-instagram,
+.fa-file-lines {
+  margin-right: 10px;
+  font-size: clamp(35px, 4vw, 50px);
   color: var(--point-mint);
+}
+
+.document-icon {
+  width: 50px;
+  height: 50px;
 }
 
 /* =========================
    바로가기
 ========================= */
-
 .shortcut {
   background-color: var(--bg-main);
-}
-
-.shortcut .section-divider {
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  margin-bottom: 40px;
 }
 
 .shortcut .line {
   flex: 1;
   height: 1px;
-  margin: 8px 10px 0;
+  margin: 8px 0;
   background-color: var(--border-color);
 }
 
 .shortcut .shortcut-text {
+  margin: 0 10px;
   font-size: 14px;
   font-weight: bold;
 }
 
 .shortcut-item {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   padding: 40px 20px;
   border-radius: 10px;
   background-color: var(--point-mint);
@@ -151,6 +162,18 @@
   background-color: #00cc82;
 }
 
+.shortcut-item i {
+  margin-bottom: 15px;
+  font-size: clamp(32px, 4vw, 48px);
+}
+
+.shortcut-item h4 {
+  margin: 0;
+  font-size: clamp(14px, 1.5vw, 18px);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
 .shortcut-item i,
 .shortcut-item h4 {
   transition: color 0.3s;
@@ -161,23 +184,11 @@
   color: #ffffff;
 }
 
-.shortcut-item i {
-  margin-bottom: 15px;
-  font-size: 48px;
-}
-
-.shortcut-item h4 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: bold;
-}
-
 /* =========================
    게시판 미리보기
 ========================= */
-
 .home-board-preview {
-  padding: 0;
+  padding-bottom: 30px;
   background-color: var(--bg-main);
 }
 
@@ -192,7 +203,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 0 10px 0;
+  margin-bottom: 10px;
 }
 
 .home-board-title,
@@ -200,7 +211,7 @@
   margin: 0;
   padding: 0;
   color: var(--point-mint);
-  font-size: 20px;
+  font-size: clamp(16px, 5vw, 20px);
 }
 
 .plus-btn {
@@ -220,7 +231,6 @@
 }
 
 .home-board-list li {
-  margin: 0;
   padding: 15px 0;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
@@ -232,7 +242,7 @@
 }
 
 .home-board-list li a {
-  font-size: 16px;
+  font-size: clamp(14px, 1.5vw, 16px);
   color: var(--text-main);
   text-decoration: none;
   transition: color 0.3s;
@@ -240,4 +250,75 @@
 
 .home-board-list li a:hover {
   color: var(--point-mint);
+}
+
+/* =========================
+   반응형 (Media Queries)
+========================= */
+@media (max-width: 768px) {
+  .grey-row {
+    flex-direction: column;
+  }
+
+  .mint-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .mint-row > div {
+    width: 50%;
+  }
+
+  .left-box {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .right-box {
+    border-left: none;
+  }
+
+  .home-board-box {
+    margin-bottom: 15px;
+  }
+
+  .shortcut-item {
+    padding: 20px 10px;
+  }
+
+  .section-divider {
+    margin: 0;
+  }
+
+  .shortcut-item:first-child {
+    margin-top: 15px;
+  }
+
+  .shortcut-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .content-wrapper-link {
+    padding: 20px;
+  }
+
+  .calendar-section {
+    padding: 30px;
+  }
+
+  .top-divider {
+    margin: 10px 0 0 0;
+  }
+
+  @media (max-width: 360px) {
+    .content-wrapper {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .description-group {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
 }

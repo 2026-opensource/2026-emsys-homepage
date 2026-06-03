@@ -3,12 +3,9 @@
 /* ========================= */
 
 .header-inner {
-  width: 100%;
-  padding: 0;
-  margin-top: 80px;
-
-  display: flex;
-  justify-content: center;
+  max-width: 1200px;
+  margin: 80px auto 0 auto;
+  padding: 0 30px;
 }
 
 /* ========================= */
@@ -53,6 +50,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
+  filter: brightness(0.5);
 }
 
 /* ========================= */
@@ -126,3 +124,5 @@
 
   font-weight: bold;
 }
+
+
