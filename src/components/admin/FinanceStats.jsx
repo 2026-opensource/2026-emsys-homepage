@@ -28,7 +28,7 @@ const FinanceStats = () => {
             if (data.success) {
                 setSemesters(data.data);
                 // 월별 탭 기본 선택: 가장 최신 학기
-                if (data.data.length > 0) setSelectedSemester(data.data[data.data.length-1]);
+                if (data.data.length > 0) setSelectedSemester(data.data[data.data.length - 1]);
             }
         } catch (e) {
             console.error('학기 목록 로드 실패:', e);
@@ -119,6 +119,19 @@ const FinanceStats = () => {
     const formatCurrency = (value) =>
         new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value);
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('파일 크기는 5MB 이하여야 합니다.');
+            e.target.value = '';
+            return;
+        }
+
+        setExcelFile(file);
+    };
+
     return (
         <div className="finance-inside-content">
 
@@ -173,7 +186,7 @@ const FinanceStats = () => {
                                 tickFormatter={(v) => `${Math.round(v / 10000)}만`} />
                             <Tooltip
                                 formatter={(v) => [formatCurrency(v), '지출액']}
-                                contentStyle={{ fontSize: '12px', borderRadius: '4px',  padding: '4px 8px' }}
+                                contentStyle={{ fontSize: '12px', borderRadius: '4px', padding: '4px 8px' }}
                                 animationDuration={0}
                             />
                             <Bar dataKey="amount" radius={[4, 4, 0, 0]} isAnimationActive={false}>
@@ -196,7 +209,7 @@ const FinanceStats = () => {
                     accept=".xlsx, .xls"
                     id="inside-excel-file"
                     className="finance-hidden-input"
-                    onChange={(e) => setExcelFile(e.target.files[0])}
+                    onChange={handleFileChange}
                 />
 
                 <button
