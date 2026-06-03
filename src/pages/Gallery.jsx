@@ -1,6 +1,7 @@
 // Gallery.jsx
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getPosts } from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -10,32 +11,69 @@ import "../layout/common.css";
 import "../styles/board.css";
 import "../styles/gallery.css";
 
-import logoGreen from "../assets/images/logo-green.png";
-
 function Gallery() {
-  const dummyPosts = Array.from({ length: 90 }, (_, index) => ({
-    id: index + 1,
-    title: `테스트 게시글 ${index + 1}`,
-    date: "2026-05-20",
-    image: logoGreen,
-  }));
-  const posts = dummyPosts;
+  const navigate = useNavigate();
 
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const POSTS_PER_PAGE = 12;
 
-  const filteredPosts = posts.filter(
-    (post) =>
-      post.title.toLowerCase().includes(search.toLowerCase()) ||
-      post.date.toLowerCase().includes(search.toLowerCase()),
-  );
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
-  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+  function getImageUrl(path) {
+    if (!path) return "";
+
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    return `${API_BASE_URL}${path}`;
+  }
+
+  // 카테고리 key를 화면에 보여줄 한글로 변환
+  function getCategoryText(category) {
+    if (category === "activity") return "활동";
+    return category;
+  }
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
+
+        const result = await getPosts({
+          board_type: "GALLERY",
+          category,
+          search,
+          page: currentPage,
+          limit: POSTS_PER_PAGE,
+        });
+
+        console.log("갤러리 게시글 목록 응답:", result);
+
+        setPosts(result.data || []);
+        setTotalPages(result.pagination?.totalPages || 1);
+      } catch (error) {
+        console.error("게시글 목록 조회 실패:", error);
+
+        setErrorMessage(
+          error.response?.data?.message ||
+          "갤러리 게시글을 불러오지 못했습니다."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, [category, search, currentPage]);
 
   return (
     <>
@@ -48,24 +86,32 @@ function Gallery() {
               <div className="board-title-line"></div>
             </div>
 
-            <hr className="header-divider" />
 
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
+              {/* 글쓰기 */}
+              <Link to="/gallery/write">
+                <button className="board-write-btn btn btn-default">글쓰기</button>
+              </Link>
               {/* 검색 영역 */}
-              <section className="gallery-button">
-                <Link to="/post-write">
-                  <button className="write-button btn btn-default">
-                    글쓰기
-                  </button>
-                </Link>
-              </section>
               <div className="board-search-area">
+                <select
+                  className="form-control board-category-select"
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="all">전체 글</option>
+                  <option value="activity">활동</option>
+                </select>
+
                 <div className="input-group board-search-input">
                   <input
                     type="text"
                     className="form-control search-input"
-                    placeholder="제목/날짜를 통해 검색"
+                    placeholder="검색"
                     value={search}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -83,32 +129,51 @@ function Gallery() {
                   </span>
                 </div>
               </div>
-              <div className="gallery-box">
-                <div className="row">
-                  {currentPosts.map((post) => (
-                    <div className="col-sm-3" key={post.id}>
-                      <Link to={`/post-detail/${post.id}`}>
-                        <div className="gallery-post">
-                          <section className="post-image-box">
-                            <img
-                              className="post-image img-responsive"
-                              src={post.image}
-                              alt="사진"
-                            />
-                          </section>
 
-                          <section className="post-content">
-                            <p className="post-date">{post.date}</p>
+              {loading && <p className="board-message">게시글을 불러오는 중...</p>}
 
-                            <p className="post-title">{post.title}</p>
-                          </section>
-                        </div>
-                      </Link>
+              {errorMessage && <p className="board-error">{errorMessage}</p>}
+
+              {/* 게시글 리스트 */}
+              {!loading && !errorMessage && (
+                <div className="gallery-box">
+                  {posts.length === 0 ? (
+                    <p className="board-message">작성된 갤러리 게시글이 없습니다.</p>
+                  ) : (
+                    <div className="row">
+                      {posts.map((post) => {
+                        const firstImage = post.post_images?.[0];
+
+                        return (
+                          <div className="col-sm-3" key={post.id}>
+                            <Link to={`/posts/${post.id}`}>
+                              <div className="gallery-post">
+                                <section className="post-image-box">
+                                  <img
+                                    className="post-image img-responsive"
+                                    src={getImageUrl(firstImage?.thumbnail_url)}
+                                    alt={firstImage?.original_name || "갤러리 썸네일"}
+                                  />
+                                </section>
+
+                                <section className="post-content">
+                                  <p className="post-date">
+                                    {post.created_at?.slice(0, 10)}
+                                  </p>
+
+                                  <p className="post-title">{post.title}</p>
+                                </section>
+                              </div>
+                            </Link>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-                          <Pagination
+              )}
+              {/* 페이지네이션 */}
+              <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}

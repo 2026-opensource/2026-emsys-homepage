@@ -91,6 +91,45 @@ function deleteUploadedPostImage(imageUrl) {
   }
 }
 
+const MAX_POST_IMAGE_TOTAL_SIZE = 50 * 1024 * 1024; // 한 게시글에 첨부할 수 있는 이미지 총 용량 50MB
+
+function getUploadedImageFileSize(imageUrl) {
+  if (!imageUrl) return 0;
+
+  const allowedUploadPaths = [
+    "/uploads/post-images/thumbnails/",
+    "/uploads/post-images/display/",
+  ];
+
+  const matchedPath = allowedUploadPaths.find((uploadPath) =>
+    imageUrl.includes(uploadPath)
+  );
+
+  if (!matchedPath) return 0;
+
+  const uploadsIndex = imageUrl.indexOf(matchedPath);
+  const relativePath = imageUrl.slice(uploadsIndex + 1);
+  const filePath = path.join(__dirname, "../../", relativePath);
+
+  if (!fs.existsSync(filePath)) return 0;
+
+  return fs.statSync(filePath).size;
+}
+
+function getPostImageTotalSize(content) {
+  const imageUrls = extractPostImageUrls(content);
+
+  const uniqueImageUrls = [...new Set(imageUrls)];
+
+  return uniqueImageUrls.reduce((total, imageUrl) => {
+    return total + getUploadedImageFileSize(imageUrl);
+  }, 0);
+}
+
+function isPostImageTotalSizeExceeded(content) {
+  return getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE;
+}
+
 // 게시글 전체 조회 (검색, 카테고리 필터링, 페이지네이션 포함)
 exports.getAllPosts = async (req, res) => {
   try {
@@ -120,8 +159,17 @@ exports.getAllPosts = async (req, res) => {
         users: {
           select: { name: true, student_id: true, status: true }
         },
+        post_images: {
+          orderBy: { sort_order: "asc" },
+          take: 1,
+          select: {
+            thumbnail_url: true,
+            display_url: true,
+            original_name: true,
+          },
+        },
         _count: {
-          select: { comments: true, post_likes: true}
+          select: { comments: true, post_likes: true }
         }
       }
     });
@@ -266,16 +314,34 @@ exports.createPost = async (req, res) => {
       });
     }
 
+    const finalBoardType = board_type || "COMMUNITY";
+    const postImages = extractPostImages(content);
+
+    // 갤러리는 사진 1개 이상 필수
+    if (finalBoardType === "GALLERY" && postImages.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "갤러리 게시글은 사진을 1개 이상 첨부해야 합니다.",
+      });
+    }
+
+    // 한 게시글당 이미지 총 용량 제한
+    if (isPostImageTotalSizeExceeded(content)) {
+      return res.status(400).json({
+        success: false,
+        message: "게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.",
+      });
+    }
+
     const newPost = await prisma.posts.create({
       data: {
-        board_type: board_type || "COMMUNITY",
+        board_type: finalBoardType,
         category,
         title,
         content,
         author_id: author_id,
       },
     });
-    const postImages = extractPostImages(content);
 
     if (postImages.length > 0) {
       await prisma.post_images.createMany({
@@ -359,6 +425,24 @@ exports.updatePost = async (req, res) => {
 
     // 새 content 이미지 목록
     const newImageUrls = extractPostImageUrls(content);
+    const finalBoardType = board_type || existingPost.board_type;
+    const postImages = extractPostImages(content);
+
+    // 갤러리는 수정 후에도 사진 1개 이상 필수
+    if (finalBoardType === "GALLERY" && postImages.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "갤러리 게시글은 사진을 1개 이상 첨부해야 합니다.",
+      });
+    }
+
+    // 한 게시글당 이미지 총 용량 제한
+    if (isPostImageTotalSizeExceeded(content)) {
+      return res.status(400).json({
+        success: false,
+        message: "게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.",
+      });
+    }
 
     // 기존에는 있었는데 수정 후 content에서 빠진 이미지
     const removedImageUrls = oldImageUrls.filter(
@@ -369,7 +453,7 @@ exports.updatePost = async (req, res) => {
     await prisma.$executeRaw`
       UPDATE posts 
       SET 
-        board_type = ${board_type || "COMMUNITY"}, 
+        board_type = ${finalBoardType}, 
         category = ${category}, 
         title = ${title}, 
         content = ${content},
@@ -381,9 +465,6 @@ exports.updatePost = async (req, res) => {
     await prisma.post_images.deleteMany({
       where: { post_id: postId },
     });
-
-    // 수정된 content 기준으로 이미지 DB 재저장
-    const postImages = extractPostImages(content);
 
     if (postImages.length > 0) {
       await prisma.post_images.createMany({
@@ -785,41 +866,41 @@ exports.deleteUnusedPostImages = async (req, res) => {
 };
 
 exports.getMyPosts = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { page = 1, limit = 5 } = req.query;
+  try {
+    const userId = req.user.id;
+    const { page = 1, limit = 5 } = req.query;
 
-        const where = { author_id: userId };
+    const where = { author_id: userId };
 
-        const totalCount = await prisma.posts.count({ where });
+    const totalCount = await prisma.posts.count({ where });
 
-        const posts = await prisma.posts.findMany({
-            where,
-            skip: (parseInt(page) - 1) * parseInt(limit),
-            take: parseInt(limit),
-            orderBy: { created_at: 'desc' },
-            include: {
-                users: {
-                    select: { name: true, student_id: true, status: true }
-                },
-                _count: {
-                    select: { comments: true, post_likes: true }
-                }
-            }
-        });
+    const posts = await prisma.posts.findMany({
+      where,
+      skip: (parseInt(page) - 1) * parseInt(limit),
+      take: parseInt(limit),
+      orderBy: { created_at: 'desc' },
+      include: {
+        users: {
+          select: { name: true, student_id: true, status: true }
+        },
+        _count: {
+          select: { comments: true, post_likes: true }
+        }
+      }
+    });
 
-        res.status(200).json({
-            success: true,
-            data: posts,
-            pagination: {
-                total: totalCount,
-                page: parseInt(page),
-                limit: parseInt(limit),
-                totalPages: Math.ceil(totalCount / parseInt(limit))
-            }
-        });
-    } catch (error) {
-        console.error("내 게시글 조회 에러:", error);
-        res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
-    }
+    res.status(200).json({
+      success: true,
+      data: posts,
+      pagination: {
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(totalCount / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error("내 게시글 조회 에러:", error);
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+  }
 };

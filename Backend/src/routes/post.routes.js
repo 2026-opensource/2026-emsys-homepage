@@ -10,7 +10,7 @@ const uploadErrorHandler = require("../middlewares/uploadError.middleware");
 router.post(
     "/upload/post-images",
     requireAuth,
-    uploadPostImages.array("images", 100), // 최대 100장 이미지 업로드 허용
+    uploadPostImages.array("images"),
     postController.uploadPostImages
 );
 

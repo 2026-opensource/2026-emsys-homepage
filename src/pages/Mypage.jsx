@@ -182,7 +182,7 @@ function MyPage() {
     if (category === "project") return "과제/프로젝트";
     if (category === "contest") return "대회/공모전";
     if (category === "class") return "수업";
-    if (category === "event") return "행사";
+    if (category === "activity") return "행사";
     return category;
 }
 

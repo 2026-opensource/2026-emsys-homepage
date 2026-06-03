@@ -33,7 +33,6 @@ const uploadPostImages = multer({
     storage: postTempStorage,
     limits: {
         fileSize: 10 * 1024 * 1024,
-        files: 100,
     },
     fileFilter: function (req, file, cb) {
         const ext = path.extname(file.originalname).toLowerCase();

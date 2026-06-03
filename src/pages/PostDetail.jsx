@@ -44,7 +44,7 @@ function PostDetail() {
     if (category === "project") return "과제/프로젝트";
     if (category === "contest") return "대회/공모전";
     if (category === "class") return "수업";
-    if (category === "event") return "행사";
+    if (category === "activity") return "행사";
     return category;
   }
 
@@ -56,6 +56,14 @@ function PostDetail() {
 
   // 게시글 상세 정보 가져오기
   useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+
     if (fetchedRef.current) {
       return;
     }
@@ -89,7 +97,7 @@ function PostDetail() {
     }
 
     fetchPostDetail();
-  }, [id]);
+  }, [id, navigate]);
 
   // 학번 따오기용
   function getStudentYear(studentId) {

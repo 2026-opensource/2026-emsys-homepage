@@ -38,6 +38,7 @@ function PostWrite() {
   });
 
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   // 글 작성/수정 여부에 따라 에디터 로딩 제어
   const [isDirty, setIsDirty] = useState(false);
@@ -97,27 +98,55 @@ function PostWrite() {
           input.onchange = async () => {
             const files = Array.from(input.files || []);
 
+            const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
             if (files.length === 0) return;
 
-            try {
-              const result = await uploadPostImages(files);
+            const oversizedFiles = files.filter(
+              (file) => file.size > MAX_IMAGE_FILE_SIZE
+            );
 
-              setUploadedImages((prev) => [...prev, ...result.data]);
+            if (oversizedFiles.length > 0) {
+              const fileNames = oversizedFiles
+                .map((file) => `- ${file.name}`)
+                .join("\n");
+
+              alert(
+                `다음 이미지가 10MB를 초과했습니다.\n\n${fileNames}\n\n이미지 1장당 최대 10MB까지 업로드할 수 있습니다.`
+              );
+
+              return;
+            }
+            
+
+            try {
+              setUploadingImages(true);
+
+              const chunks = chunkArray(files, 30);
+              const uploadedResults = [];
+
+              for (const chunk of chunks) {
+                const result = await uploadPostImages(chunk);
+                uploadedResults.push(...result.data);
+              }
+
+              setUploadedImages((prev) => [...prev, ...uploadedResults]);
               setIsDirty(true);
 
-              const imageHtml = result.data
+              const imageHtml = uploadedResults
                 .map(
                   (image) => `
-                  <p>
-      <img class="post-editor-image"
-        src="${image.thumbnailUrl}"
-        data-display="${image.displayUrl}"
-        alt="${image.originalName}"
-      />
-    </p>
+      <p>
+        <img class="post-editor-image"
+          src="${image.thumbnailUrl}"
+          data-display="${image.displayUrl}"
+          alt="${image.originalName}"
+        />
+      </p>
     `
                 )
                 .join("");
+
               jodit.s.insertHTML(imageHtml);
 
               setFormData((prev) => ({
@@ -131,6 +160,8 @@ function PostWrite() {
                 error.response?.data?.message ||
                 "이미지 업로드에 실패했습니다."
               );
+            } finally {
+              setUploadingImages(false);
             }
           };
 
@@ -160,7 +191,7 @@ function PostWrite() {
       { value: "class", label: "수업" },
     ],
     GALLERY: [
-      { value: "event", label: "행사" },
+      { value: "activity", label: "행사" },
     ],
   };
 
@@ -181,6 +212,16 @@ function PostWrite() {
     }));
   }
 
+  function chunkArray(array, size) {
+    const chunks = [];
+
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+
+    return chunks;
+  }
+
   function getUnusedImages(content, uploadedImages) {
     return uploadedImages.filter((image) => {
       return (
@@ -188,6 +229,17 @@ function PostWrite() {
         !content.includes(image.displayUrl)
       );
     });
+  }
+
+  async function cleanupTemporaryUploadedImages() {
+    if (uploadedImages.length === 0) return;
+
+    try {
+      await deleteUnusedPostImages(uploadedImages);
+      setUploadedImages([]);
+    } catch (error) {
+      console.error("임시 업로드 이미지 삭제 실패:", error);
+    }
   }
 
   async function handleSubmit(e) {
@@ -255,19 +307,21 @@ function PostWrite() {
     } catch (error) {
       console.error(isEditMode ? "글 수정 실패:" : "글 작성 실패:", error);
 
-      setErrorMessage(
+      const message =
         error.response?.data?.message ||
         error.message ||
         (isEditMode
           ? "게시글 수정에 실패했습니다."
-          : "게시글 작성에 실패했습니다.")
-      );
+          : "게시글 작성에 실패했습니다.");
+
+      setErrorMessage(message);
+      alert(message);
     } finally {
       setLoading(false);
     }
   }
 
-  function handleCancel() {
+  async function handleCancel() {
     if (isDirty) {
       const isLeave = window.confirm(
         "저장하지 않은 변경사항이 있습니다. 페이지를 나가시겠습니까?"
@@ -277,6 +331,8 @@ function PostWrite() {
     }
 
     allowNavigationRef.current = true;
+
+    await cleanupTemporaryUploadedImages();
 
     if (isEditMode) {
       navigate(`/posts/${id}`, { replace: true });
@@ -344,7 +400,7 @@ function PostWrite() {
 
   // Navbar / Link / a 태그 내부 이동 방지
   useEffect(() => {
-    const handleLinkClick = (e) => {
+    const handleLinkClick = async (e) => {
       if (!isDirty || allowNavigationRef.current) return;
 
       const link = e.target.closest("a");
@@ -379,6 +435,7 @@ function PostWrite() {
       if (!isLeave) return;
 
       allowNavigationRef.current = true;
+      await cleanupTemporaryUploadedImages();
       navigate(nextPath);
     };
 
@@ -387,7 +444,7 @@ function PostWrite() {
     return () => {
       document.removeEventListener("click", handleLinkClick, true);
     };
-  }, [isDirty, navigate, location.pathname, location.search, location.hash]);
+  }, [isDirty, navigate, location.pathname, location.search, location.hash, uploadedImages]);
 
   return (
     <>
@@ -428,6 +485,11 @@ function PostWrite() {
               <hr className="header-divider" />
 
               {errorMessage && <p className="error-message">{errorMessage}</p>}
+              {uploadingImages && (
+                <p className="board-message">
+                  이미지 업로드 중입니다. 사진이 많으면 시간이 걸릴 수 있습니다.
+                </p>
+              )}
 
               <div className="form-group">
                 <div className="title-box">

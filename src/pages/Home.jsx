@@ -86,7 +86,7 @@ function Home() {
               <a href="/resources" className="content-wrapper-link">
                 <div className="content-wrapper">
                   <div className="title-group">
-                    <i class="fa-regular fa-file-lines"></i>
+                    <i className="fa-regular fa-file-lines"></i>
                     <h3 className="about-title">자료실</h3>
                   </div>
 

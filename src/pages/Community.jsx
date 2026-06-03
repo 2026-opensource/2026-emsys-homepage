@@ -94,11 +94,6 @@ function Community() {
               <Link to="/community/write">
                 <button className="board-write-btn btn btn-default">글쓰기</button>
               </Link>
-              {/* 이거 추천한데
-              <Link to="/community/write" className="write-btn">
-                글쓰기
-              </Link>
-              */}
               {/* 검색 영역 */}
               <div className="board-search-area">
                 <select
