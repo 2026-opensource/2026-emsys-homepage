@@ -63,6 +63,9 @@ router.delete(
  */
 router.get('/', postController.getAllPosts);
 
+// 사용자 본인 게시글만 불러오게
+router.get('/my', requireAuth, postController.getMyPosts);
+
 /**
  * @swagger
  * /api/posts/{id}/view:

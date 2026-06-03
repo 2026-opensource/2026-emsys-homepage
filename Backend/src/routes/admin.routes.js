@@ -37,6 +37,8 @@ router.get("/test",
     adminController.adminTest
 );
 
+router.get("/posts", requireAuth, requireAdmin, adminController.getAllPosts);
+
 /**
  * @swagger
  * /api/admin/users:

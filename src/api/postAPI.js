@@ -230,3 +230,11 @@ export async function deleteUnusedPostImages(images) {
 
     return response.data;
 }
+export async function getMyPosts({ page = 1, limit = 5 }) {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/my`, {
+        params: { page, limit },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import MainCalendar from "../components/calendar/MainCalendar";
 import ImageSlider from "../components/ImageSlider";
+import { getPosts } from "../api/postAPI";
 
 import "../layout/common.css";
 import "../styles/home.css";
@@ -14,6 +15,41 @@ import documentIcon from "../assets/images/document-sketch-mint.svg";
 
 function Home() {
   const [date, setDate] = useState(new Date());
+  const [noticePosts, setNoticePosts] = useState([]);
+  const [communityPosts, setCommunityPosts] = useState([]);
+
+  useEffect(() => {
+    async function fetchPreviews() {
+      try {
+        const noticeResult = await getPosts({
+          board_type: "COMMUNITY",
+          category: "notice",
+          page: 1,
+          limit: 3,
+        });
+        setNoticePosts(noticeResult.data || []);
+
+        const communityResult = await getPosts({
+          board_type: "COMMUNITY",
+          category: "all",
+          page: 1,
+          limit: 3,
+        });
+        setCommunityPosts(communityResult.data || []);
+      } catch (error) {
+        console.error("홈 게시글 로드 실패:", error);
+      }
+    }
+    fetchPreviews();
+  }, []);
+
+  function getCategoryText(category) {
+    if (category === "notice") return "공지사항";
+    if (category === "free") return "자유";
+    if (category === "qna") return "질문";
+    if (category === "recruit") return "팀원 모집";
+    return category;
+}
 
   return (
     <>
@@ -142,17 +178,17 @@ function Home() {
                 <hr className="home-board-divider" />
 
                 <ul className="home-board-list">
-                  <li>
-                    <a href="#">2026년도 1학기 스터디 모집 안내</a>
-                  </li>
-
-                  <li>
-                    <a href="#">EMSYS 2026년도 1학기 개강총회</a>
-                  </li>
-
-                  <li>
-                    <a href="#">EMSYS 2026년도 1학기 MT</a>
-                  </li>
+                  {noticePosts.length === 0 ? (
+                    <li>공지사항이 없습니다.</li>
+                  ) : (
+                    noticePosts.map((post) => (
+                      <li key={post.id}>
+                        <a href={`/posts/${post.id}`}>
+                          {post.title}
+                        </a>
+                      </li>
+                    ))
+                  )}
                 </ul>
               </div>
             </div>
@@ -170,17 +206,17 @@ function Home() {
                 <hr className="home-board-divider" />
 
                 <ul className="home-board-list">
-                  <li>
-                    <a href="#">운영체제 시험</a>
-                  </li>
-
-                  <li>
-                    <a href="#">프로젝트 팀원구합니다</a>
-                  </li>
-
-                  <li>
-                    <a href="#">오늘 휴강</a>
-                  </li>
+                  {communityPosts.length === 0 ? (
+                    <li>게시글이 없습니다.</li>
+                  ) : (
+                    communityPosts.map((post) => (
+                      <li key={post.id}>
+                        <a href={`/posts/${post.id}`}>
+                          [{getCategoryText(post.category)}] {post.title}
+                        </a>
+                      </li>
+                    ))
+                  )}
                 </ul>
               </div>
             </div>

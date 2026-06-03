@@ -18,7 +18,7 @@ export const fetchMembers = async () => {
             `${BASE_URL}/admin/users?active=true`,
             authHeaders()
         );
-        return response.data; 
+        return response.data;
     } catch (error) {
         console.error('부원 목록 조회 실패:', error);
         throw error;
@@ -26,10 +26,10 @@ export const fetchMembers = async () => {
 };
 
 // 전체 게시글 목록 가져오기
-export const fetchPosts = async () => {
+export const fetchPosts = async (page = 1, limit = 5, category = '', search = '') => {
     try {
         const response = await axios.get(
-            `${BASE_URL}/posts`,
+            `${BASE_URL}/admin/posts?page=${page}&limit=${limit}&category=${category}&search=${search}`,
             authHeaders()
         );
         return response.data;
@@ -118,7 +118,7 @@ export const appointExecutive = async (userId, position) => {
 export const dismissExecutive = async (userId) => {
     try {
         const response = await axios.patch(
-            `${BASE_URL}/admin/officers/${userId}/dismiss`, 
+            `${BASE_URL}/admin/officers/${userId}/dismiss`,
             {}, authHeaders()
         );
 
@@ -133,10 +133,10 @@ export const dismissExecutive = async (userId) => {
 export const delegateMaster = async (userId, confirmText) => {
     try {
         const response = await axios.patch(
-            `${BASE_URL}/admin/president/delegate`,{
-                targetUserId: userId,
-                confirmText: confirmText
-            },
+            `${BASE_URL}/admin/president/delegate`, {
+            targetUserId: userId,
+            confirmText: confirmText
+        },
             authHeaders()
         );
 

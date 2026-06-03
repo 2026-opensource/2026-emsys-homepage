@@ -121,7 +121,7 @@ exports.getAllPosts = async (req, res) => {
           select: { name: true, student_id: true, status: true }
         },
         _count: {
-          select: { comments: true, post_likes: true, post_dislikes: true }
+          select: { comments: true, post_likes: true}
         }
       }
     });
@@ -782,4 +782,44 @@ exports.deleteUnusedPostImages = async (req, res) => {
       message: "이미지 삭제 중 오류가 발생했습니다.",
     });
   }
+};
+
+exports.getMyPosts = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { page = 1, limit = 5 } = req.query;
+
+        const where = { author_id: userId };
+
+        const totalCount = await prisma.posts.count({ where });
+
+        const posts = await prisma.posts.findMany({
+            where,
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            take: parseInt(limit),
+            orderBy: { created_at: 'desc' },
+            include: {
+                users: {
+                    select: { name: true, student_id: true, status: true }
+                },
+                _count: {
+                    select: { comments: true, post_likes: true }
+                }
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            data: posts,
+            pagination: {
+                total: totalCount,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalPages: Math.ceil(totalCount / parseInt(limit))
+            }
+        });
+    } catch (error) {
+        console.error("내 게시글 조회 에러:", error);
+        res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+    }
 };

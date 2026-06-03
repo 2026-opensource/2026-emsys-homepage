@@ -6,6 +6,7 @@ import '../layout/common.css';
 import '../styles/adminPage.css';
 import { getUserRole } from "../utils/token"
 import { fetchMembers, fetchPosts, fetchExecutives, deletePost, updateUsersStatus, withdrawUsers } from '../api/adminAPI.js';
+import Pagination from '../components/Pagination.jsx';
 import DangerZone from '../components/admin/danger_zone.jsx';
 import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
@@ -31,6 +32,9 @@ const AdminPage = () => {
     const [selectedStatus, setSelectedStatus] = useState('');
     const [isBasketOpen, setIsBasketOpen] = useState(false);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const POSTS_PER_PAGE = 5;
 
     const role = getUserRole();
 
@@ -53,10 +57,13 @@ const AdminPage = () => {
         try {
             // 선택된 게시글 전부 순서대로 삭제 요청
             await Promise.all(selectedPosts.map(postId => deletePost(postId)));
-
-            // 성공하면 로컬 state에서도 제거
-            setPosts(prev => prev.filter(p => !selectedPosts.includes(p.id)));
             setSelectedPosts([]);
+
+            // 삭제 후 데이터 새로 불러오기
+            const postsData = await fetchPosts(currentPage, POSTS_PER_PAGE, postCategory, postSearch);
+            setPosts(postsData.data || []);
+            setTotalPages(postsData.pagination?.totalPages || 1);
+
             alert(`${selectedPosts.length}개의 게시글이 삭제되었습니다.`);
         } catch (error) {
             console.error('게시글 삭제 중 오류:', error);
@@ -68,16 +75,6 @@ const AdminPage = () => {
     const goToPostDetail = (postId) => {
         navigate(`/posts/${postId}`);
     };
-
-    const filteredPosts = posts.filter(p => {
-        const archiveCategories = ['study', 'contest', 'project', 'class'];
-        const matchCategory = !postCategory ||
-            (postCategory === 'ARCHIVE' ? p.board_type === 'ARCHIVE' :
-                archiveCategories.includes(postCategory) ? p.board_type === 'ARCHIVE' && p.category === postCategory :
-                    p.category === postCategory);
-        const matchSearch = !postSearch || p.title?.includes(postSearch) || p.users?.name?.includes(postSearch);
-        return matchCategory && matchSearch;
-    });
 
     const filteredMembers = availableMembers.filter(m =>
         !memberSearch || m.name.includes(memberSearch)
@@ -167,10 +164,11 @@ const AdminPage = () => {
 
                 // 백엔드에서 데이터 가져오기 (비동기 처리)
                 const membersData = await fetchMembers();
-                const postsData = await fetchPosts();
+                const postsData = await fetchPosts(currentPage, POSTS_PER_PAGE, postCategory, postSearch);
 
                 setAvailableMembers(membersData.data || []);
                 setPosts(postsData.data || []);
+                setTotalPages(postsData.pagination?.totalPages || 1);
 
             } catch (error) {
                 console.error("데이터를 불러오는데 실패했습니다.", error);
@@ -182,7 +180,7 @@ const AdminPage = () => {
         };
 
         loadInitialData();
-    }, []); // 딱 한번 실행되도록 빈 배열을 넣음
+    }, [currentPage, postCategory, postSearch]); // 딱 한번 실행되도록 빈 배열을 넣음
 
     // 카테고리 key를 화면에 보여줄 한글로 변환
     function getCategoryText(category) {
@@ -231,7 +229,7 @@ const AdminPage = () => {
                                         <select
                                             className="form-control admin-board-category-select"
                                             value={postCategory}
-                                            onChange={(e) => setPostCategory(e.target.value)}
+                                            onChange={(e) => { setPostCategory(e.target.value); setCurrentPage(1); }}
                                         >
                                             <option value="">전체</option>
                                             <option value="notice">공지사항</option>
@@ -252,7 +250,7 @@ const AdminPage = () => {
                                                     className="search-input"
                                                     placeholder="게시글 검색"
                                                     value={postSearch}
-                                                    onChange={(e) => setPostSearch(e.target.value)}
+                                                    onChange={(e) => { setPostSearch(e.target.value); setCurrentPage(1); }}
                                                 />
                                                 <button className="admin-search-btn" type="button">
                                                     <i className="fa-solid fa-magnifying-glass"></i>
@@ -266,10 +264,10 @@ const AdminPage = () => {
                                     </div>
 
                                     <div className="post-list">
-                                        {filteredPosts.length === 0 ? (
+                                        {posts.length === 0 ? (
                                             <p style={{ textAlign: 'center', padding: '20px', color: '#888' }}>조건에 맞는 게시글이 없습니다.</p>
                                         ) : (
-                                            filteredPosts.map(post => (
+                                            posts.map(post => (
                                                 <div key={post.id} className="post-item" onClick={() => goToPostDetail(post.id)} style={{ cursor: 'pointer' }}>
                                                     <input
                                                         type="checkbox"
@@ -298,6 +296,11 @@ const AdminPage = () => {
                                             ))
                                         )}
                                     </div>
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                    />
                                 </>
                             )}
                         </div>
@@ -310,7 +313,7 @@ const AdminPage = () => {
                                         <h2 className="admin-box-title">부원 목록</h2>
                                     </div>
                                 </div>
-                                
+
                                 <div className="modal-search-input-group">
                                     <input
                                         type="text"

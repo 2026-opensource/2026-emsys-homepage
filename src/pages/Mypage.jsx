@@ -1,11 +1,13 @@
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import Pagination from "../components/Pagination";
 import "../layout/common.css";
 import "../styles/mypage.css";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyInfo, updateProfileImage, resetProfileImage } from "../api/userAPI";
+import { getMyPosts } from "../api/postAPI";
 import { removeToken } from "../utils/token";
 import defaultProfile from "../assets/images/기본_프로필.png";
 
@@ -15,6 +17,11 @@ function MyPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [myPosts, setMyPosts] = useState([]);
+  const [myPostsPage, setMyPostsPage] = useState(1);
+  const [myPostsTotalPages, setMyPostsTotalPages] = useState(1);
+  const MY_POSTS_PER_PAGE = 5;
 
   async function handleProfileImageChange(e) {
     const file = e.target.files[0];
@@ -67,7 +74,7 @@ function MyPage() {
     if (!confirmReset) {
       return;
     }
-
+    
     try {
       const result = await resetProfileImage();
 
@@ -119,6 +126,19 @@ function MyPage() {
     fetchMyInfo();
   }, [navigate]);
 
+  useEffect(() => {
+    async function fetchMyPosts() {
+      try {
+        const result = await getMyPosts({ page: myPostsPage, limit: MY_POSTS_PER_PAGE });
+        setMyPosts(result.data);
+        setMyPostsTotalPages(result.pagination?.totalPages || 1);
+      } catch (error) {
+        console.error("내 게시글 조회 실패:", error);
+      }
+    }
+    fetchMyPosts();
+  }, [myPostsPage]);
+
   if (loading) {
     return (
       <>
@@ -152,6 +172,19 @@ function MyPage() {
   const profileImageUrl = user?.profile_image
     ? `${import.meta.env.VITE_API_BASE_URL}${user.profile_image}`
     : defaultProfile;
+
+  function getCategoryText(category) {
+    if (category === "notice") return "공지사항";
+    if (category === "free") return "자유";
+    if (category === "qna") return "질문";
+    if (category === "recruit") return "팀원 모집";
+    if (category === "study") return "스터디";
+    if (category === "project") return "과제/프로젝트";
+    if (category === "contest") return "대회/공모전";
+    if (category === "class") return "수업";
+    if (category === "event") return "행사";
+    return category;
+}
 
   return (
     <>
@@ -245,29 +278,34 @@ function MyPage() {
 
           <div className="section-box">
             <div className="board-list">
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <a key={item} href="./posts.html" className="board-link">
-                  <article className="board-card">
-                    <div className="board-row">
-                      <div className="board-category">자유</div>
-
-                      <div className="board-main">
-                        <h2 className="board-title">
-                          첫 번째 게시글 제목입니다
-                        </h2>
-                        <p className="board-info">홍길동 · 2026-05-10</p>
+              {myPosts.length === 0 ? (
+                <p style={{ textAlign: 'center', color: '#888' }}>작성한 게시글이 없습니다.</p>
+              ) : (
+                myPosts.map((post) => (
+                  <a key={post.id} href={`/posts/${post.id}`} className="board-link">
+                    <article className="board-card">
+                      <div className="board-row">
+                        <div className="board-category">{getCategoryText(post.category)}</div>
+                        <div className="board-main">
+                          <h2 className="board-title">{post.title}</h2>
+                          <p className="board-info">{post.users?.name} · {post.created_at?.slice(0, 10)}</p>
+                        </div>
+                        <div className="board-stats">
+                          <p>조회수 {post.view_count ?? 0}</p>
+                          <p>좋아요 {post._count?.post_likes ?? 0}</p>
+                          <p>댓글 {post._count?.comments ?? 0}</p>
+                        </div>
                       </div>
-
-                      <div className="board-stats">
-                        <p>조회수 12</p>
-                        <p>좋아요 7</p>
-                        <p>댓글 3</p>
-                      </div>
-                    </div>
-                  </article>
-                </a>
-              ))}
+                    </article>
+                  </a>
+                ))
+              )}
             </div>
+            <Pagination
+              currentPage={myPostsPage}
+              totalPages={myPostsTotalPages}
+              onPageChange={setMyPostsPage}
+            />
           </div>
         </section>
       </div>

@@ -4,6 +4,7 @@ import { getPosts } from "../api/postAPI";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import Pagination from "../components/Pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -26,6 +27,7 @@ function Resources() {
   function getCategoryText(category) {
     if (category === "class") return "수업";
     if (category === "study") return "스터디";
+    if (category === "project") return "과제/프로젝트"
     if (category === "contest") return "대회/공모전";
     return category;
   }
@@ -115,6 +117,7 @@ function Resources() {
                   <option value="all">전체 글</option>
                   <option value="class">수업</option>
                   <option value="study">스터디</option>
+                  <option value="project">과제/프로젝트</option>
                   <option value="contest">대회/공모전</option>
                 </select>
 
@@ -183,51 +186,11 @@ function Resources() {
               )}
 
               {/* 페이지네이션 */}
-              <div className="pagination">
-                {/* 이전 그룹 */}
-                {startPage > 1 && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(startPage - 1)}
-                  >
-                    &lt;
-                  </button>
-                )}
-
-                {/* 페이지 번호 */}
-                {Array.from(
-                  {
-                    length: endPage - startPage + 1,
-                  },
-                  (_, index) => {
-                    const pageNumber = startPage + index;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        className={
-                          currentPage === pageNumber
-                            ? "page-btn active"
-                            : "page-btn"
-                        }
-                        onClick={() => setCurrentPage(pageNumber)}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  },
-                )}
-
-                {/* 다음 그룹 */}
-                {endPage < totalPages && (
-                  <button
-                    className="page-btn"
-                    onClick={() => setCurrentPage(endPage + 1)}
-                  >
-                    &gt;
-                  </button>
-                )}
-              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         </main>

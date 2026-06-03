@@ -1,4 +1,6 @@
+const { PrismaClient } = require('@prisma/client');
 const adminService = require("../services/admin.service");
+const prisma = new PrismaClient();
 
 async function adminTest(req, res, next) {
     try {
@@ -114,6 +116,57 @@ async function delegatePresident(req, res, next) {
     }
 }
 
+async function getAllPosts(req, res) {
+  try {
+    const { category, search, page = 1, limit = 5} = req.query;
+    
+    const where = {};
+    
+    if (category && category !== '') {
+      where.category = category;
+    }
+    
+    if (search) {
+      where.OR = [
+        { title: { contains: search } },
+        { content: { contains: search } }
+      ];
+    }
+    
+    const totalCount = await prisma.posts.count({ where });
+    
+    const posts = await prisma.posts.findMany({
+      where,
+      skip: (parseInt(page) - 1) * parseInt(limit),
+      take: parseInt(limit),
+      orderBy: { created_at: 'desc' },
+      include: {
+        users: {
+          select: { name: true, student_id: true, status: true }
+        },
+        _count: {
+          select: { comments: true, post_likes: true }
+        }
+      }
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      data: posts,
+      pagination: {
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(totalCount / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error("게시글 전체 조회 에러:", error);
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+  }
+};
+
+
 module.exports = {
     adminTest,
     getUsers,
@@ -123,4 +176,5 @@ module.exports = {
     dismissOfficer,
     appointOfficer,
     delegatePresident,
+    getAllPosts,
 };
