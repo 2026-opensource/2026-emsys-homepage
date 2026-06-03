@@ -39,6 +39,12 @@ function PostWrite() {
 
   const [uploadedImages, setUploadedImages] = useState([]);
 
+  // 글 작성/수정 여부에 따라 에디터 로딩 제어
+  const [isDirty, setIsDirty] = useState(false);
+  const [isEditorReady, setIsEditorReady] = useState(!isEditMode);
+
+  const allowNavigationRef = useRef(false);
+
   const board_type = formData.board_type;
 
   const editorButtons = [
@@ -53,7 +59,7 @@ function PostWrite() {
   // 에디터 기본 설정 (높이, 언어, 플레이스홀더 등)
   const config = useMemo(() => ({
     readonly: false,
-    placeholder: "내용을 입력하세요.",
+    placeholder: isEditMode ? "" : "내용을 입력하세요.",
     height: 450,
     language: "ko",
     toolbarButtonSize: "middle",
@@ -97,6 +103,7 @@ function PostWrite() {
               const result = await uploadPostImages(files);
 
               setUploadedImages((prev) => [...prev, ...result.data]);
+              setIsDirty(true);
 
               const imageHtml = result.data
                 .map(
@@ -131,7 +138,7 @@ function PostWrite() {
         },
       },
     },
-  }), []);
+  }), [isEditMode]);
 
   function getListPath(board_type) {
     if (board_type === "ARCHIVE") return "/resources";
@@ -166,10 +173,12 @@ function PostWrite() {
   function handleChange(e) {
     const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
+    setIsDirty(true);
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   }
 
   function getUnusedImages(content, uploadedImages) {
@@ -186,7 +195,6 @@ function PostWrite() {
     e.preventDefault();
 
     setErrorMessage("");
-
 
     const postData = {
       ...formData,
@@ -223,7 +231,10 @@ function PostWrite() {
         console.log("글 수정 응답:", result);
         alert("게시글이 수정되었습니다.");
 
-        navigate(`/posts/${id}`);
+        allowNavigationRef.current = true;
+        setIsDirty(false);
+
+        navigate(`/posts/${id}`, { replace: true });
       } else {
         const result = await createPost(postData);
 
@@ -235,6 +246,9 @@ function PostWrite() {
 
         console.log("글 작성 응답:", result);
         alert("게시글이 작성되었습니다.");
+
+        allowNavigationRef.current = true;
+        setIsDirty(false);
 
         navigate(getListPath(board_type));
       }
@@ -253,13 +267,35 @@ function PostWrite() {
     }
   }
 
+  function handleCancel() {
+    if (isDirty) {
+      const isLeave = window.confirm(
+        "저장하지 않은 변경사항이 있습니다. 페이지를 나가시겠습니까?"
+      );
+
+      if (!isLeave) return;
+    }
+
+    allowNavigationRef.current = true;
+
+    if (isEditMode) {
+      navigate(`/posts/${id}`, { replace: true });
+    } else {
+      navigate(getListPath(board_type));
+    }
+  }
+
   // 수정 모드일 때 기존 게시글 불러오기
   useEffect(() => {
-    if (!isEditMode) return;
+    if (!isEditMode) {
+      setIsEditorReady(true);
+      return;
+    }
 
     async function fetchPostForEdit() {
       try {
         setLoading(true);
+        setIsEditorReady(false);
         setErrorMessage("");
 
         const result = await getPostById(id);
@@ -269,10 +305,11 @@ function PostWrite() {
           board_type: post.board_type,
           category: post.category,
           title: post.title,
-          content: post.content,
+          content: post.content || "",
         });
 
-
+        setIsDirty(false);
+        setIsEditorReady(true);
       } catch (error) {
         console.error("수정할 게시글 조회 실패:", error);
 
@@ -288,6 +325,69 @@ function PostWrite() {
 
     fetchPostForEdit();
   }, [id, isEditMode]);
+
+  // 새로고침 / 탭 닫기 / 주소 직접 변경 방지
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!isDirty || allowNavigationRef.current) return;
+
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  // Navbar / Link / a 태그 내부 이동 방지
+  useEffect(() => {
+    const handleLinkClick = (e) => {
+      if (!isDirty || allowNavigationRef.current) return;
+
+      const link = e.target.closest("a");
+
+      if (!link) return;
+
+      const href = link.getAttribute("href");
+
+      if (!href) return;
+      if (href.startsWith("#")) return;
+      if (link.target === "_blank") return;
+      if (link.hasAttribute("download")) return;
+
+      const url = new URL(href, window.location.origin);
+
+      // 외부 사이트는 브라우저 기본 동작 + beforeunload에 맡김
+      if (url.origin !== window.location.origin) return;
+
+      const nextPath = `${url.pathname}${url.search}${url.hash}`;
+      const currentPath = `${location.pathname}${location.search}${location.hash}`;
+
+      if (nextPath === currentPath) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation?.();
+
+      const isLeave = window.confirm(
+        "저장하지 않은 변경사항이 있습니다. 페이지를 나가시겠습니까?"
+      );
+
+      if (!isLeave) return;
+
+      allowNavigationRef.current = true;
+      navigate(nextPath);
+    };
+
+    document.addEventListener("click", handleLinkClick, true);
+
+    return () => {
+      document.removeEventListener("click", handleLinkClick, true);
+    };
+  }, [isDirty, navigate, location.pathname, location.search, location.hash]);
 
   return (
     <>
@@ -305,19 +405,7 @@ function PostWrite() {
                   <button
                     className="cancel-write-btn btn btn-default"
                     type="button"
-                    onClick={() => {
-                      const isLeave = window.confirm(
-                        "나가면 변경사항이 저장되지 않습니다. 나가시겠습니까?"
-                      );
-
-                      if (!isLeave) return;
-
-                      if (isEditMode) {
-                        navigate(`/posts/${id}`);
-                      } else {
-                        navigate(getListPath(board_type));
-                      }
-                    }}
+                    onClick={handleCancel}
                   >
                     {isEditMode ? "취소" : "목록으로"}
                   </button>
@@ -374,19 +462,29 @@ function PostWrite() {
 
                 <div className="content-box">
                   {/* Jodit 에디터가 들어가는 곳 (툴바 자동 생성!) */}
-                  <JoditEditor
-                    ref={editor}
-                    value={formData.content}
-                    config={config}
-                    // 글자가 입력될 때마다 상태 업데이트
-                    onBlur={(newContent) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: newContent,
-                      }))
-                    }
-                    onChange={() => { }}
-                  />
+                  {isEditorReady && (
+                    <JoditEditor
+                      key={isEditMode ? `edit-${id}` : "create"}
+                      ref={editor}
+                      value={formData.content || ""}
+                      config={config}
+                      // 글자가 입력될 때마다 상태 업데이트
+                      onChange={(newContent) => {
+                        setFormData((prev) => {
+                          if (prev.content === newContent) {
+                            return prev;
+                          }
+
+                          setIsDirty(true);
+
+                          return {
+                            ...prev,
+                            content: newContent,
+                          };
+                        });
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             </form>

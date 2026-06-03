@@ -27,7 +27,7 @@ function Resources() {
   function getCategoryText(category) {
     if (category === "class") return "수업";
     if (category === "study") return "스터디";
-    if (category === "project") return "과제/프로젝트"
+    if (category === "project") return "프로젝트";
     if (category === "contest") return "대회/공모전";
     return category;
   }
