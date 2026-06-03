@@ -3,86 +3,134 @@ import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import "../layout/common.css";
 import "../styles/auth.css";
+import { findEmail, verifyPasswordUser, changePassword } from "../api/authAPI";
 
 function FindAccount() {
-const [activeTab, setActiveTab] = useState("find-id");
+    const [activeTab, setActiveTab] = useState("find-id");
 
-return (
-<>
-    <Navbar />
+    // 아이디 찾기
+    const [idForm, setIdForm] = useState({ name: '', student_id: '' });
+    const [foundEmail, setFoundEmail] = useState(null);
 
-    <div className="auth-page-wrapper">
-        <div className="auth-content-area">
-            <section className="auth-box">
-                <div className="auth-container">
-                    <ul className="nav nav-tabs find-tabs">
-                        <li className={activeTab==="find-id" ? "active" : "" }>
-                            <a href="#find-id" onClick={(e)=> {
-                                e.preventDefault();
-                                setActiveTab("find-id");
-                                }}
-                                >
-                                아이디 찾기
-                            </a>
-                        </li>
+    // 비밀번호 변경
+    const [pwStep, setPwStep] = useState(1); // 1: 정보확인, 2: 비밀번호 입력
+    const [pwForm, setPwForm] = useState({ name: '', student_id: '', email: '' });
+    const [resetToken, setResetToken] = useState('');
+    const [newPwForm, setNewPwForm] = useState({ newPassword: '', newPasswordConfirm: '' });
 
-                        <li className={activeTab==="find-pw" ? "active" : "" }>
-                            <a href="#find-pw" onClick={(e)=> {
-                                e.preventDefault();
-                                setActiveTab("find-pw");
-                                }}
-                                >
-                                비밀번호 변경
-                            </a>
-                        </li>
-                    </ul>
+    async function handleFindId(e) {
+        e.preventDefault();
+        try {
+            const res = await findEmail(idForm);
+            setFoundEmail(res.data.email);
+        } catch (err) {
+            alert(err.response?.data?.message || '일치하는 사용자 정보를 찾을 수 없습니다.');
+        }
+    }
 
-                    <div className="tab-content find-content">
-                        <div id="find-id" className={ activeTab==="find-id" ? "tab-pane fade in active"
-                            : "tab-pane fade" }>
-                            <form className="find-form">
-                                <input className="input-box" type="text" name="name" placeholder="이름" required />
-                                <input className="input-box" type="text" name="student-id" placeholder="학번" required />
-                                <button className="auth-btn" type="submit">
-                                    아이디 찾기
-                                </button>
-                                <p className="login-link">
-                                    <a className="link-text" href="/login">
-                                        로그인 페이지로 이동
+    async function handleVerifyUser(e) {
+        e.preventDefault();
+        try {
+            const res = await verifyPasswordUser(pwForm);
+            setResetToken(res.data.resetToken);
+            setPwStep(2);
+        } catch (err) {
+            alert(err.response?.data?.message || '사용자 정보가 일치하지 않습니다.');
+        }
+    }
+
+    async function handleChangePassword(e) {
+        e.preventDefault();
+        try {
+            await changePassword({ resetToken, ...newPwForm });
+            alert('비밀번호가 변경되었습니다.');
+            setPwStep(1);
+            setPwForm({ name: '', student_id: '', email: '' });
+            setNewPwForm({ newPassword: '', newPasswordConfirm: '' });
+            setResetToken('');
+        } catch (err) {
+            alert(err.response?.data?.message || '비밀번호 변경에 실패했습니다.');
+        }
+    }
+
+    return (
+        <>
+            <Navbar />
+            <div className="auth-page-wrapper">
+                <div className="auth-content-area">
+                    <section className="auth-box">
+                        <div className="auth-container">
+                            <ul className="nav nav-tabs find-tabs">
+                                <li className={activeTab === "find-id" ? "active" : ""}>
+                                    <a href="#find-id" onClick={(e) => { e.preventDefault(); setActiveTab("find-id"); }}>
+                                        아이디 찾기
                                     </a>
-                                </p>
-                            </form>
+                                </li>
+                                <li className={activeTab === "find-pw" ? "active" : ""}>
+                                    <a href="#find-pw" onClick={(e) => { e.preventDefault(); setActiveTab("find-pw"); setPwStep(1); }}>
+                                        비밀번호 변경
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div className="tab-content find-content">
+                                <div className={activeTab === "find-id" ? "tab-pane fade in active" : "tab-pane fade"}>
+                                    <form className="find-form" onSubmit={handleFindId}>
+                                        <input className="input-box" type="text" placeholder="이름" value={idForm.name}
+                                            onChange={(e) => setIdForm({ ...idForm, name: e.target.value })} required />
+                                        <input className="input-box" type="text" placeholder="학번" value={idForm.student_id}
+                                            onChange={(e) => setIdForm({ ...idForm, student_id: e.target.value })} required />
+                                        <button className="auth-btn" type="submit">아이디 찾기</button>
+                                        {foundEmail && (
+                                            <div className="result-box">
+                                                <i className="fa-solid fa-envelope"></i>
+                                                <span className="result-email">{foundEmail}</span>
+                                            </div>
+                                        )}
+                                        <p className="login-link">
+                                            <a className="link-text" href="/login">로그인 페이지로 이동</a>
+                                        </p>
+                                    </form>
+                                </div>
+
+                                <div className={activeTab === "find-pw" ? "tab-pane fade in active" : "tab-pane fade"}>
+                                    {pwStep === 1 ? (
+                                        <>
+                                            <h2 className="check-info-text">사용자 정보 확인</h2>
+                                            <form className="find-form" onSubmit={handleVerifyUser}>
+                                                <input className="input-box" type="text" placeholder="이름" value={pwForm.name}
+                                                    onChange={(e) => setPwForm({ ...pwForm, name: e.target.value })} required />
+                                                <input className="input-box" type="text" placeholder="학번" value={pwForm.student_id}
+                                                    onChange={(e) => setPwForm({ ...pwForm, student_id: e.target.value })} required />
+                                                <input className="input-box" type="email" placeholder="아이디(이메일)" value={pwForm.email}
+                                                    onChange={(e) => setPwForm({ ...pwForm, email: e.target.value })} required />
+                                                <button className="auth-btn" type="submit">비밀번호 변경하러 가기</button>
+                                            </form>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h2 className="check-info-text">새 비밀번호 입력</h2>
+                                            <form className="find-form" onSubmit={handleChangePassword}>
+                                                <input className="input-box" type="password" placeholder="새 비밀번호" value={newPwForm.newPassword}
+                                                    onChange={(e) => setNewPwForm({ ...newPwForm, newPassword: e.target.value })} required />
+                                                <input className="input-box" type="password" placeholder="새 비밀번호 확인" value={newPwForm.newPasswordConfirm}
+                                                    onChange={(e) => setNewPwForm({ ...newPwForm, newPasswordConfirm: e.target.value })} required />
+                                                <button className="auth-btn" type="submit">변경 완료</button>
+                                            </form>
+                                        </>
+                                    )}
+                                    <p className="login-link">
+                                        <a className="link-text" href="/login">로그인 페이지로 이동</a>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-
-                        <div id="find-pw" className={ activeTab==="find-pw" ? "tab-pane fade in active"
-                            : "tab-pane fade" }>
-                            <h2 className="check-info-text">사용자 정보 확인</h2>
-
-                            <form className="find-form">
-                                <input className="input-box" type="text" name="name" placeholder="이름" required />
-                                <input className="input-box" type="text" name="student-id" placeholder="학번" required />
-                                <input className="input-box" type="email" name="email" placeholder="아이디(이메일)"
-                                    autoComplete="email" required />
-                                <button className="auth-btn" type="submit">
-                                    비밀번호 변경하러 가기
-                                </button>
-                            </form>
-
-                            <p className="login-link">
-                                <a className="link-text" href="/login">
-                                    로그인 페이지로 이동
-                                </a>
-                            </p>
-                        </div>
-                    </div>
+                    </section>
                 </div>
-            </section>
-        </div>
-    </div>
-
-    <Footer />
-</>
-);
+            </div>
+            <Footer />
+        </>
+    );
 }
 
 export default FindAccount;

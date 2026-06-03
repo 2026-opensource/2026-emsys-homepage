@@ -251,3 +251,24 @@ body {
 .check-info-text {
     color: var(--text-main);
 }
+
+.result-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px auto;
+    width: 400px;
+    max-width: 100%;
+    gap: 8px;
+}
+
+
+
+.result-email {
+    color: var(--text-main);
+    font-weight: 600;
+}
+

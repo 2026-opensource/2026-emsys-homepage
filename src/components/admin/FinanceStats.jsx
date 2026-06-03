@@ -180,7 +180,7 @@ const FinanceStats = () => {
                                 {chartData.map((_, index) => (
                                     <Cell
                                         key={`cell-${index}`}
-                                        fill={index === chartData.length - 1 ? '#00ffa3' : '#656565'}
+                                        fill={index === chartData.length - 1 ? '#00ffa3' : '#7a928a'}
                                     />
                                 ))}
                             </Bar>
@@ -198,9 +198,7 @@ const FinanceStats = () => {
                     className="finance-hidden-input"
                     onChange={(e) => setExcelFile(e.target.files[0])}
                 />
-                <label htmlFor="inside-excel-file" className="finance-excel-label">
-                    {excelFile ? excelFile.name : '지출 내역 엑셀 파일 선택'}
-                </label>
+
                 <button
                     className="apply-btn finance-upload-btn"
                     onClick={handleExcelUpload}

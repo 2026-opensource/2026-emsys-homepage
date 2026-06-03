@@ -11,7 +11,7 @@ const api = axios.create({
     },
 });
 
-// 요청마다 토큰 자동 첨부
+// 요청마다 토큰 자동 첨부해서 보내줌
 api.interceptors.request.use((config) => {
     const token = getToken();
     if (token) {
@@ -46,5 +46,31 @@ export async function loginUser(formData) {
         }
     );
 
+    return response.data;
+}
+
+export async function findEmail(formData) {
+    const response = await axios.post(
+        `${API_BASE_URL}/api/auth/find-email`,
+        formData
+    );
+    return response.data;
+}
+
+export async function verifyPasswordUser(formData) {
+    const response = await axios.post(
+        `${API_BASE_URL}/api/auth/verify-password-user`,
+        formData
+        );
+
+    return response.data;
+}
+
+export async function changePassword(formData) {
+    const response = await axios.patch(
+        `${API_BASE_URL}/api/auth/password`,
+        formData
+    );
+    
     return response.data;
 }

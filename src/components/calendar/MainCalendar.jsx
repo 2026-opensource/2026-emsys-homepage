@@ -44,12 +44,21 @@ function MainCalendar() {
 
       if (json.success) {
         // FullCalendar용으로 start_time → start, end_time → end 변환
-        const converted = json.data.map((e) => ({
-          id: String(e.id),
-          title: e.title,
-          start: e.start_time ? e.start_time.slice(0, 16) : null,
-          end: e.end_time ? e.end_time.slice(0, 16) : null,
-        }));
+        const converted = json.data.map((e) => {
+          const toKST = (utcStr) => {
+            if (!utcStr) return null;
+            const date = new Date(utcStr);
+            date.setHours(date.getHours() + 9);
+            return date.toISOString().slice(0, 16);
+          };
+
+          return {
+            id: String(e.id),
+            title: e.title,
+            start: toKST(e.start_time),
+            end: toKST(e.end_time),
+          };
+        });
         setEvents(converted);
       } else {
         console.error("일정 조회 실패:", json.message);
@@ -182,8 +191,8 @@ function MainCalendar() {
     // 기존 event.controller가 start_time, end_time 필드명 사용
     const body = JSON.stringify({
       title: scheduleTitle,
-      start_time: startTime,
-      end_time: endTime,
+      start_time: startTime + ":00+09:00",
+      end_time: endTime + ":00+09:00",
     });
 
     try {

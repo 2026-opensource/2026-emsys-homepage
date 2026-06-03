@@ -133,14 +133,8 @@ const AdminPage = () => {
 
         try {
             const userIds = basketMembers.map(m => Number(m.id));
-            const allowedReasons = ['자진 탈퇴', '제명', '동아리 이동', '기타'];
-            const reason = prompt(
-                '탈퇴 사유를 입력하세요. (' + allowedReasons.join(', ') + ')'
-            );
+            const reason = prompt('탈퇴 사유를 입력하세요.');
             if (reason === null) return;
-            if (!allowedReasons.includes(reason)) {
-                return alert('탈퇴 사유는 자진 탈퇴, 제명, 동아리 이동, 기타 중 하나여야 합니다.');
-            }
             await withdrawUsers(userIds, reason);
 
             setAvailableMembers(prev => prev.filter(m => !userIds.includes(m.id)));
@@ -346,7 +340,12 @@ const AdminPage = () => {
                                     </div>
                                 </div>
                             </div>
-
+                            <button
+                                className="drawer-toggle-btn"
+                                onClick={() => setIsBasketOpen(!isBasketOpen)}
+                            >
+                                {isBasketOpen ? <i className="fa-solid fa-angle-left"></i> : <i className="fa-solid fa-angle-right"></i>}
+                            </button>
                             <div className="admin-box basket-drawer-box">
                                 <div className="user-box-header">
                                     <div className="basket-section-header">
@@ -386,13 +385,6 @@ const AdminPage = () => {
                                     </div>
                                 </div>
                             </div>
-
-                            <button
-                                className="drawer-toggle-btn"
-                                onClick={() => setIsBasketOpen(!isBasketOpen)}
-                            >
-                                {isBasketOpen ? <i className="fa-solid fa-angle-left"></i> : <i className="fa-solid fa-angle-right"></i>}
-                            </button>
                         </div>
 
                     </div>

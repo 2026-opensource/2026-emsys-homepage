@@ -189,13 +189,15 @@ exports.getMonthlyStats = async (semester) => {
     const lastTotal = chartData.at(-1)?.amount ?? 0;
     const prevTotal = chartData.at(-2)?.amount ?? 0;
     const diff = lastTotal - prevTotal;
+    const lastLabel = chartData.at(-1).label.split('.')[1];
+    const prevLabel = chartData.at(-2)?.label.split('.')[1];
 
     const headline = {
         title: diff < 0
-            ? `이번 달은 지난 달보다 ${Math.abs(Math.round(diff / 10000))}만원 덜 썼어요`
+            ?  `${lastLabel}월은 ${prevLabel}월보다 ${Math.abs(Math.round(diff / 10000))}만원 덜 썼어요`
             : diff > 0
-            ? `이번 달은 지난 달보다 ${Math.round(diff / 10000)}만원 더 썼어요`
-            : `이번 달은 지난 달이랑 비슷하게 썼어요`,
+            ? `${lastLabel}월은 ${prevLabel}월보다 ${Math.round(diff / 10000)}만원 더 썼어요`
+            : `${lastLabel}월은 ${prevLabel}월이랑 비슷하게 썼어요`,
         subtitle: `이번 학기 월평균 ${Math.round(chartData.reduce((s, d) => s + d.amount, 0) / chartData.length / 10000)}만원 지출`
     };
 
