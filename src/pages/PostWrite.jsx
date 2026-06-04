@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   createPost, getPostById, updatePost,
-  uploadPostImages, deleteUnusedPostImages,
+  uploadPostImages, deleteUnusedPostImages, uploadPostFiles
 } from "../api/postAPI";
 import JoditEditor from "jodit-react";
 
@@ -52,7 +52,7 @@ function PostWrite() {
     "bold", "strikethrough", "underline", "italic", "|",
     "ul", "ol", "|",
     "font", "fontsize", "brush", "paragraph", "|",
-    "uploadImages", "video", "table", "link", "|",
+    "uploadImages", "uploadFiles", "video", "table", "link", "|",
     "align", "undo", "redo", "|",
     "hr", "eraser"
   ];
@@ -117,7 +117,6 @@ function PostWrite() {
 
               return;
             }
-            
 
             try {
               setUploadingImages(true);
@@ -136,14 +135,14 @@ function PostWrite() {
               const imageHtml = uploadedResults
                 .map(
                   (image) => `
-      <p>
-        <img class="post-editor-image"
-          src="${image.thumbnailUrl}"
-          data-display="${image.displayUrl}"
-          alt="${image.originalName}"
-        />
-      </p>
-    `
+                    <p>
+                      <img class="post-editor-image"
+                        src="${image.thumbnailUrl}"
+                        data-display="${image.displayUrl}"
+                        alt="${image.originalName}"
+                      />
+                    </p>
+                  `
                 )
                 .join("");
 
@@ -162,6 +161,87 @@ function PostWrite() {
               );
             } finally {
               setUploadingImages(false);
+            }
+          };
+
+          input.click();
+        },
+      },
+      uploadImages: {
+        icon: "image",
+        tooltip: "사진 업로드",
+        exec: async (jodit) => {
+          // 기존 이미지 업로드 코드 그대로
+        },
+      },
+
+      uploadFiles: {
+        icon: "file",
+        tooltip: "파일 업로드",
+        exec: async (jodit) => {
+          const input = document.createElement("input");
+
+          input.type = "file";
+          input.accept = ".pdf,.zip,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.hwp,.txt";
+          input.multiple = true;
+
+          input.onchange = async () => {
+            const files = Array.from(input.files || []);
+
+            if (files.length === 0) return;
+
+            const MAX_FILE_SIZE = 30 * 1024 * 1024; // 파일 1개당 30MB
+
+            const oversizedFiles = files.filter(
+              (file) => file.size > MAX_FILE_SIZE
+            );
+
+            if (oversizedFiles.length > 0) {
+              const fileNames = oversizedFiles
+                .map((file) => `- ${file.name}`)
+                .join("\n");
+
+              alert(
+                `다음 파일이 30MB를 초과했습니다.\n\n${fileNames}\n\n파일 1개당 최대 30MB까지 업로드할 수 있습니다.`
+              );
+
+              return;
+            }
+
+            try {
+              const result = await uploadPostFiles(files);
+
+              setIsDirty(true);
+
+              const fileHtml = result.data
+                .map(
+                  (file) => `
+                <p>
+                  <a class="post-editor-file"
+                    href="${import.meta.env.VITE_API_BASE_URL}${file.downloadUrl}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    📄 ${file.originalName}
+                  </a>
+                </p>
+              `
+                )
+                .join("");
+
+              jodit.s.insertHTML(fileHtml);
+
+              setFormData((prev) => ({
+                ...prev,
+                content: jodit.value,
+              }));
+            } catch (error) {
+              console.error("파일 업로드 실패:", error);
+
+              alert(
+                error.response?.data?.message ||
+                "파일 업로드에 실패했습니다."
+              );
             }
           };
 

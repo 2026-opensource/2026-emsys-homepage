@@ -110,10 +110,14 @@ function PostDetail() {
 
   // 상세용: 학번 이름 (status)
   function getUserDisplayName(user) {
-    if (!user) return "알 수 없음";
-
-    return `${getStudentYear(user.student_id)} ${user.name} (${user.status})`;
+  if (!user || user.is_active === false || user.is_active === 0) {
+    return "존재하지 않는 사용자입니다";
   }
+
+  const studentYear = user.student_id?.slice(2, 4) || "";
+
+  return `${studentYear} ${user.name}`;
+}
 
   // 글 수정 시간
   function isEdited(createdAt, updatedAt) {

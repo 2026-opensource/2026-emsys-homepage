@@ -238,3 +238,27 @@ export async function getMyPosts({ page = 1, limit = 5 }) {
     });
     return response.data;
 };
+
+// 게시글 첨부파일 업로드
+// 게시글 첨부파일 업로드
+export async function uploadPostFiles(files) {
+    const token = getToken();
+    const formData = new FormData();
+
+    files.forEach((file) => {
+        formData.append("files", file);
+    });
+
+    const response = await axios.post(
+        `${API_BASE_URL}/api/posts/upload/post-files`,
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+
+    return response.data;
+}

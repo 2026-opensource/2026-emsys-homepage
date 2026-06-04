@@ -157,7 +157,7 @@ exports.getAllPosts = async (req, res) => {
       orderBy: { created_at: 'desc' },
       include: {
         users: {
-          select: { name: true, student_id: true, status: true }
+          select: { name: true, student_id: true, status: true, is_active: true, }
         },
         post_images: {
           orderBy: { sort_order: "asc" },
@@ -198,10 +198,10 @@ exports.getPostById = async (req, res) => {
     const post = await prisma.posts.findUnique({
       where: { id: parseInt(id) },
       include: {
-        users: { select: { name: true, profile_image: true, student_id: true, status: true } },
+        users: { select: { name: true, profile_image: true, student_id: true, status: true, is_active: true, } },
         comments: {
           include: {
-            users: { select: { name: true, student_id: true, status: true } }
+            users: { select: { name: true, student_id: true, status: true, is_active: true, } }
           },
           orderBy: { created_at: 'desc' }
         },
@@ -865,6 +865,118 @@ exports.deleteUnusedPostImages = async (req, res) => {
   }
 };
 
+
+// 파일 업로드
+exports.uploadPostFiles = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "업로드된 파일이 없습니다.",
+      });
+    }
+
+    const fileDir = path.join(__dirname, "../../uploads/post-files");
+
+    if (!fs.existsSync(fileDir)) {
+      fs.mkdirSync(fileDir, { recursive: true });
+    }
+
+    const uploadedFiles = [];
+
+    for (const file of req.files) {
+      const originalName = fixKoreanFileName(file.originalname);
+      const ext = path.extname(originalName);
+      const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      const targetPath = path.join(fileDir, fileName);
+
+      fs.renameSync(file.path, targetPath);
+
+      uploadedFiles.push({
+        originalName,
+        fileName,
+        fileUrl: `/uploads/post-files/${fileName}`,
+        downloadUrl: `/api/posts/download/post-files/${fileName}?name=${encodeURIComponent(originalName)}`,
+        size: file.size,
+      });
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "파일이 업로드되었습니다.",
+      data: uploadedFiles,
+    });
+  } catch (error) {
+    console.error("게시글 파일 업로드 에러:", error);
+
+    if (req.files) {
+      req.files.forEach((file) => {
+        if (file.path && fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "파일 업로드 중 오류가 발생했습니다.",
+    });
+  }
+};
+
+// 파일 다운로드 함수
+exports.downloadPostFile = async (req, res) => {
+  try {
+    const { fileName } = req.params;
+    const originalName = req.query.name || fileName;
+
+    const filePath = path.join(
+      __dirname,
+      "../../uploads/post-files",
+      fileName
+    );
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: "파일을 찾을 수 없습니다.",
+      });
+    }
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`
+    );
+
+    return res.download(filePath, originalName);
+  } catch (error) {
+    console.error("파일 다운로드 에러:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "파일 다운로드 중 오류가 발생했습니다.",
+    });
+  }
+};
+
+// 올렸던 파일 제거 기능
+function deleteUploadedPostFile(fileUrl) {
+  if (!fileUrl) return;
+
+  const allowedUploadPath = "/uploads/post-files/";
+
+  if (!fileUrl.includes(allowedUploadPath)) return;
+
+  const uploadsIndex = fileUrl.indexOf(allowedUploadPath);
+  const relativePath = fileUrl.slice(uploadsIndex + 1);
+
+  const filePath = path.join(__dirname, "../../", relativePath);
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+}
+
 exports.getMyPosts = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -881,7 +993,7 @@ exports.getMyPosts = async (req, res) => {
       orderBy: { created_at: 'desc' },
       include: {
         users: {
-          select: { name: true, student_id: true, status: true }
+          select: { name: true, student_id: true, status: true, is_active: true, }
         },
         _count: {
           select: { comments: true, post_likes: true }

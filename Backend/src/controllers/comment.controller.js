@@ -9,7 +9,7 @@ exports.getCommentsByPostId = async (req, res) => {
       where: { post_id: parseInt(postId) },
       orderBy: { created_at: 'desc' },
       include: {
-        users: { select: { name: true, student_id: true, status: true } }
+        users: { select: { name: true, student_id: true, status: true, is_active: true } }
       }
     });
     res.status(200).json({ success: true, data: comments });
@@ -49,6 +49,7 @@ exports.createComment = async (req, res) => {
             name: true,
             student_id: true,
             status: true,
+            is_active: true,
           },
         },
       },
@@ -116,7 +117,7 @@ exports.updateComment = async (req, res) => {
     const result = await prisma.comments.findUnique({
       where: { id: parseInt(id) },
       include: {
-        users: { select: { name: true, student_id: true, status: true } }
+        users: { select: { name: true, student_id: true, status: true, is_active: true, } }
       }
     });
 
