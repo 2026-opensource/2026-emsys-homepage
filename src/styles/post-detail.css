@@ -8,7 +8,7 @@
 }
 
 /* ========================================
-   공통 및 레이아웃
+  공통 및 레이아웃
 ======================================== */
 .detail-container {
   width: 100%;
@@ -21,7 +21,7 @@
 }
 
 /* ========================================
-   상단 영역 (목록 및 버튼)
+  상단 영역 (목록 및 버튼)
 ======================================== */
 .detail-top-area {
   display: flex;
@@ -162,7 +162,7 @@
 }
 
 /* ========================================
-   댓글 영역
+  댓글 영역
 ======================================== */
 .comment-title {
   font-size: 24px;
@@ -276,7 +276,7 @@
 }
 
 /* ========================================
-   댓글 하단 고정 입력창
+  댓글 하단 고정 입력창
 ======================================== */
 .comment-input-section {
   position: sticky;
@@ -384,7 +384,7 @@
   font-size: 18px;
 }
 /* ========================================
-   반응형 웹 스타일 (모바일)
+  반응형 웹 스타일 (모바일)
 ======================================== */
 @media (max-width: 768px) {
   .board-page {
@@ -404,3 +404,52 @@
   }
 }
 
+.detail-file-section {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background-color: #333;
+}
+
+.detail-file-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #00ffa3;
+}
+
+.detail-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background-color: #444;
+  color: #fff;
+  text-decoration: none;
+}
+
+.detail-file-item:hover {
+  background-color: #4f4f4f;
+  text-decoration: none;
+}
+
+.detail-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-file-size {
+  flex-shrink: 0;
+  color: #ccc;
+  font-size: 13px;
+}

@@ -29,6 +29,13 @@ router.delete(
     postController.deleteUnusedPostImages
 );
 
+// 게시글 첨부파일 삭제 라우터
+router.delete(
+    "/upload/post-files",
+    requireAuth,
+    postController.deleteUnusedPostFiles
+);
+
 // 게시글 첨부파일 다운로드 라우터
 router.get(
     "/download/post-files/:fileName",

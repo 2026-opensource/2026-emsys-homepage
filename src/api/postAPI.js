@@ -262,3 +262,23 @@ export async function uploadPostFiles(files) {
 
     return response.data;
 }
+
+// 업로드했지만 게시글에 사용하지 않은 첨부파일 삭제
+export async function deleteUnusedPostFiles(files) {
+    const token = getToken();
+
+    const response = await axios.delete(
+        `${API_BASE_URL}/api/posts/upload/post-files`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            data: {
+                files,
+            },
+        }
+    );
+
+    return response.data;
+}

@@ -127,7 +127,7 @@ function Resources() {
                   <input
                     type="text"
                     className="form-control search-input"
-                    placeholder="검색"
+                    placeholder="제목 또는 내용을 입력하세요"
                     value={search}
                     onChange={(e) => {
                       setSearch(e.target.value);

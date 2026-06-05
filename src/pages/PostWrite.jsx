@@ -2,7 +2,8 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   createPost, getPostById, updatePost,
-  uploadPostImages, deleteUnusedPostImages, uploadPostFiles
+  uploadPostImages, deleteUnusedPostImages,
+  uploadPostFiles, deleteUnusedPostFiles
 } from "../api/postAPI";
 import JoditEditor from "jodit-react";
 
@@ -39,6 +40,9 @@ function PostWrite() {
 
   const [uploadedImages, setUploadedImages] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [temporaryUploadedFiles, setTemporaryUploadedFiles] = useState([]);
 
   // 글 작성/수정 여부에 따라 에디터 로딩 제어
   const [isDirty, setIsDirty] = useState(false);
@@ -167,14 +171,6 @@ function PostWrite() {
           input.click();
         },
       },
-      uploadImages: {
-        icon: "image",
-        tooltip: "사진 업로드",
-        exec: async (jodit) => {
-          // 기존 이미지 업로드 코드 그대로
-        },
-      },
-
       uploadFiles: {
         icon: "file",
         tooltip: "파일 업로드",
@@ -213,28 +209,11 @@ function PostWrite() {
 
               setIsDirty(true);
 
-              const fileHtml = result.data
-                .map(
-                  (file) => `
-                <p>
-                  <a class="post-editor-file"
-                    href="${import.meta.env.VITE_API_BASE_URL}${file.downloadUrl}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    📄 ${file.originalName}
-                  </a>
-                </p>
-              `
-                )
-                .join("");
+              const uploaded = result.data;
 
-              jodit.s.insertHTML(fileHtml);
-
-              setFormData((prev) => ({
-                ...prev,
-                content: jodit.value,
-              }));
+              setUploadedFiles((prev) => [...prev, ...uploaded]);
+              setTemporaryUploadedFiles((prev) => [...prev, ...uploaded]);
+              setIsDirty(true);
             } catch (error) {
               console.error("파일 업로드 실패:", error);
 
@@ -292,6 +271,14 @@ function PostWrite() {
     }));
   }
 
+  function handleRemoveFile(targetFile) {
+    setUploadedFiles((prev) =>
+      prev.filter((file) => file.fileUrl !== targetFile.fileUrl)
+    );
+
+    setIsDirty(true);
+  }
+
   function chunkArray(array, size) {
     const chunks = [];
 
@@ -311,6 +298,14 @@ function PostWrite() {
     });
   }
 
+  function getUnusedFiles(finalFiles, temporaryFiles) {
+    return temporaryFiles.filter((tempFile) => {
+      return !finalFiles.some(
+        (finalFile) => finalFile.fileUrl === tempFile.fileUrl
+      );
+    });
+  }
+
   async function cleanupTemporaryUploadedImages() {
     if (uploadedImages.length === 0) return;
 
@@ -319,6 +314,17 @@ function PostWrite() {
       setUploadedImages([]);
     } catch (error) {
       console.error("임시 업로드 이미지 삭제 실패:", error);
+    }
+  }
+
+  async function cleanupTemporaryUploadedFiles() {
+    if (temporaryUploadedFiles.length === 0) return;
+
+    try {
+      await deleteUnusedPostFiles(temporaryUploadedFiles);
+      setTemporaryUploadedFiles([]);
+    } catch (error) {
+      console.error("임시 업로드 파일 삭제 실패:", error);
     }
   }
 
@@ -331,6 +337,7 @@ function PostWrite() {
     const postData = {
       ...formData,
       board_type,
+      files: uploadedFiles,
     };
 
     if (!postData.title.trim()) {
@@ -360,6 +367,14 @@ function PostWrite() {
           await deleteUnusedPostImages(unusedImages);
         }
 
+        const unusedFiles = getUnusedFiles(uploadedFiles, temporaryUploadedFiles);
+
+        if (unusedFiles.length > 0) {
+          await deleteUnusedPostFiles(unusedFiles);
+        }
+
+        setTemporaryUploadedFiles([]);
+
         console.log("글 수정 응답:", result);
         alert("게시글이 수정되었습니다.");
 
@@ -375,6 +390,14 @@ function PostWrite() {
         if (unusedImages.length > 0) {
           await deleteUnusedPostImages(unusedImages);
         }
+
+        const unusedFiles = getUnusedFiles(uploadedFiles, temporaryUploadedFiles);
+
+        if (unusedFiles.length > 0) {
+          await deleteUnusedPostFiles(unusedFiles);
+        }
+
+        setTemporaryUploadedFiles([]);
 
         console.log("글 작성 응답:", result);
         alert("게시글이 작성되었습니다.");
@@ -413,6 +436,7 @@ function PostWrite() {
     allowNavigationRef.current = true;
 
     await cleanupTemporaryUploadedImages();
+    await cleanupTemporaryUploadedFiles();
 
     if (isEditMode) {
       navigate(`/posts/${id}`, { replace: true });
@@ -443,6 +467,18 @@ function PostWrite() {
           title: post.title,
           content: post.content || "",
         });
+
+        setUploadedFiles(
+          (post.post_files || []).map((file) => ({
+            originalName: file.original_name,
+            fileName: file.file_name,
+            fileUrl: file.file_url,
+            downloadUrl: file.download_url,
+            size: file.size,
+          }))
+        );
+
+        setTemporaryUploadedFiles([]);
 
         setIsDirty(false);
         setIsEditorReady(true);
@@ -516,6 +552,7 @@ function PostWrite() {
 
       allowNavigationRef.current = true;
       await cleanupTemporaryUploadedImages();
+      await cleanupTemporaryUploadedFiles();
       navigate(nextPath);
     };
 
@@ -524,7 +561,15 @@ function PostWrite() {
     return () => {
       document.removeEventListener("click", handleLinkClick, true);
     };
-  }, [isDirty, navigate, location.pathname, location.search, location.hash, uploadedImages]);
+  }, [
+    isDirty,
+    navigate,
+    location.pathname,
+    location.search,
+    location.hash,
+    uploadedImages,
+    temporaryUploadedFiles,
+  ]);
 
   return (
     <>
@@ -605,27 +650,56 @@ function PostWrite() {
                 <div className="content-box">
                   {/* Jodit 에디터가 들어가는 곳 (툴바 자동 생성!) */}
                   {isEditorReady && (
-                    <JoditEditor
-                      key={isEditMode ? `edit-${id}` : "create"}
-                      ref={editor}
-                      value={formData.content || ""}
-                      config={config}
-                      // 글자가 입력될 때마다 상태 업데이트
-                      onChange={(newContent) => {
-                        setFormData((prev) => {
-                          if (prev.content === newContent) {
-                            return prev;
-                          }
+                    <>
+                      <JoditEditor
+                        key={isEditMode ? `edit-${id}` : "create"}
+                        ref={editor}
+                        value={formData.content || ""}
+                        config={config}
+                        onChange={(newContent) => {
+                          setFormData((prev) => {
+                            if (prev.content === newContent) {
+                              return prev;
+                            }
 
-                          setIsDirty(true);
+                            setIsDirty(true);
 
-                          return {
-                            ...prev,
-                            content: newContent,
-                          };
-                        });
-                      }}
-                    />
+                            return {
+                              ...prev,
+                              content: newContent,
+                            };
+                          });
+                        }}
+                      />
+
+                      {uploadedFiles.length > 0 && (
+                        <div className="attached-file-list">
+                          <p className="attached-file-title">첨부파일</p>
+
+                          {uploadedFiles.map((file) => (
+                            <div className="attached-file-item" key={file.fileUrl}>
+                              <a
+                                className="attached-file-name"
+                                href={`${import.meta.env.VITE_API_BASE_URL}${file.downloadUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                📄 {file.originalName}
+                              </a>
+
+                              <button
+                                type="button"
+                                className="attached-file-remove"
+                                onClick={() => handleRemoveFile(file)}
+                                aria-label="첨부파일 삭제"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
