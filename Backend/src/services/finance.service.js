@@ -9,14 +9,14 @@ const parseSemesterFromFilename = (filename) => {
     return `${match[1].slice(2)}년도 ${match[2]}학기`;
 };
 
-// 학기 정렬용 숫자 변환 ("24년도 2학기" → 242)
+// 학기 정렬용 숫자 
 const semesterToNumber = (semester) => {
     const match = semester.match(/(\d{2})년도 (\d)학기/);
     if (!match) return 0;
     return parseInt(match[1]) * 10 + parseInt(match[2]);
 };
 
-// 이전 학기 계산 ("24년도 2학기" → "24년도 1학기", "24년도 1학기" → "23년도 2학기")
+// 이전 학기 계산
 const getPrevSemester = (semester) => {
     const match = semester.match(/(\d{2})년도 (\d)학기/);
     if (!match) return null;
@@ -26,7 +26,7 @@ const getPrevSemester = (semester) => {
     return `${year - 1}년도 2학기`;
 };
 
-// 엑셀 파싱 + 저장
+// 엑셀 파일 명에서 파싱
 exports.processAndSaveExcel = async (fileBuffer, filename) => {
     const decodedFilename = Buffer.from(filename, 'latin1').toString('utf8');
     console.log('변환된 파일명:', decodedFilename);
@@ -91,7 +91,7 @@ exports.processAndSaveExcel = async (fileBuffer, filename) => {
         financeRecords.push(record);
     }
 
-    // 최근 6학기 초과하는 오래된 학기 삭제
+    // 최근 6학기 초과하는 학기 삭제
     await exports.deleteOldSemesters();
 
     return {
@@ -109,7 +109,7 @@ exports.deleteOldSemesters = async () => {
         distinct: ['semester'],
     });
 
-    // 학기 정렬 (최신순)
+    // 학기 정렬 (최신순으로)
     const sorted = rows
         .map(r => r.semester)
         .filter(Boolean)
@@ -147,7 +147,7 @@ exports.getSemesterStats = async () => {
         chartData.push({ label: sem, amount: total });
     }
 
-    // 헤드라인: 마지막 두 학기 비교
+    // 마지막 두 학기 비교 (헤드라인 문구)
     const lastTotal = chartData.at(-1)?.amount ?? 0;
     const prevTotal = chartData.at(-2)?.amount ?? 0;
     const diff = lastTotal - prevTotal;
@@ -204,7 +204,7 @@ exports.getMonthlyStats = async (semester) => {
     return { headline, chartData };
 };
 
-// 사용 가능한 학기 목록 (최신순)
+// 사용 가능한 학기 목록 (최신순으로)
 exports.getAvailableSemesters = async () => {
     const rows = await prisma.finances.findMany({
         where: { category: '월별지출' },

@@ -1,5 +1,6 @@
 const financeService = require('../services/finance.service');
 
+// 엑셀 파일 업로드
 exports.uploadFinanceExcel = async (req, res) => {
   try {
     if (!req.file) {
@@ -17,6 +18,7 @@ exports.uploadFinanceExcel = async (req, res) => {
   }
 };
 
+// 학기별 데이터
 exports.getSemesterStats = async (req, res) => {
   try {
     const data = await financeService.getSemesterStats();
@@ -27,6 +29,8 @@ exports.getSemesterStats = async (req, res) => {
   }
 };
 
+
+// 월별 데이터
 exports.getMonthlyStats = async (req, res) => {
   try {
     const { semester } = req.query;
@@ -41,6 +45,7 @@ exports.getMonthlyStats = async (req, res) => {
   }
 };
 
+// 학기 목록 처리
 exports.getAvailableSemesters = async (req, res) => {
   try {
     const semesters = await financeService.getAvailableSemesters();

@@ -1,5 +1,6 @@
 const authService = require("../services/auth.service");
 
+// 회원가입
 async function register(req, res, next) {
     try {
         const result = await authService.registerUser(req.body);
@@ -14,6 +15,7 @@ async function register(req, res, next) {
     }
 }
 
+// 로그인
 async function login(req, res, next) {
     try {
         const result = await authService.loginUser(req.body);
@@ -28,6 +30,7 @@ async function login(req, res, next) {
     }
 }
 
+// 아이디 찾기
 async function findEmail(req, res, next) {
     try {
         const result = await authService.findEmail(req.body);
@@ -42,6 +45,7 @@ async function findEmail(req, res, next) {
     }
 }
 
+// 비밀번호 변경 사용자 확인
 async function verifyPasswordUser(req, res, next) {
     try {
         const result = await authService.verifyPasswordUser(req.body);
@@ -56,6 +60,7 @@ async function verifyPasswordUser(req, res, next) {
     }
 }
 
+// 비밀번호 변경
 async function changePassword(req, res, next) {
     try {
         const result = await authService.changePassword(req.body);
@@ -85,6 +90,7 @@ async function getMe(req, res, next) {
     }
 }
 
+// 프로필 이미지 업로드
 async function updateProfileImage(req, res, next) {
     try {
         const result = await authService.updateProfileImage(
@@ -102,6 +108,7 @@ async function updateProfileImage(req, res, next) {
     }
 }
 
+// 프로필 이미지 기본 변경
 async function resetProfileImage(req, res, next) {
     try {
         const result = await authService.resetProfileImage(req.user.id);

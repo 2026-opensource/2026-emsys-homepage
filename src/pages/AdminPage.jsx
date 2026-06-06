@@ -128,7 +128,7 @@ const AdminPage = () => {
         if (!window.confirm(`정말 바구니에 있는 ${basketMembers.length}명을 일괄 탈퇴 처리하시겠습니까?`)) {
             return;
         }
-
+            
         try {
             const userIds = basketMembers.map(m => Number(m.id));
             const reason = prompt('탈퇴 사유를 입력하세요.');
@@ -323,7 +323,7 @@ const AdminPage = () => {
                                         value={memberSearch}
                                         onChange={(e) => setMemberSearch(e.target.value)}
                                     />
-                                    <button className="search-btn" type="button">
+                                    <button className="admin-search-btn" type="button">
                                         <i className="fa-solid fa-magnifying-glass"></i>
                                     </button>
                                 </div>

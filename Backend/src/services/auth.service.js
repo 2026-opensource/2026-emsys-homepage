@@ -16,7 +16,7 @@ async function registerUser(body) {
         invitationCode,
     } = body;
 
-    // 1. 필수값 검사
+    // 필수값 검사
     if (
         !email ||
         !password ||
@@ -31,28 +31,28 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 2. 학적 상태 검사
+    // 학적 상태 검사
     if (!isValidStatus(status)) {
         const error = new Error("학적 상태는 재학생, 휴학생, 졸업생 중 하나여야 합니다.");
         error.statusCode = 400;
         throw error;
     }
 
-    // 3. 비밀번호 규칙 검사
+    // 비밀번호 규칙 검사
     if (!isValidPassword(password)) {
         const error = new Error("비밀번호는 영문과 숫자를 포함하여 8자 이상이어야 합니다.");
         error.statusCode = 400;
         throw error;
     }
 
-    // 4. 비밀번호 확인 검사
+    // 비밀번호 확인 검사
     if (password !== passwordConfirm) {
         const error = new Error("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
         error.statusCode = 400;
         throw error;
     }
 
-    // 5. 이메일 중복 검사
+    // 이메일 중복 검사
     const existingEmailUser = await prisma.users.findUnique({
         where: { email },
     });
@@ -63,7 +63,7 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 6. 학번 중복 검사
+    // 학번 중복 검사
     const existingStudentUser = await prisma.users.findUnique({
         where: { student_id },
     });
@@ -74,7 +74,7 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 7. 초대코드 검증
+    // 초대코드 검증
     const invitation = await prisma.invitation_codes.findUnique({
         where: { code: invitationCode },
     });
@@ -99,10 +99,10 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 8. 비밀번호 해싱
+    // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 9. 회원 생성 + 초대코드 사용 처리
+    // 회원 생성 + 초대코드 사용 처리
     // 둘 중 하나만 성공하고 하나는 실패하는 문제를 막기 위해 transaction 사용
     const result = await prisma.$transaction(async (tx) => {
         const newUser = await tx.users.create({
@@ -461,7 +461,7 @@ async function updateProfileImage(userId, file) {
 }
 
 async function resetProfileImage(userId) {
-    // 1. 현재 사용자의 기존 프로필 이미지 경로 조회
+    // 현재 사용자의 기존 프로필 이미지 경로 조회
     const user = await prisma.users.findUnique({
         where: {
             id: userId,
@@ -478,7 +478,7 @@ async function resetProfileImage(userId) {
         throw error;
     }
 
-    // 2. 기존 프로필 이미지가 있으면 실제 파일 삭제
+    // 기존 프로필 이미지가 있으면 실제 파일 삭제
     if (user.profile_image) {
         const oldImagePath = path.join(
             __dirname,
@@ -491,7 +491,7 @@ async function resetProfileImage(userId) {
         }
     }
 
-    // 3. DB의 profile_image 값을 null로 변경
+    // DB의 profile_image 값을 null로 변경
     const updatedUser = await prisma.users.update({
         where: {
             id: userId,

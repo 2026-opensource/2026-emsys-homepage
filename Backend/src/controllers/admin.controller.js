@@ -1,6 +1,7 @@
 const prisma = require('../lib/prisma');
 const adminService = require("../services/admin.service");
 
+// 관리자 권한 확인
 async function adminTest(req, res, next) {
     try {
         return res.status(200).json({
@@ -15,6 +16,7 @@ async function adminTest(req, res, next) {
     }
 }
 
+// 부원 전체 목록
 async function getUsers(req, res, next) {
     try {
         const result = await adminService.getUsers(req.query);
@@ -29,6 +31,7 @@ async function getUsers(req, res, next) {
     }
 }
 
+// 부원 상태 변경
 async function updateUsersStatus(req, res, next) {
     try {
         const result = await adminService.updateUsersStatus(req.body);
@@ -43,6 +46,7 @@ async function updateUsersStatus(req, res, next) {
     }
 }
 
+// 회원 탈퇴 처리
 async function withdrawUsers(req, res, next) {
     try {
         const result = await adminService.withdrawUsers(req.body);
@@ -57,6 +61,7 @@ async function withdrawUsers(req, res, next) {
     }
 }
 
+// 임원 정보 
 async function getOfficers(req, res, next) {
     try {
 
@@ -73,6 +78,7 @@ async function getOfficers(req, res, next) {
     }
 }
 
+// 임원 해임
 async function dismissOfficer(req, res, next) {
     try {
         const result = await adminService.dismissOfficer(req.params.userId);
@@ -87,6 +93,7 @@ async function dismissOfficer(req, res, next) {
     }
 }
 
+// 임원 임명
 async function appointOfficer(req, res, next) {
     try {
         const result = await adminService.appointOfficer(req.params.userId, req.body);
@@ -101,6 +108,7 @@ async function appointOfficer(req, res, next) {
     }
 }
 
+// 회장 권한 위임
 async function delegatePresident(req, res, next) {
     try {
         const result = await adminService.delegatePresident(req.user.id, req.body);
@@ -115,6 +123,7 @@ async function delegatePresident(req, res, next) {
     }
 }
 
+// 모든 게시글(모든 게시판의 게시글) 불러오기
 async function getAllPosts(req, res) {
     try {
         const { category, search, page = 1, limit = 5 } = req.query;

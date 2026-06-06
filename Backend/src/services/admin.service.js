@@ -78,15 +78,7 @@ async function withdrawUsers(body) {
         error.statusCode = 400;
         throw error;
     }
-
-    const allowedReasons = ["자진 탈퇴", "제명", "동아리 이동", "기타"];
-
-    if (!allowedReasons.includes(withdrawReason)) {
-        const error = new Error("탈퇴 사유는 자진 탈퇴, 제명, 동아리 이동, 기타 중 하나여야 합니다.");
-        error.statusCode = 400;
-        throw error;
-    }
-
+    
     const result = await prisma.users.updateMany({
         where: { id: { in: userIds } },
         data: {

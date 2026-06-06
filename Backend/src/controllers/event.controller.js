@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-// 1. 일정 전체 조회
+// 일정 전체 조회
 exports.getAllEvents = async (req, res) => {
   try {
     const events = await prisma.events.findMany({
@@ -13,7 +13,7 @@ exports.getAllEvents = async (req, res) => {
   }
 };
 
-// 2. 관리자 일정 추가
+// 관리자 일정 추가
 exports.createEvent = async (req, res) => {
   try {
     const { title, start_time, end_time } = req.body;
@@ -39,7 +39,7 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-// 3. 일정 수정
+//  일정 수정
 exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -80,7 +80,7 @@ exports.updateEvent = async (req, res) => {
   }
 };
 
-// 4. 관리자 일정 삭제
+// 관리자 일정 삭제
 exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -102,7 +102,7 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 
-// 5. 활동 기록 엑셀 추출용 기간 데이터 검색
+// 활동 기록 엑셀 추출용 기간 데이터 검색
 exports.getEventsForExcel = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;

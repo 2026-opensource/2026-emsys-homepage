@@ -5,6 +5,7 @@ const { requireAuth } = require('../middlewares/auth.middleware');
 const { requireAdmin } = require('../middlewares/role.middleware');
 const multer = require('multer');
 
+// 파일 제한 (엑셀만 업로드 가능)
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },

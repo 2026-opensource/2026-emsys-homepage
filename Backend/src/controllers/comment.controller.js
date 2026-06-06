@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-// 1. 특정 게시글의 전체 댓글 목록 조회 (최신순 정렬)
+// 특정 게시글의 전체 댓글 목록 조회 (최신순으로 정렬)
 exports.getCommentsByPostId = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -18,7 +18,7 @@ exports.getCommentsByPostId = async (req, res) => {
   }
 };
 
-// 2. 새로운 댓글 작성
+// 새로운 댓글 작성
 exports.createComment = async (req, res) => {
   try {
     const { post_id, content } = req.body;
@@ -72,7 +72,7 @@ exports.createComment = async (req, res) => {
   }
 };
 
-// 3. 댓글 수정 (본인만 가능)
+// 댓글 수정 (본인만 가능)
 exports.updateComment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -131,7 +131,7 @@ exports.updateComment = async (req, res) => {
   }
 };
 
-// 4. 댓글 삭제 (본인 또는 임원 이상)
+// 댓글 삭제 (본인 또는 임원 이상만)
 exports.deleteComment = async (req, res) => {
   try {
     const { id } = req.params;
