@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 // 1. 특정 게시글의 전체 댓글 목록 조회 (최신순 정렬)
 exports.getCommentsByPostId = async (req, res) => {

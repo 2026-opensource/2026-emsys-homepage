@@ -69,7 +69,7 @@ function Home() {
                     <h3 className="about-title">Instagram</h3>
                   </div>
 
-                  {/* 불필요한 pull-right 클래스 제거 */}
+
                   <div className="description-group">
                     <div className="arr-btn">
                       <span className="section-desc">
@@ -90,7 +90,6 @@ function Home() {
                     <h3 className="about-title">자료실</h3>
                   </div>
 
-                  {/* 불필요한 pull-right 클래스 제거 */}
                   <div className="description-group">
                     <div className="arr-btn">
                       <span className="section-desc">스터디 · 수업자료</span>

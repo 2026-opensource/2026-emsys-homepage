@@ -26,7 +26,8 @@ const AdminPage = () => {
     // 부원 검색
     const [memberSearch, setMemberSearch] = useState('');
 
-    const [availableMembers, setAvailableMembers] = useState([]);//부원 목록
+    //부원 목록
+    const [availableMembers, setAvailableMembers] = useState([]);
 
     const [basketMembers, setBasketMembers] = useState([]);
     const [selectedStatus, setSelectedStatus] = useState('');

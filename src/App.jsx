@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getUserRole } from "./utils/token";
 
-import LandingPage from "./pages/LandingPage";
+import Introduce from "./pages/Introduce";
 import Home from "./pages/Home";
 import Community from "./pages/Community";
 import Resources from "./pages/Resources";
@@ -26,12 +26,14 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+
   return (
-    <BrowserRouter>
-      <AdminFloatingButton />
+    <>
+      {location.pathname !== "/landing" && <AdminFloatingButton />}
       <Routes>
-        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/introduce" element={<Introduce />} />
         <Route path="/" element={<Home />} />
         <Route path="/community" element={<Community />} />
         <Route path="/resources" element={<Resources />} />
@@ -40,7 +42,6 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/find-account" element={<FindAccount />} />
         <Route path="/change-password" element={<ChangePassword />} />
-
 
         <Route path="/community/write" element={<PostWrite />} />
         <Route path="/resources/write" element={<PostWrite />} />
@@ -53,6 +54,14 @@ function App() {
         <Route path="/post-write" element={<PostWrite />} />
         <Route path="/gallery" element={<Gallery />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

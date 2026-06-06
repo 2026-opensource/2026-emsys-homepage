@@ -135,7 +135,7 @@ const FinanceStats = () => {
     return (
         <div className="finance-inside-content">
 
-            {/* 상단 탭: 학기별 / 월별 */}
+            {/* 학기별 / 월별 탭 구분 */}
             <div className="finance-tab-wrapper">
                 <button
                     className={`finance-tab-btn ${activeTab === 'semester' ? 'active' : ''}`}

@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 // 1. 일정 전체 조회
 exports.getAllEvents = async (req, res) => {

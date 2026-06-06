@@ -1,4 +1,12 @@
 const postService = require("../services/post.service");
+const prisma = require('../lib/prisma');
+const fs = require("fs");
+const path = require("path");
+const sharp = require("sharp");
+
+// 한글 파일명 깨짐 방지 함수
+function fixKoreanFileName(fileName) {
+  if (!fileName) return "";
 
 // 게시글 전체 조회
 exports.getAllPosts = async (req, res, next) => {
