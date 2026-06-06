@@ -13,7 +13,7 @@ const postRoutes = require("./routes/post.routes");
 const commentRoutes = require("./routes/comment.routes");
 const eventRoutes = require("./routes/event.routes");
 const financeRoutes = require("./routes/finance.routes");
-const uploadRoutes = require("./routes/upload.routes");
+//const uploadRoutes = require("./routes/upload.routes");
 const publicRoutes = require("./routes/introduce.routes");
 
 const app = express();
