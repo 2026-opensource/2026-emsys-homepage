@@ -212,3 +212,50 @@ body {
 .jodit-dialog__box .jodit-button__text {
   color: #222 !important;
 }
+
+.attached-file-list {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background-color: #333;
+}
+
+.attached-file-title {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: #00ffa3;
+}
+
+.attached-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  background-color: #444;
+}
+
+.attached-file-name {
+  color: #fff;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attached-file-name:hover {
+  text-decoration: underline;
+}
+
+.attached-file-remove {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #ff6b6b;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}

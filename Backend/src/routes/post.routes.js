@@ -3,7 +3,7 @@ const router = express.Router();
 
 const postController = require("../controllers/post.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
-const { uploadPostImages } = require("../middlewares/post.middleware");
+const { uploadPostImages, uploadPostFiles } = require("../middlewares/post.middleware");
 const uploadErrorHandler = require("../middlewares/uploadError.middleware");
 
 // 게시글 이미지 업로드 라우터
@@ -14,11 +14,32 @@ router.post(
     postController.uploadPostImages
 );
 
+// 게시글 첨부파일 업로드 라우터
+router.post(
+    "/upload/post-files",
+    requireAuth,
+    uploadPostFiles.array("files"),
+    postController.uploadPostFiles
+);
+
 // 게시글 이미지 삭제 라우터
 router.delete(
     "/upload/post-images",
     requireAuth,
     postController.deleteUnusedPostImages
+);
+
+// 게시글 첨부파일 삭제 라우터
+router.delete(
+    "/upload/post-files",
+    requireAuth,
+    postController.deleteUnusedPostFiles
+);
+
+// 게시글 첨부파일 다운로드 라우터
+router.get(
+    "/download/post-files/:fileName",
+    postController.downloadPostFile
 );
 
 /**

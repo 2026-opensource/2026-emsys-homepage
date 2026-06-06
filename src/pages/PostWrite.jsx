@@ -6,6 +6,8 @@ import {
   updatePost,
   uploadPostImages,
   deleteUnusedPostImages,
+  uploadPostFiles,
+  deleteUnusedPostFiles,
 } from "../api/postAPI";
 import JoditEditor from "jodit-react";
 
@@ -49,6 +51,9 @@ function PostWrite() {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
 
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [temporaryUploadedFiles, setTemporaryUploadedFiles] = useState([]);
+
   // 글 작성/수정 여부에 따라 에디터 로딩 제어
   const [isDirty, setIsDirty] = useState(false);
   const [isEditorReady, setIsEditorReady] = useState(!isEditMode);
@@ -71,6 +76,7 @@ function PostWrite() {
     "paragraph",
     "|",
     "uploadImages",
+    "uploadFiles",
     "video",
     "table",
     "link",
@@ -128,13 +134,16 @@ function PostWrite() {
               const oversizedFiles = files.filter(
                 (file) => file.size > MAX_IMAGE_FILE_SIZE,
               );
+
               if (oversizedFiles.length > 0) {
                 const fileNames = oversizedFiles
                   .map((file) => `- ${file.name}`)
                   .join("\n");
+
                 alert(
                   `다음 이미지가 10MB를 초과했습니다.\n\n${fileNames}\n\n이미지 1장당 최대 10MB까지 업로드할 수 있습니다.`,
                 );
+
                 return;
               }
 
@@ -153,17 +162,24 @@ function PostWrite() {
 
                 const imageHtml = uploadedResults
                   .map(
-                    (image) =>
-                      `<p><img class="post-editor-image" src="${image.thumbnailUrl}" data-display="${image.displayUrl}" alt="${image.originalName}" /></p>`,
+                    (image) => `
+                    <p>
+                      <img class="post-editor-image"
+                        src="${image.thumbnailUrl}"
+                        data-display="${image.displayUrl}"
+                        alt="${image.originalName}"
+                      />
+                    </p>
+                  `,
                   )
                   .join("");
 
                 jodit.s.insertHTML(imageHtml);
 
-                // 이미지도 Ref로 관리
                 contentRef.current = jodit.value;
               } catch (error) {
                 console.error("이미지 업로드 실패:", error);
+
                 alert(
                   error.response?.data?.message ||
                     "이미지 업로드에 실패했습니다.",
@@ -172,6 +188,64 @@ function PostWrite() {
                 setUploadingImages(false);
               }
             };
+
+            input.click();
+          },
+        },
+        uploadFiles: {
+          icon: "file",
+          tooltip: "파일 업로드",
+          exec: async (jodit) => {
+            const input = document.createElement("input");
+
+            input.type = "file";
+            input.accept =
+              ".pdf,.zip,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.hwp,.txt";
+            input.multiple = true;
+
+            input.onchange = async () => {
+              const files = Array.from(input.files || []);
+
+              if (files.length === 0) return;
+
+              const MAX_FILE_SIZE = 30 * 1024 * 1024; // 파일 1개당 30MB
+
+              const oversizedFiles = files.filter(
+                (file) => file.size > MAX_FILE_SIZE,
+              );
+
+              if (oversizedFiles.length > 0) {
+                const fileNames = oversizedFiles
+                  .map((file) => `- ${file.name}`)
+                  .join("\n");
+
+                alert(
+                  `다음 파일이 30MB를 초과했습니다.\n\n${fileNames}\n\n파일 1개당 최대 30MB까지 업로드할 수 있습니다.`,
+                );
+
+                return;
+              }
+
+              try {
+                const result = await uploadPostFiles(files);
+
+                setIsDirty(true);
+
+                const uploaded = result.data;
+
+                setUploadedFiles((prev) => [...prev, ...uploaded]);
+                setTemporaryUploadedFiles((prev) => [...prev, ...uploaded]);
+                setIsDirty(true);
+              } catch (error) {
+                console.error("파일 업로드 실패:", error);
+
+                alert(
+                  error.response?.data?.message ||
+                    "파일 업로드에 실패했습니다.",
+                );
+              }
+            };
+
             input.click();
           },
         },
@@ -214,6 +288,14 @@ function PostWrite() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
+  function handleRemoveFile(targetFile) {
+    setUploadedFiles((prev) =>
+      prev.filter((file) => file.fileUrl !== targetFile.fileUrl),
+    );
+
+    setIsDirty(true);
+  }
+
   function chunkArray(array, size) {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
@@ -231,6 +313,14 @@ function PostWrite() {
     });
   }
 
+  function getUnusedFiles(finalFiles, temporaryFiles) {
+    return temporaryFiles.filter((tempFile) => {
+      return !finalFiles.some(
+        (finalFile) => finalFile.fileUrl === tempFile.fileUrl,
+      );
+    });
+  }
+
   async function cleanupTemporaryUploadedImages() {
     if (uploadedImages.length === 0) return;
     try {
@@ -238,6 +328,17 @@ function PostWrite() {
       setUploadedImages([]);
     } catch (error) {
       console.error("임시 업로드 이미지 삭제 실패:", error);
+    }
+  }
+
+  async function cleanupTemporaryUploadedFiles() {
+    if (temporaryUploadedFiles.length === 0) return;
+
+    try {
+      await deleteUnusedPostFiles(temporaryUploadedFiles);
+      setTemporaryUploadedFiles([]);
+    } catch (error) {
+      console.error("임시 업로드 파일 삭제 실패:", error);
     }
   }
 
@@ -250,6 +351,7 @@ function PostWrite() {
       ...formData,
       content: contentRef.current, // Ref에서 최신 본문을 가져오므로 안전합니다.
       board_type,
+      files: uploadedFiles,
     };
 
     if (!postData.title.trim()) {
@@ -270,21 +372,45 @@ function PostWrite() {
     try {
       setLoading(true);
       if (isEditMode) {
-        await updatePost(id, postData);
+        const result = await updatePost(id, postData);
         const unusedImages = getUnusedImages(postData.content, uploadedImages);
         if (unusedImages.length > 0) {
           await deleteUnusedPostImages(unusedImages);
         }
+        const unusedFiles = getUnusedFiles(
+          uploadedFiles,
+          temporaryUploadedFiles,
+        );
+
+        if (unusedFiles.length > 0) {
+          await deleteUnusedPostFiles(unusedFiles);
+        }
+
+        setTemporaryUploadedFiles([]);
+
+        console.log("글 수정 응답:", result);
         alert("게시글이 수정되었습니다.");
         allowNavigationRef.current = true;
         setIsDirty(false);
         navigate(`/posts/${id}`, { replace: true });
       } else {
-        await createPost(postData);
+        const result = await createPost(postData);
         const unusedImages = getUnusedImages(postData.content, uploadedImages);
         if (unusedImages.length > 0) {
           await deleteUnusedPostImages(unusedImages);
         }
+        const unusedFiles = getUnusedFiles(
+          uploadedFiles,
+          temporaryUploadedFiles,
+        );
+
+        if (unusedFiles.length > 0) {
+          await deleteUnusedPostFiles(unusedFiles);
+        }
+
+        setTemporaryUploadedFiles([]);
+
+        console.log("글 작성 응답:", result);
         alert("게시글이 작성되었습니다.");
         allowNavigationRef.current = true;
         setIsDirty(false);
@@ -314,6 +440,8 @@ function PostWrite() {
     }
     allowNavigationRef.current = true;
     await cleanupTemporaryUploadedImages();
+    await cleanupTemporaryUploadedFiles();
+
     if (isEditMode) {
       navigate(`/posts/${id}`, { replace: true });
     } else {
@@ -337,15 +465,25 @@ function PostWrite() {
         const result = await getPostById(id);
         const post = result.data;
 
+        setUploadedFiles(
+          (post.post_files || []).map((file) => ({
+            originalName: file.original_name,
+            fileName: file.file_name,
+            fileUrl: file.file_url,
+            downloadUrl: file.download_url,
+            size: file.size,
+          })),
+        );
+
+        setTemporaryUploadedFiles([]);
+
         setFormData({
           board_type: post.board_type,
           category: post.category,
           title: post.title,
         });
-
-        // Ref, 에디터의 초기값 설정
-        contentRef.current = post.content || "";
         setInitialContent(post.content || "");
+        contentRef.current = post.content || "";
 
         setIsDirty(false);
         setIsEditorReady(true);
@@ -413,6 +551,7 @@ function PostWrite() {
 
       allowNavigationRef.current = true;
       await cleanupTemporaryUploadedImages();
+      await cleanupTemporaryUploadedFiles();
       navigate(nextPath);
     };
 
@@ -422,11 +561,17 @@ function PostWrite() {
     };
   }, [
     isDirty,
+
     navigate,
+
     location.pathname,
+
     location.search,
+
     location.hash,
+
     uploadedImages,
+    temporaryUploadedFiles,
   ]);
 
   // useMemo: Jodit을 외부로부터 격리
@@ -518,7 +663,41 @@ function PostWrite() {
               </div>
 
               <div className="content-box">
-                {isEditorReady && memoizedEditor}
+                {isEditorReady && (
+                  <>
+                    {memoizedEditor}
+
+                    {uploadedFiles.length > 0 && (
+                      <div className="attached-file-list">
+                        <p className="attached-file-title">첨부파일</p>
+
+                        {uploadedFiles.map((file) => (
+                          <div
+                            className="attached-file-item"
+                            key={file.fileUrl}
+                          >
+                            <a
+                              className="attached-file-name"
+                              href={`${import.meta.env.VITE_API_BASE_URL}${file.downloadUrl}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              📄 {file.originalName}
+                            </a>
+
+                            <button
+                              type="button"
+                              className="attached-file-remove"
+                              onClick={() => handleRemoveFile(file)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </form>

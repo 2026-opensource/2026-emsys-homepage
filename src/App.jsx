@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getUserRole } from "./utils/token";
 
+import LandingPage from "./pages/LandingPage";
 import Home from "./pages/Home";
 import Community from "./pages/Community";
 import Resources from "./pages/Resources";
@@ -30,6 +31,7 @@ function App() {
     <BrowserRouter>
       <AdminFloatingButton />
       <Routes>
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/community" element={<Community />} />
         <Route path="/resources" element={<Resources />} />

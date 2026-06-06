@@ -3,3 +3,16 @@ node_modules
 .env
 
 /generated/prisma
+
+# user uploaded files
+uploads/**
+!uploads/
+!uploads/.gitkeep
+!uploads/post-files/
+!uploads/post-files/.gitkeep
+!uploads/post-images/
+!uploads/post-images/.gitkeep
+!uploads/post-images/display/
+!uploads/post-images/display/.gitkeep
+!uploads/post-images/thumbnails/
+!uploads/post-images/thumbnails/.gitkeep

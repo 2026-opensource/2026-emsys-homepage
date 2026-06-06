@@ -161,7 +161,7 @@ function Home() {
               <div className="home-board-box">
                 <div className="home-board-header">
                   <h3 className="home-board-title">공지사항</h3>
-                  <a href="/community" className="plus-btn">
+                  <a href="/community?category=notice" className="plus-btn">
                     <i className="fa-solid fa-plus"></i>
                   </a>
                 </div>

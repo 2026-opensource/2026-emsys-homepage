@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
-const adminService = require("../services/admin.service");
 const prisma = new PrismaClient();
+const adminService = require("../services/admin.service");
 
 async function adminTest(req, res, next) {
     try {
@@ -142,7 +142,7 @@ async function getAllPosts(req, res) {
             orderBy: { created_at: 'desc' },
             include: {
                 users: {
-                    select: { name: true, student_id: true, status: true }
+                    select: { name: true, student_id: true, status: true, is_active: true, }
                 },
                 _count: {
                     select: { comments: true, post_likes: true }

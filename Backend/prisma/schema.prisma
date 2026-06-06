@@ -77,6 +77,20 @@ model post_images {
   @@index([post_id], map: "post_id")
 }
 
+model post_files {
+  id            Int     @id @default(autoincrement())
+  original_name String  @db.VarChar(255)
+  file_name     String  @db.VarChar(255)
+  file_url      String  @db.VarChar(500)
+  download_url  String  @db.VarChar(500)
+  size          Int
+  sort_order    Int     @default(0)
+  post_id       Int
+  posts         posts   @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([post_id])
+}
+
 model post_likes {
   id      Int   @id @default(autoincrement())
   post_id Int
@@ -103,6 +117,7 @@ model posts {
   post_dislikes post_dislikes[]
   post_images   post_images[]
   post_likes    post_likes[]
+  post_files    post_files[]
   users         users           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "posts_ibfk_1")
 
   @@index([author_id], map: "author_id")

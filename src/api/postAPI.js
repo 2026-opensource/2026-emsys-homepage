@@ -238,3 +238,47 @@ export async function getMyPosts({ page = 1, limit = 5 }) {
     });
     return response.data;
 };
+
+// 게시글 첨부파일 업로드
+// 게시글 첨부파일 업로드
+export async function uploadPostFiles(files) {
+    const token = getToken();
+    const formData = new FormData();
+
+    files.forEach((file) => {
+        formData.append("files", file);
+    });
+
+    const response = await axios.post(
+        `${API_BASE_URL}/api/posts/upload/post-files`,
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+
+    return response.data;
+}
+
+// 업로드했지만 게시글에 사용하지 않은 첨부파일 삭제
+export async function deleteUnusedPostFiles(files) {
+    const token = getToken();
+
+    const response = await axios.delete(
+        `${API_BASE_URL}/api/posts/upload/post-files`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            data: {
+                files,
+            },
+        }
+    );
+
+    return response.data;
+}

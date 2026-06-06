@@ -34,7 +34,9 @@ function Resources() {
 
   // 게시판 목록에서는 학번 이름
   function getUserDisplayName(user) {
-    if (!user) return "알 수 없음";
+    if (!user || user.is_active === false || user.is_active === 0) {
+      return "존재하지 않는 사용자입니다";
+    }
 
     const studentYear = user.student_id?.slice(2, 4) || "";
 
@@ -125,7 +127,7 @@ function Resources() {
                   <input
                     type="text"
                     className="form-control search-input"
-                    placeholder="검색"
+                    placeholder="제목 또는 내용을 입력하세요"
                     value={search}
                     onChange={(e) => {
                       setSearch(e.target.value);

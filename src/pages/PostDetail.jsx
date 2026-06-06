@@ -41,7 +41,7 @@ function PostDetail() {
     if (category === "qna") return "질문";
     if (category === "recruit") return "팀원 모집";
     if (category === "study") return "스터디";
-    if (category === "project") return "과제/프로젝트";
+    if (category === "project") return "프로젝트";
     if (category === "contest") return "대회/공모전";
     if (category === "class") return "수업";
     if (category === "activity") return "행사";
@@ -110,10 +110,14 @@ function PostDetail() {
 
   // 상세용: 학번 이름 (status)
   function getUserDisplayName(user) {
-    if (!user) return "알 수 없음";
-
-    return `${getStudentYear(user.student_id)} ${user.name} (${user.status})`;
+  if (!user || user.is_active === false || user.is_active === 0) {
+    return "존재하지 않는 사용자입니다";
   }
+
+  const studentYear = user.student_id?.slice(2, 4) || "";
+
+  return `${studentYear} ${user.name}`;
+}
 
   // 글 수정 시간
   function isEdited(createdAt, updatedAt) {
@@ -127,6 +131,16 @@ function PostDetail() {
     if (!date) return "";
 
     return date.slice(0, 10);
+  }
+
+    function formatFileSize(size) {
+    if (!size) return "";
+
+    if (size < 1024 * 1024) {
+      return `${Math.ceil(size / 1024)}KB`;
+    }
+
+    return `${(size / 1024 / 1024).toFixed(1)}MB`;
   }
 
   const handleDelete = async () => {
@@ -440,6 +454,32 @@ function PostDetail() {
             onClick={handleImageClick}
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
+
+                    {post.post_files?.length > 0 && (
+            <section className="detail-file-section">
+              <h2 className="detail-file-title">첨부파일</h2>
+
+              <div className="detail-file-list">
+                {post.post_files.map((file) => (
+                  <a
+                    key={file.id}
+                    className="detail-file-item"
+                    href={`${import.meta.env.VITE_API_BASE_URL}${file.download_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="detail-file-name">
+                      📎 {file.original_name}
+                    </span>
+
+                    <span className="detail-file-size">
+                      {formatFileSize(file.size)}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
 
           {viewerImages.length > 0 && (
             <div className="img-viewer-overlay">
