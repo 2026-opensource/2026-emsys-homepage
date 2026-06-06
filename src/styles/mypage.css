@@ -35,7 +35,6 @@ body {
     max-width: 1200px;
     margin: 100px auto;
     padding: 40px 20px;
-    zoom: 0.8;
 }
 
 /* 마이페이지 사용자 정보 스타일 */
@@ -53,7 +52,8 @@ body {
 }
 
 .user-info-box {
-    min-width: 500px;
+    width: 100%;
+    min-width: 0;
     min-height: 100px;
     border: 3px solid var(--border-color);
     border-radius: 10px;
@@ -137,12 +137,13 @@ body {
 ======================================== */
 
 .my-posts-box {
-    min-width: 500px;
     min-height: 300px;
     border: 3px solid var(--border-color);
     border-radius: 10px;
     color: var(--text-main);
     padding: 30px 50px;
+    min-width: 0;
+    width: 100%;
 }
 
 /* 제목 + 플러스 버튼 */
@@ -407,6 +408,7 @@ body {
     .user-info-inner-box,
     .user-history-box {
         width: 100%;
+        border: 0;
     }
 
     .user-info-row {

@@ -15,7 +15,7 @@
   max-width: 1200px;
   margin: 50px auto 0 auto;
   gap: 2%;
-  padding: 60px;
+  padding: 50px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
 }
@@ -35,7 +35,7 @@
 
 .back-link {
   color: var(--point-mint);
-  font-size: 24px;
+  font-size: clamp(18px, 4vw, 24px);
   font-weight: 700;
 }
 
@@ -55,7 +55,7 @@
   height: 40px;
   border: none;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
   font-weight: 700;
   display: flex;
   justify-content: center;
@@ -91,7 +91,7 @@
 }
 
 .detail-title {
-  font-size: 32px;
+  font-size: clamp(20px, 4vw, 24px);
   font-weight: 700;
   word-break: break-word;
   padding: 10px 0;
@@ -101,7 +101,7 @@
 
 .detail-info {
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
 }
 
 .detail-content {
@@ -109,7 +109,7 @@
   padding: 30px 0;
   border-top: 2px solid var(--border-color);
   line-height: 1.8;
-  font-size: 16px;
+  font-size: clamp(14px, 4vw, 18px);
   word-break: break-word;
 }
 
@@ -131,7 +131,7 @@
   flex-wrap: wrap;
 }
 
-.reaction-section button {
+.reaction-btn {
   width: 10%;
   min-width: 120px;
   height: 50px;
@@ -142,11 +142,11 @@
   font-weight: 700;
 }
 
-.reaction-section button:hover {
+.reaction-btn:hover {
   border: 2px solid var(--point-mint);
 }
 
-.reaction-section button.active {
+.reaction-btn.active {
   background-color: var(--point-mint);
   border: 2px solid var(--point-mint);
   color: black;
@@ -155,10 +155,9 @@
 .reaction-message {
   text-align: center;
   color: salmon;
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
   margin: 0;
-  padding-bottom: 15px;
-  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 15px
 }
 
 /* ========================================
@@ -233,14 +232,14 @@
 
 .comment-writer,
 .comment-text {
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
   padding: 0 15px;
   align-items: center;
 }
 
 /* 댓글 작성 날짜 정보 스타일 (작성자보다 크기 작고, 색 어둡게) */
 .comment-date-info {
-  font-size: 14px;
+  font-size: clamp(10px, 3vw, 14px);
   color: var(--text-muted);
 }
 
@@ -251,7 +250,7 @@
 
 .comment-edit-btn,
 .comment-delete-btn {
-  font-size: 12px;
+  font-size: clamp(8px, 3vw, 12px);
   padding: 0px 5px;
   border: none;
   border-radius: 6px;

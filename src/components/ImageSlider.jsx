@@ -6,9 +6,9 @@ import "swiper/css/navigation";
 
 import "./imageslider.css";
 
-import mascot from "../assets/images/EMSYS_Halloween.png";
-import img2 from "../assets/images/mountain.png";
-import img3 from "../assets/images/human-green.png";
+import img1 from "../assets/images/EMSYS_Halloween.png";
+import img2 from "../assets/images/EMSYS_Winter.jpg";
+import img3 from "../assets/images/EMSYS_Start.jpg";
 
 function ImageSlider() {
   return (
@@ -26,7 +26,7 @@ function ImageSlider() {
           >
             <SwiperSlide>
               <img
-                src={mascot}
+                src={img1}
                 alt="EMSYS 마스코트"
                 className="header-image"
               />

@@ -175,6 +175,7 @@ a:active {
 /* 페이지네이션 */
 .pagination {
   margin-bottom: 0;
+  margin-top: 25px !important;
 }
 
 .page-item .page-link {

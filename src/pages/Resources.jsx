@@ -121,7 +121,7 @@ function Resources() {
                   <option value="contest">대회/공모전</option>
                 </select>
 
-                <div className="input-group board-search-input">
+                <div className="board-input-area">
                   <input
                     type="text"
                     className="form-control search-input"
@@ -132,15 +132,6 @@ function Resources() {
                       setCurrentPage(1);
                     }}
                   />
-
-                  <span className="input-group-btn">
-                    <button
-                      className="btn btn-default search-btn"
-                      type="button"
-                    >
-                      <span className="glyphicon glyphicon-search"></span>
-                    </button>
-                  </span>
                 </div>
               </div>
 

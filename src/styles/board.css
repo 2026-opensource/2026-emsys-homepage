@@ -39,13 +39,12 @@ a:active {
 게시판 공통 레이아웃
 ===================*/
 .board-page {
-  margin: 90px;
-  zoom: 0.8;
+  margin: 70px 90px;
 }
 
 .board-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0px auto;
 }
 
@@ -61,8 +60,8 @@ a:active {
 
 /* 제목 */
 .board-page-title {
-  margin: 50px 0;
-  font-size: clamp(32px, 12vw, 64px);
+  margin: 30px 0;
+  font-size: clamp(36px, 4vw, 45px);
   font-weight: 700;
   color: var(--point-mint);
   text-align: center;
@@ -71,7 +70,7 @@ a:active {
 /* 제목 아래 초록 선 */
 .board-title-line {
   width: 100%;
-  height: 0.4vw;
+  height: 0.2vw;
   min-height: 4px;
   margin-bottom: 30px;
   border-radius: 10px;
@@ -93,19 +92,19 @@ a:active {
 /* 글쓰기 버튼 */
 .board-write-btn {
   width: 12%;
-  min-width: 120px;
-  height: 42px;
+  min-width: 80px;
+  height: 35px;
   border: none;
   border-radius: 10px;
   background-color: var(--point-mint);
   color: black;
-  font-size: clamp(16px, 4vw, 20px);
+  font-size: clamp(14px, 4vw, 16px);
   font-weight: 700;
   margin-right: auto;
 }
 
 .board-write-btn:hover {
-  opacity: 0.8;
+  background-color: #00e18e;
 }
 
 /*------
@@ -122,61 +121,43 @@ a:active {
 
 /* 카테고리 선택 */
 .board-category-select {
-  width: 24%;
-  min-width: 120px;
-  height: 42px;
-  padding: 0 12px;
+  width: 22%;
+  min-width: 80px;
+  max-width: 120px;
+  height: 35px;
   border: none;
   border-radius: 10px;
   background-color: var(--bg-box);
   color: var(--text-main);
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
   align-items: center;
 }
 
-/* 검색창. 검색란과 버튼을 포함 */
-.board-search-input {
+/* 검색창 */
+.board-input-area {
   width: 50%;
   min-width: 250px;
+  border-radius: 10px;
 }
 
-/* 검색란, 버튼 공통 */
-.search-input,
-.search-btn {
-  height: 42px;
-  border-radius: 10px 0 0 10px; /* 왼쪽만 둥글게 */
+.search-input {
+  min-height: 35px;
   background-color: var(--bg-box);
   color: var(--text-main);
   border: none;
   box-shadow: none;
+  border-radius: 10px;
 }
 
-/* 검색란 */
-.search-input {
-  border-radius: 10px 0 0 10px; /* 왼쪽만 둥글게 */
-}
-
-/* 검색 버튼 */
-.search-btn {
-  border-radius: 0 10px 10px 0; /* 오른쪽만 둥글게 */
-}
-
-.search-btn:hover {
+.search-input:hover,
+.board-category-select:hover {
   background-color: var(--border-color);
   color: #fff;
 }
 
-/* hover/focus */
-.search-input:hover,
-.board-category-select:hover {
-  background-color: var(--border-color);
-}
-
 /* 버튼이나 입력창에 클릭 시 테두리, 파란 그림자 제거 */
-.board-link:focus,
 .page-btn:focus,
 .board-write-btn:focus,
-.search-btn:focus,
 .search-input:focus,
 .board-category-select:focus {
   outline: none;
@@ -199,7 +180,7 @@ a:active {
   display: flex;
   align-items: center;
   gap: 3%;
-  padding: 3%;
+  padding: 12px 22px;
   border-radius: 18px;
   background-color: var(--bg-box);
   transition: all 0.2s ease;
@@ -211,8 +192,9 @@ a:active {
 
 /* 카테고리 */
 .board-category {
-  width: clamp(80px, 10vw, 110px);
-  height: 40px;
+  width: 10%;
+  min-width: 60px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,7 +214,7 @@ a:active {
 /* 글 제목 */
 .board-title {
   margin: 10px 0;
-  font-size: clamp(24px, 4vw, 32px);
+  font-size: clamp(18px, 2vw, 22px);
   font-weight: 700;
   overflow: hidden;
   display: -webkit-box;
@@ -244,7 +226,7 @@ a:active {
 /* 작성자 */
 .board-info {
   color: var(--text-muted);
-  font-size: clamp(12px, 4vw, 16px);
+  font-size: clamp(12px, 4vw, 14px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -261,8 +243,8 @@ a:active {
 .board-stats p {
   text-align: right;
   color: var(--text-main);
-  font-size: clamp(12px, 4vw, 16px);
-  margin: 5px 0;
+  font-size: clamp(12px, 4vw, 14px);
+  margin: 3px 0;
   white-space: nowrap;
 }
 
@@ -282,7 +264,7 @@ a:active {
   border: none;
   padding: 8px 14px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: clamp(12px, 4vw, 16px);
   background-color: transparent;
 }
 
@@ -293,8 +275,8 @@ a:active {
 }
 
 @media (max-width: 768px) {
-  .board-page {
-    padding: 30px 15px; /* 모바일에서는 여백을 더 줄임 */
+  .board-page-title {
+    margin: 30px 0 20px 0;
   }
 
   .board-search-area {
