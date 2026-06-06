@@ -24,6 +24,8 @@ function PostDetail() {
 
   const [commentOpen, setCommentOpen] = useState(false);
   const [commentContent, setCommentContent] = useState("");
+  // 댓글 관련 메시지는 댓글창 안에서
+  const [commentMessage, setCommentMessage] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
 
@@ -33,7 +35,7 @@ function PostDetail() {
   // 좋아요 / 싫어요 상태
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
-  const [message, setMessage] = useState("");
+  const [reactionMessage, setReactionMessage] = useState("");
 
   function getCategoryText(category) {
     if (category === "notice") return "공지사항";
@@ -84,6 +86,9 @@ function PostDetail() {
           ...result.data,
           view_count: viewResult.data.view_count,
         });
+
+        setLike(result.data.isLiked);
+setDislike(result.data.isDisliked);
       } catch (error) {
         console.error("게시글 상세 조회 실패:", error);
 
@@ -110,14 +115,14 @@ function PostDetail() {
 
   // 상세용: 학번 이름 (status)
   function getUserDisplayName(user) {
-  if (!user || user.is_active === false || user.is_active === 0) {
-    return "존재하지 않는 사용자입니다";
+    if (!user || user.is_active === false || user.is_active === 0) {
+      return "존재하지 않는 사용자입니다";
+    }
+
+    const studentYear = user.student_id?.slice(2, 4) || "";
+
+    return `${studentYear} ${user.name}`;
   }
-
-  const studentYear = user.student_id?.slice(2, 4) || "";
-
-  return `${studentYear} ${user.name}`;
-}
 
   // 글 수정 시간
   function isEdited(createdAt, updatedAt) {
@@ -133,7 +138,7 @@ function PostDetail() {
     return date.slice(0, 10);
   }
 
-    function formatFileSize(size) {
+  function formatFileSize(size) {
     if (!size) return "";
 
     if (size < 1024 * 1024) {
@@ -158,7 +163,7 @@ function PostDetail() {
     } catch (error) {
       console.error("게시글 삭제 실패:", error);
 
-      setMessage(
+      setReactionMessage(
         error.response?.data?.message ||
         "게시글 삭제에 실패했습니다."
       );
@@ -175,7 +180,7 @@ function PostDetail() {
       console.log("좋아요 응답:", result);
 
       // 성공 메시지는 화면에 보여주지 않음
-      setMessage("");
+      setReactionMessage("");
 
       // getPostById(id)를 다시 호출하면 조회수가 증가하므로,
       // 백엔드 toggleLike 응답으로 받은 개수만 현재 post state에 반영
@@ -187,10 +192,13 @@ function PostDetail() {
           post_dislikes: result.data.dislikeCount,
         },
       });
+
+      setLike(result.data.isLiked);
+      setDislike(result.data.isDisliked);
     } catch (error) {
       console.error("좋아요 처리 실패:", error);
 
-      setMessage(
+      setReactionMessage(
         error.response?.data?.message ||
         "좋아요 처리에 실패했습니다."
       );
@@ -207,7 +215,7 @@ function PostDetail() {
       console.log("싫어요 응답:", result);
 
       // 성공 메시지는 화면에 보여주지 않음
-      setMessage("");
+      setReactionMessage("");
 
       // getPostById(id)를 다시 호출하면 조회수가 증가하므로,
       // 백엔드 toggleDislike 응답으로 받은 개수만 현재 post state에 반영
@@ -219,10 +227,13 @@ function PostDetail() {
           post_dislikes: result.data.dislikeCount,
         },
       });
+
+      setLike(result.data.isLiked);
+      setDislike(result.data.isDisliked);
     } catch (error) {
       console.error("싫어요 처리 실패:", error);
 
-      setMessage(
+      setReactionMessage(
         error.response?.data?.message ||
         "싫어요 처리에 실패했습니다."
       );
@@ -234,7 +245,7 @@ function PostDetail() {
   // =========================
   const handleCommentSubmit = async () => {
     if (!commentContent.trim()) {
-      setMessage("댓글 내용을 입력해주세요.");
+      setCommentMessage("댓글 내용을 입력해주세요.");
       return;
     }
 
@@ -249,11 +260,11 @@ function PostDetail() {
       });
 
       setCommentContent("");
-      setMessage("");
+      setCommentMessage("");
     } catch (error) {
       console.error("댓글 작성 실패:", error);
 
-      setMessage(
+      setCommentMessage(
         error.response?.data?.message ||
         "댓글 작성에 실패했습니다."
       );
@@ -266,7 +277,7 @@ function PostDetail() {
   };
   const handleCommentUpdate = async (commentId) => {
     if (!editingCommentContent.trim()) {
-      setMessage("댓글 내용을 입력해주세요.");
+      setCommentMessage("댓글 내용을 입력해주세요.");
       return;
     }
 
@@ -288,11 +299,11 @@ function PostDetail() {
 
       setEditingCommentId(null);
       setEditingCommentContent("");
-      setMessage("");
+      setCommentMessage("");
     } catch (error) {
       console.error("댓글 수정 실패:", error);
 
-      setMessage(
+      setCommentMessage(
         error.response?.data?.message ||
         "댓글 수정에 실패했습니다."
       );
@@ -312,11 +323,11 @@ function PostDetail() {
         comments: post.comments.filter((comment) => comment.id !== commentId),
       });
 
-      setMessage("");
+      setCommentMessage("");
     } catch (error) {
       console.error("댓글 삭제 실패:", error);
 
-      setMessage(
+      setCommentMessage(
         error.response?.data?.message ||
         "댓글 삭제에 실패했습니다."
       );
@@ -455,7 +466,7 @@ function PostDetail() {
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
 
-                    {post.post_files?.length > 0 && (
+          {post.post_files?.length > 0 && (
             <section className="detail-file-section">
               <h2 className="detail-file-title">첨부파일</h2>
 
@@ -518,21 +529,23 @@ function PostDetail() {
           {/* 좋아요 / 싫어요 */}
           <section className="reaction-section">
             <button
-              className="reaction-btn"
+              className={`reaction-btn ${like ? "active" : ""}`}
               onClick={handleLike}
             >
               👍 좋아요 {post._count?.post_likes ?? 0}
             </button>
 
             <button
-              className="reaction-btn"
+              className={`reaction-btn ${dislike ? "active" : ""}`}
               onClick={handleDislike}
             >
               👎 싫어요 {post._count?.post_dislikes ?? 0}
             </button>
           </section>
 
-          <p className="reaction-message">{message}</p>
+          {reactionMessage && (
+            <p className="reaction-message">{reactionMessage}</p>
+          )}
 
           {/* 댓글 */}
           <div className="comment-wrapper">
@@ -638,6 +651,8 @@ function PostDetail() {
                   )
                 }
               </div >
+
+              <p className="reaction-message">{commentMessage}</p>
 
               <div className="comment-input-section">
                 <input

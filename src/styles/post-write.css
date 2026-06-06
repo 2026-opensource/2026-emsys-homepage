@@ -34,6 +34,11 @@ body {
   padding-bottom: 15px;
 }
 
+.error-message {
+  width: 100%;
+  margin-top: 8px;
+}
+
 .write-board-title {
   color: var(--point-mint);
   font-size: 32px;

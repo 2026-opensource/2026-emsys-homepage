@@ -124,7 +124,7 @@ exports.getAllPosts = async (query) => {
 
 
 // 특정 게시글 상세 조회
-exports.getPostById = async (id) => {
+exports.getPostById = async ({ id, user }) => {
     const postId = parseInt(id, 10);
 
     // 게시글 id 예외처리
@@ -201,9 +201,31 @@ exports.getPostById = async (id) => {
         error.status = 404;
         throw error;
     }
-    return post;
-};
 
+    const existingLike = await prisma.post_likes.findUnique({
+        where: {
+            post_id_user_id: {
+                post_id: postId,
+                user_id: user.id,
+            },
+        },
+    });
+
+    const existingDislike = await prisma.post_dislikes.findUnique({
+        where: {
+            post_id_user_id: {
+                post_id: postId,
+                user_id: user.id,
+            },
+        },
+    });
+
+    return {
+        ...post,
+        isLiked: Boolean(existingLike),
+        isDisliked: Boolean(existingDislike),
+    };
+};
 
 
 // 게시글 조회수 증가
@@ -734,6 +756,8 @@ exports.toggleLike = async ({ postId, user }) => {
         return {
             likeCount,
             dislikeCount,
+            isLiked: !existingLike,
+            isDisliked: false,
         };
     });
     return result;
@@ -783,7 +807,7 @@ exports.toggleDislike = async ({ postId, user }) => {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-        const existingLike = await tx.post_dislikes.findUnique({
+        const existingDislike = await tx.post_dislikes.findUnique({
             where: {
                 post_id_user_id: {
                     post_id: postIdInt,
@@ -793,10 +817,10 @@ exports.toggleDislike = async ({ postId, user }) => {
         });
 
         // 이미 싫어요를 눌렀으면 싫어요 취소
-        if (existingLike) {
+        if (existingDislike) {
             await tx.post_dislikes.delete({
                 where: {
-                    id: existingLike.id,
+                    id: existingDislike.id,
                 },
             });
         }
@@ -810,7 +834,6 @@ exports.toggleDislike = async ({ postId, user }) => {
             });
         }
 
-        // 좋아요 처리 후 최신 좋아요/싫어요 개수 조회
         const likeCount = await tx.post_likes.count({
             where: {
                 post_id: postIdInt,
@@ -826,6 +849,8 @@ exports.toggleDislike = async ({ postId, user }) => {
         return {
             likeCount,
             dislikeCount,
+            isLiked: false,
+            isDisliked: !existingDislike,
         };
     });
     return result;

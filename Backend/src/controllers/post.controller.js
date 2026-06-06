@@ -29,7 +29,10 @@ exports.getAllPosts = async (req, res, next) => {
 // 특정 게시글 상세 조회
 exports.getPostById = async (req, res, next) => {
   try {
-    const post = await postService.getPostById(req.params.id);
+    const post = await postService.getPostById({
+      id: req.params.id, 
+      user: req.user,
+    });
 
     res.status(200).json({
       success: true,
