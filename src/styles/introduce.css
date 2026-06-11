@@ -198,6 +198,16 @@ body {
     color:var(--point-mint);
 }
 
+.invite-result{
+    padding:20px 0;
+}
+
+.invite-code{
+    color:var(--point-mint);
+    font-size: 20px;
+    font-weight: 600;
+}
+
 .invite-footer-left{
     color:var(--text-muted);
 }

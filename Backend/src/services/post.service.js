@@ -30,6 +30,7 @@ const MAX_POST_IMAGE_TOTAL_SIZE = 50 * 1024 * 1024;
 exports.getAllPosts = async (query) => {
     const {
         category,
+        exclude_category,
         search,
         page = 1,
         limit = 10,
@@ -66,6 +67,10 @@ exports.getAllPosts = async (query) => {
     if (category && category !== 'all') {
         where.category = category;
     }
+
+    if (exclude_category) {
+    where.category = { not: exclude_category };
+    }   
 
     // 검색에 공백 조건 제거
     const trimmedSearch = search?.trim();

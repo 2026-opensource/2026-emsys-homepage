@@ -31,7 +31,7 @@ function AppContent() {
 
   return (
     <>
-      {location.pathname !== "/landing" && <AdminFloatingButton />}
+      {location.pathname !== "/introduce" && <AdminFloatingButton />}
       <Routes>
         <Route path="/introduce" element={<Introduce />} />
         <Route path="/" element={<Home />} />

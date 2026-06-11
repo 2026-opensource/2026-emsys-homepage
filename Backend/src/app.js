@@ -15,6 +15,7 @@ const eventRoutes = require("./routes/event.routes");
 const financeRoutes = require("./routes/finance.routes");
 //const uploadRoutes = require("./routes/upload.routes");
 const publicRoutes = require("./routes/introduce.routes");
+const invitationRoutes = require("./routes/invitation.routes");
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use("/api/finance", financeRoutes);
 app.use("/api/posts", postRoutes);
 
 app.use("/api/introduce", publicRoutes);
+app.use("/api/invitation", invitationRoutes);
 
 // 에러 처리 미들웨어는 항상 마지막에 배치
 app.use(errorMiddleware);

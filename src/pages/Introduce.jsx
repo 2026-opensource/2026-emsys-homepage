@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { fetchExecutives } from '../api/introduceAPI.js';
+import { getInvitationCode } from '../api/invitationAPI.js';
 import '../styles/introduce.css';
 
 function Introduce() {
-
     const [executives, setExecutives] = useState([]);
+    const [studentId, setStudentId] = useState("");
+    const [name, setName] = useState("");
+    const [inviteResult, setInviteResult] = useState(null);
+    const [inviteError, setInviteError] = useState("");
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -17,6 +21,23 @@ function Introduce() {
         };
         loadInitialData();
     }, []);
+
+    async function handleInviteSearch() {
+        setInviteResult(null);
+        setInviteError("");
+
+        if (!studentId.trim() || !name.trim()) {
+            setInviteError("학번과 이름을 모두 입력해주세요.");
+            return;
+        }
+
+        try {
+            const result = await getInvitationCode({ student_id: studentId, name });
+            setInviteResult(result.data);
+        } catch (error) {
+            setInviteError("일치하는 정보가 없습니다.");
+        }
+    }
 
     return (
         <div className="back-color">
@@ -106,6 +127,8 @@ function Introduce() {
                                 type="text"
                                 placeholder="학번"
                                 className="invite-input"
+                                value={studentId}
+                                onChange={(e) => setStudentId(e.target.value)}
                             />
                         </div>
 
@@ -114,15 +137,25 @@ function Introduce() {
                                 type="text"
                                 placeholder="이름"
                                 className="invite-input"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                             />
                         </div>
 
-                        <button className="invite-btn">
+                        <button className="invite-btn" onClick={handleInviteSearch}>
                             [ 초대코드 조회 ]
                         </button>
                     </div>
 
-                    {/*초대코드 결과 표시 여따가 하면 됨~*/}
+                    {inviteError && (
+                        <p className="invite-error">{inviteError}</p>
+                    )}
+
+                    {inviteResult && (
+                        <div className="invite-result">
+                            <p className="invite-code">{inviteResult.code}</p>
+                        </div>
+                    )}
 
                     <div className="invite-footer">
                         <p className="invite-footer-left">

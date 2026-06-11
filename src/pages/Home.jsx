@@ -28,7 +28,7 @@ function Home() {
 
         const communityResult = await getPosts({
           board_type: "COMMUNITY",
-          category: "all",
+          exclude_category: "notice",
           page: 1,
           limit: 3,
         });

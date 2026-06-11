@@ -57,17 +57,21 @@ export async function deletePost(id) {
 }
 
 // 게시글 목록 조회
-export async function getPosts({ board_type = "COMMUNITY", category = "all", search = "", page = 1, limit = 5 }) {
-    const response = await axios.get(`${API_BASE_URL}/api/posts`, {
-        params: {
-            board_type,
-            category,
-            search,
-            page,
-            limit,
-        },
-    });
+export async function getPosts({ board_type = "COMMUNITY", category = "all", exclude_category, search = "", page = 1, limit = 5 }) {
+    const params = {
+        board_type,
+        search,
+        page,
+        limit,
+    };
 
+    if (exclude_category) {
+        params.exclude_category = exclude_category;
+    } else {
+        params.category = category;
+    }
+
+    const response = await axios.get(`${API_BASE_URL}/api/posts`, { params });
     return response.data;
 }
 
