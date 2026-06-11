@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchExecutives } from '../api/introduceAPI.js';
 import { getInvitationCode } from '../api/invitationAPI.js';
+import { useNavigate } from 'react-router-dom';
 import '../styles/introduce.css';
 
 function Introduce() {
@@ -9,6 +10,7 @@ function Introduce() {
     const [name, setName] = useState("");
     const [inviteResult, setInviteResult] = useState(null);
     const [inviteError, setInviteError] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -49,11 +51,13 @@ function Introduce() {
                     <br />Announcements, resources, and schedules — all in one place.
                 </p>
                 <div className="hero-btn">
-                    <button className="landing-code-btn">
+                    <button className="landing-code-btn" onClick={() => {
+                        document.querySelector('.invite-section').scrollIntoView();
+                    }}>
                         <i className="fa-solid fa-key"></i> Get Invite Code
                     </button>
 
-                    <button className="home-btn">
+                    <button className="home-btn" onClick={() => navigate('/')}>
                         HOMEPAGE
                     </button>
                 </div>
