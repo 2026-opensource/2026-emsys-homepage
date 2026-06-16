@@ -199,6 +199,14 @@
   background-color: var(--bg-box);
 }
 
+.home-board-box a {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  word-break: break-word;
+}
+
 .home-board-header {
   display: flex;
   justify-content: space-between;
