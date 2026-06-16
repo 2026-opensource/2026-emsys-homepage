@@ -83,7 +83,7 @@ function Home() {
             </div>
 
             <div className="col-sm-6 right-box">
-              <a href="/resources" className="content-wrapper-link">
+              <a href="/introduce" className="content-wrapper-link">
                 <div className="content-wrapper">
                   <div className="title-group">
                     <i className="fa-solid fa-location-dot"></i>
