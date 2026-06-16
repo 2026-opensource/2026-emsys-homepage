@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const XLSX = require('xlsx');
-
-const prisma = new PrismaClient();
+const ExcelJS = require('exceljs');
+const prisma = require('../lib/prisma');
 
 const parseSemesterFromFilename = (filename) => {
     const match = filename.match(/(\d{4})_(\d)/);
@@ -26,7 +24,7 @@ const getPrevSemester = (semester) => {
     return `${year - 1}년도 2학기`;
 };
 
-// 엑셀 파일 명에서 파싱
+// 엑셀 파일 명에서 뽑아내기
 exports.processAndSaveExcel = async (fileBuffer, filename) => {
     const decodedFilename = Buffer.from(filename, 'latin1').toString('utf8');
     console.log('변환된 파일명:', decodedFilename);
@@ -36,30 +34,31 @@ exports.processAndSaveExcel = async (fileBuffer, filename) => {
         throw new Error('파일명 형식이 올바르지 않습니다. (예: EMSYS_회비사용내역_2024_2학기.xlsx)');
     }
 
-    const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(fileBuffer);
+    const worksheet = workbook.worksheets[0];
 
     const monthlyExpenses = {};
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
 
-    for (let rowNum = 1; rowNum <= range.e.r; rowNum++) {
+    worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+
         try {
-            const dateCell   = worksheet[XLSX.utils.encode_cell({ r: rowNum, c: 1 })];
-            const typeCell   = worksheet[XLSX.utils.encode_cell({ r: rowNum, c: 4 })];
-            const amountCell = worksheet[XLSX.utils.encode_cell({ r: rowNum, c: 5 })];
+            const dateCell   = row.getCell(2).value;
+            const typeCell   = row.getCell(5).value;
+            const amountCell = row.getCell(6).value;
 
-            if (!dateCell?.v) continue;
+            if (!dateCell) return;
 
-            const typeStr = typeCell?.v?.toString().trim() ?? '';
-            if (typeStr !== '출금') continue;
+            const typeStr = typeCell?.toString().trim() ?? '';
+            if (typeStr !== '출금') return;
 
-            const dateStr = dateCell.v.toString().trim();
+            const dateStr = dateCell.toString().trim();
             const [year, month, day] = dateStr.split('.').map(s => parseInt(s));
-            if (!year || !month || !day) continue;
+            if (!year || !month || !day) return;
 
-            const amount = amountCell?.v ? parseInt(amountCell.v) : 0;
-            if (amount === 0) continue;
+            const amount = amountCell ? parseInt(amountCell) : 0;
+            if (amount === 0) return;
 
             const monthKey = `${year}-${String(month).padStart(2, '0')}`;
             if (!monthlyExpenses[monthKey]) {
@@ -68,9 +67,9 @@ exports.processAndSaveExcel = async (fileBuffer, filename) => {
             monthlyExpenses[monthKey].total += amount;
 
         } catch (rowError) {
-            console.error(`${rowNum + 1}행 처리 에러:`, rowError.message);
+            console.error(`${rowNumber}행 처리 에러:`, rowError.message);
         }
-    }
+    });
 
     // 같은 학기 기존 데이터 삭제 후 재등록
     await prisma.finances.deleteMany({
@@ -91,7 +90,6 @@ exports.processAndSaveExcel = async (fileBuffer, filename) => {
         financeRecords.push(record);
     }
 
-    // 최근 6학기 초과하는 학기 삭제
     await exports.deleteOldSemesters();
 
     return {

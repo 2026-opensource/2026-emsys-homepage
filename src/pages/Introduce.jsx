@@ -179,9 +179,9 @@ function Introduce() {
                     <h2 className="member-title"><i className="fa-solid fa-angle-right"></i>project-member</h2>
                     <div className="row member-row">
                         {[
-                            { name: "24 심연우", role: "역 할" },
-                            { name: "24 이나연", role: "역 할" },
-                            { name: "24 정소연", role: "역 할" },
+                            { name: "24 심연우", role: "Backend & Frontend Assist" },
+                            { name: "24 이나연", role: "Backend & Frontend Assist" },
+                            { name: "24 정소연", role: "Frontend Leader" },
                         ].map((member, index) => (
                             <div key={index} className="col-6 col-sm-4">
                                 <div className="member-card">
