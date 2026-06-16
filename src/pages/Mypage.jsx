@@ -237,7 +237,7 @@ function MyPage() {
                 </div>
 
                 <div className="user-info-row">
-                  <div className="user-info-label">아이디(이메일)</div>
+                  <div className="user-info-label">아이디</div>
                   <div className="user-info-value">{user?.email}</div>
                 </div>
 
@@ -285,7 +285,7 @@ function MyPage() {
                   <a key={post.id} href={`/posts/${post.id}`} className="board-link">
                     <article className="mypage-board-card">
                       <div className="mypage-board-row">
-                        <div className="board-category">{getCategoryText(post.category)}</div>
+                        <div className="mypage-board-category">{getCategoryText(post.category)}</div>
                         <div className="mypage-board-main">
                           <h2 className="mypage-board-title">{post.title}</h2>
                           <p className="mypage-board-info">{post.users?.name} · {post.created_at?.slice(0, 10)}</p>

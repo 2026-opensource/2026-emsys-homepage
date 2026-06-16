@@ -113,7 +113,7 @@
 
 /* 아이콘 스타일 */
 .fa-instagram,
-.fa-file-lines {
+.fa-location-dot {
   margin-right: 10px;
   font-size: clamp(35px, 4vw, 50px);
   color: var(--point-mint);

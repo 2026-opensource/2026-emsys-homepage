@@ -6,9 +6,9 @@ import "swiper/css/navigation";
 
 import "./imageslider.css";
 
-import img1 from "../assets/images/EMSYS_Halloween.png";
+import img1 from "../assets/images/EMSYS_Start.jpg";
+import img3 from "../assets/images/EMSYS_Halloween.png";
 import img2 from "../assets/images/EMSYS_Winter.jpg";
-import img3 from "../assets/images/EMSYS_Start.jpg";
 
 function ImageSlider() {
   return (

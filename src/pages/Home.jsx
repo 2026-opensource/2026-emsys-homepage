@@ -86,8 +86,8 @@ function Home() {
               <a href="/resources" className="content-wrapper-link">
                 <div className="content-wrapper">
                   <div className="title-group">
-                    <i className="fa-regular fa-file-lines"></i>
-                    <h3 className="about-title">자료실</h3>
+                    <i className="fa-solid fa-location-dot"></i>
+                    <h3 className="about-title">동아리 소개</h3>
                   </div>
 
                   <div className="description-group">
@@ -142,8 +142,8 @@ function Home() {
             <div className="col-6 col-sm-3">
               <a href="https://software.cbnu.ac.kr/sub040301">
                 <div className="shortcut-item">
-                  <i className="fa-solid fa-location-dot"></i>
-                  <h4>동아리 소개</h4>
+                  <i className="fa-regular fa-file-lines"></i>
+                  <h4>자료실</h4>
                 </div>
               </a>
             </div>

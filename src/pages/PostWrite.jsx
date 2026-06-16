@@ -23,13 +23,13 @@ function PostWrite() {
   const location = useLocation();
   const editor = useRef(null);
 
-  // 실시간으로 본문 텍스트를 담을 공간
+  // 에디터 내용
   const contentRef = useRef("");
 
   const { id } = useParams();
   const isEditMode = Boolean(id);
 
-  // URL 경로를 보고 어느 게시판 글쓰기인지 체크
+  // 게시판 종류 확인
   function getBoardType(pathname) {
     if (pathname.startsWith("/resources")) return "ARCHIVE";
     if (pathname.startsWith("/gallery")) return "GALLERY";
@@ -52,13 +52,12 @@ function PostWrite() {
   const [uploadingImages, setUploadingImages] = useState(false);
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [temporaryUploadedFiles, setTemporaryUploadedFiles] = useState([]);
+  const [tempFiles, settempFiles] = useState([]);
 
-  // 글 작성/수정 여부에 따라 에디터 로딩 제어
   const [isDirty, setIsDirty] = useState(false);
   const [isEditorReady, setIsEditorReady] = useState(!isEditMode);
 
-  const allowNavigationRef = useRef(false);
+  const canNavigateRef = useRef(false);
   const board_type = formData.board_type;
 
   const editorButtons = [
@@ -89,7 +88,7 @@ function PostWrite() {
     "eraser",
   ];
 
-  // 에디터 기본 설정 (높이, 언어, 플레이스홀더 등)
+  // 에디터 설정
   const config = useMemo(
     () => ({
       readonly: false,
@@ -98,10 +97,8 @@ function PostWrite() {
       language: "ko",
       toolbarButtonSize: "middle",
 
-      // 반응형 툴바가 기본 버튼 섞는 것 방지
       toolbarAdaptive: false,
 
-      // 이미지 클릭 시 리사이즈 테두리/핸들 방지
       allowResizeX: false,
       allowResizeY: false,
       askBeforePasteHTML: false,
@@ -234,7 +231,7 @@ function PostWrite() {
                 const uploaded = result.data;
 
                 setUploadedFiles((prev) => [...prev, ...uploaded]);
-                setTemporaryUploadedFiles((prev) => [...prev, ...uploaded]);
+                settempFiles((prev) => [...prev, ...uploaded]);
                 setIsDirty(true);
               } catch (error) {
                 console.error("파일 업로드 실패:", error);
@@ -276,10 +273,8 @@ function PostWrite() {
     GALLERY: [{ value: "activity", label: "행사" }],
   };
 
-  // 로딩 표시
   const [loading, setLoading] = useState(false);
 
-  // 에러 메시지
   const [errorMessage, setErrorMessage] = useState("");
 
   function handleChange(e) {
@@ -321,7 +316,7 @@ function PostWrite() {
     });
   }
 
-  async function cleanupTemporaryUploadedImages() {
+  async function cleanupTempImages() {
     if (uploadedImages.length === 0) return;
     try {
       await deleteUnusedPostImages(uploadedImages);
@@ -331,19 +326,18 @@ function PostWrite() {
     }
   }
 
-  async function cleanupTemporaryUploadedFiles() {
-    if (temporaryUploadedFiles.length === 0) return;
+  async function cleanupTempFiles() {
+    if (tempFiles.length === 0) return;
 
     try {
-      await deleteUnusedPostFiles(temporaryUploadedFiles);
-      setTemporaryUploadedFiles([]);
+      await deleteUnusedPostFiles(tempFiles);
+      settempFiles([]);
     } catch (error) {
       console.error("임시 업로드 파일 삭제 실패:", error);
     }
   }
 
   async function handleSubmit(e) {
-    // form 제출 시 페이지 새로고침 방지
     e.preventDefault();
     setErrorMessage("");
 
@@ -377,20 +371,17 @@ function PostWrite() {
         if (unusedImages.length > 0) {
           await deleteUnusedPostImages(unusedImages);
         }
-        const unusedFiles = getUnusedFiles(
-          uploadedFiles,
-          temporaryUploadedFiles,
-        );
+        const unusedFiles = getUnusedFiles(uploadedFiles, tempFiles);
 
         if (unusedFiles.length > 0) {
           await deleteUnusedPostFiles(unusedFiles);
         }
 
-        setTemporaryUploadedFiles([]);
+        settempFiles([]);
 
         console.log("글 수정 응답:", result);
         alert("게시글이 수정되었습니다.");
-        allowNavigationRef.current = true;
+        canNavigateRef.current = true;
         setIsDirty(false);
         navigate(`/posts/${id}`, { replace: true });
       } else {
@@ -399,20 +390,17 @@ function PostWrite() {
         if (unusedImages.length > 0) {
           await deleteUnusedPostImages(unusedImages);
         }
-        const unusedFiles = getUnusedFiles(
-          uploadedFiles,
-          temporaryUploadedFiles,
-        );
+        const unusedFiles = getUnusedFiles(uploadedFiles, tempFiles);
 
         if (unusedFiles.length > 0) {
           await deleteUnusedPostFiles(unusedFiles);
         }
 
-        setTemporaryUploadedFiles([]);
+        settempFiles([]);
 
         console.log("글 작성 응답:", result);
         alert("게시글이 작성되었습니다.");
-        allowNavigationRef.current = true;
+        canNavigateRef.current = true;
         setIsDirty(false);
         navigate(getListPath(board_type));
       }
@@ -438,9 +426,9 @@ function PostWrite() {
       );
       if (!isLeave) return;
     }
-    allowNavigationRef.current = true;
-    await cleanupTemporaryUploadedImages();
-    await cleanupTemporaryUploadedFiles();
+    canNavigateRef.current = true;
+    await cleanupTempImages();
+    await cleanupTempFiles();
 
     if (isEditMode) {
       navigate(`/posts/${id}`, { replace: true });
@@ -449,7 +437,7 @@ function PostWrite() {
     }
   }
 
-  // 수정 모드일 때 기존 게시글 불러오기
+  // 게시글 조회
   useEffect(() => {
     if (!isEditMode) {
       setIsEditorReady(true);
@@ -475,7 +463,7 @@ function PostWrite() {
           })),
         );
 
-        setTemporaryUploadedFiles([]);
+        settempFiles([]);
 
         setFormData({
           board_type: post.board_type,
@@ -502,10 +490,10 @@ function PostWrite() {
     fetchPostForEdit();
   }, [id, isEditMode]);
 
-  // 새로고침 / 탭 닫기 / 주소 직접 변경 방지
+  // 페이지 이탈 방지
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (!isDirty || allowNavigationRef.current) return;
+      if (!isDirty || canNavigateRef.current) return;
       e.preventDefault();
       e.returnValue = "";
     };
@@ -515,10 +503,10 @@ function PostWrite() {
     };
   }, [isDirty]);
 
-  // Navbar / Link / a 태그 내부 이동 방지
+  // 링크 이동 처리
   useEffect(() => {
     const handleLinkClick = async (e) => {
-      if (!isDirty || allowNavigationRef.current) return;
+      if (!isDirty || canNavigateRef.current) return;
       const link = e.target.closest("a");
       if (!link) return;
 
@@ -549,9 +537,9 @@ function PostWrite() {
       );
       if (!isLeave) return;
 
-      allowNavigationRef.current = true;
-      await cleanupTemporaryUploadedImages();
-      await cleanupTemporaryUploadedFiles();
+      canNavigateRef.current = true;
+      await cleanupTempImages();
+      await cleanupTempFiles();
       navigate(nextPath);
     };
 
@@ -571,20 +559,19 @@ function PostWrite() {
     location.hash,
 
     uploadedImages,
-    temporaryUploadedFiles,
+    tempFiles,
   ]);
 
-  // useMemo: Jodit을 외부로부터 격리
   const memoizedEditor = useMemo(() => {
     return (
       <JoditEditor
         key={isEditMode ? `edit-${id}` : "create"}
         ref={editor}
-        value={initialContent} // 최초 1회 혹은 서버 로드 시에만 이 값이 들어갑니다.
+        value={initialContent} // 최초 1회 혹은 서버 로드 시에만 이 값이 들어갈 것
         config={config}
         onChange={(newContent) => {
-          contentRef.current = newContent; // 타이핑 시 상태를 안 바꾸고 Ref만 바꿉니다 (커서 안 튐!)
-          if (!isDirty) setIsDirty(true); // 최초 변경 시에만 딱 한 번 실행됨
+          contentRef.current = newContent;
+          if (!isDirty) setIsDirty(true);
         }}
       />
     );
@@ -602,6 +589,15 @@ function PostWrite() {
               </h3>
 
               <div className="write-button-area">
+                {errorMessage && (
+                  <p className="error-message">{errorMessage}</p>
+                )}
+                {uploadingImages && (
+                  <p className="board-message">
+                    이미지 업로드 중입니다. 사진이 많으면 시간이 걸릴 수
+                    있습니다.
+                  </p>
+                )}
                 <button
                   className="cancel-write-btn btn btn-default"
                   type="button"
@@ -623,13 +619,6 @@ function PostWrite() {
                       : "등록"}
                 </button>
               </div>
-
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
-              {uploadingImages && (
-                <p className="board-message">
-                  이미지 업로드 중입니다. 사진이 많으면 시간이 걸릴 수 있습니다.
-                </p>
-              )}
             </div>
 
             <div className="form-group">
