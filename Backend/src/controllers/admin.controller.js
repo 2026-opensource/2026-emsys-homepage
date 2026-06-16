@@ -128,7 +128,9 @@ async function getAllPosts(req, res) {
     try {
         const { category, search, page = 1, limit = 5 } = req.query;
 
-        const where = {};
+        const where = {
+            board_type: { not: 'GALLERY' }
+        };
 
         if (category && category !== '') {
             where.category = category;
