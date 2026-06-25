@@ -13,6 +13,7 @@ import JoditEditor from "jodit-react";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
 import "../layout/common.css";
 import "../styles/post-write.css";
@@ -59,6 +60,12 @@ function PostWrite() {
 
   const canNavigateRef = useRef(false);
   const board_type = formData.board_type;
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (!requireLogin(navigate)) return;
+    setAuthChecked(true);
+  }, [navigate]);
 
   const editorButtons = [
     "bold",
@@ -177,6 +184,11 @@ function PostWrite() {
               } catch (error) {
                 console.error("이미지 업로드 실패:", error);
 
+                if (isAuthError(error)) {
+                  redirectToLogin(navigate);
+                  return;
+                }
+
                 alert(
                   error.response?.data?.message ||
                     "이미지 업로드에 실패했습니다.",
@@ -236,6 +248,11 @@ function PostWrite() {
               } catch (error) {
                 console.error("파일 업로드 실패:", error);
 
+                if (isAuthError(error)) {
+                  redirectToLogin(navigate);
+                  return;
+                }
+
                 alert(
                   error.response?.data?.message ||
                     "파일 업로드에 실패했습니다.",
@@ -248,7 +265,7 @@ function PostWrite() {
         },
       },
     }),
-    [isEditMode],
+    [isEditMode, navigate],
   );
 
   function getListPath(board_type) {
@@ -323,6 +340,10 @@ function PostWrite() {
       setUploadedImages([]);
     } catch (error) {
       console.error("임시 업로드 이미지 삭제 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+      }
     }
   }
 
@@ -334,11 +355,17 @@ function PostWrite() {
       settempFiles([]);
     } catch (error) {
       console.error("임시 업로드 파일 삭제 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+      }
     }
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!requireLogin(navigate)) return;
+
     setErrorMessage("");
 
     const postData = {
@@ -406,6 +433,12 @@ function PostWrite() {
       }
     } catch (error) {
       console.error(isEditMode ? "글 수정 실패:" : "글 작성 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
+
       const message =
         error.response?.data?.message ||
         error.message ||
@@ -439,6 +472,8 @@ function PostWrite() {
 
   // 게시글 조회
   useEffect(() => {
+    if (!requireLogin(navigate)) return;
+
     if (!isEditMode) {
       setIsEditorReady(true);
       return;
@@ -477,6 +512,12 @@ function PostWrite() {
         setIsEditorReady(true);
       } catch (error) {
         console.error("수정할 게시글 조회 실패:", error);
+
+        if (isAuthError(error)) {
+          redirectToLogin(navigate);
+          return;
+        }
+
         setErrorMessage(
           error.response?.data?.message ||
             error.message ||
@@ -488,7 +529,7 @@ function PostWrite() {
     }
 
     fetchPostForEdit();
-  }, [id, isEditMode]);
+  }, [id, isEditMode, navigate]);
 
   // 페이지 이탈 방지
   useEffect(() => {
@@ -576,6 +617,10 @@ function PostWrite() {
       />
     );
   }, [initialContent, config, isEditMode, id]);
+
+  if (!authChecked) {
+    return null;
+  }
 
   return (
     <>

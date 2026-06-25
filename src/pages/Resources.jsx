@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
+import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -46,6 +47,8 @@ function Resources() {
   // DB에서 자료실 게시글 목록 가져오기
   useEffect(() => {
     async function fetchPosts() {
+      if (!requireLogin(navigate)) return;
+
       try {
         setLoading(true);
         setErrorMessage("");
@@ -65,6 +68,11 @@ function Resources() {
       } catch (error) {
         console.error("게시글 목록 조회 실패:", error);
 
+        if (isAuthError(error)) {
+          redirectToLogin(navigate);
+          return;
+        }
+
         setErrorMessage(
           error.response?.data?.message ||
           "게시글 목록을 불러오지 못했습니다."
@@ -75,7 +83,7 @@ function Resources() {
     }
 
     fetchPosts();
-  }, [category, search, currentPage]);
+  }, [category, search, currentPage, navigate]);
 
   // 현재 보여줄 페이지 번호 그룹
   const startPage =

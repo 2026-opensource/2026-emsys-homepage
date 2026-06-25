@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyInfo, updateProfileImage, resetProfileImage } from "../api/userAPI";
 import { getMyPosts } from "../api/postAPI";
-import { removeToken } from "../utils/token";
+import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 import defaultProfile from "../assets/images/기본_프로필.png";
 
 function MyPage() {
@@ -56,6 +56,11 @@ function MyPage() {
     } catch (error) {
       console.error("프로필 이미지 변경 실패:", error);
 
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
+
       alert(
         error.response?.data?.message ||
         "프로필 이미지 변경에 실패했습니다."
@@ -89,6 +94,11 @@ function MyPage() {
     } catch (error) {
       console.error("기본 프로필 변경 실패:", error);
 
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
+
       alert(
         error.response?.data?.message ||
         "기본 프로필 이미지로 변경하지 못했습니다."
@@ -98,6 +108,8 @@ function MyPage() {
 
   useEffect(() => {
     async function fetchMyInfo() {
+      if (!requireLogin(navigate)) return;
+
       try {
         const result = await getMyInfo();
 
@@ -107,10 +119,8 @@ function MyPage() {
       } catch (error) {
         console.error("마이페이지 정보 조회 실패:", error);
 
-        if (error.response?.status === 401) {
-          removeToken();
-          alert("로그인이 필요합니다.");
-          navigate("/login");
+        if (isAuthError(error)) {
+          redirectToLogin(navigate);
           return;
         }
 
@@ -128,16 +138,22 @@ function MyPage() {
 
   useEffect(() => {
     async function fetchMyPosts() {
+      if (!requireLogin(navigate)) return;
+
       try {
         const result = await getMyPosts({ page: myPostsPage, limit: MY_POSTS_PER_PAGE });
         setMyPosts(result.data);
         setMyPostsTotalPages(result.pagination?.totalPages || 1);
       } catch (error) {
         console.error("내 게시글 조회 실패:", error);
+
+        if (isAuthError(error)) {
+          redirectToLogin(navigate);
+        }
       }
     }
     fetchMyPosts();
-  }, [myPostsPage]);
+  }, [myPostsPage, navigate]);
 
   if (loading) {
     return (

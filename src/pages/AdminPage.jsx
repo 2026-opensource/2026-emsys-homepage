@@ -4,7 +4,7 @@ import Footer from '../layout/Footer';
 import { useNavigate } from 'react-router-dom';
 import '../layout/common.css';
 import '../styles/adminPage.css';
-import { getUserRole } from "../utils/token"
+import { getUserRole, isAuthError, redirectToLogin } from "../utils/token"
 import { fetchMembers, fetchPosts, fetchExecutives, deletePost, updateUsersStatus, withdrawUsers } from '../api/adminAPI.js';
 import Pagination from '../components/Pagination.jsx';
 import DangerZone from '../components/admin/danger_zone.jsx';
@@ -68,6 +68,10 @@ const AdminPage = () => {
             alert(`${selectedPosts.length}개의 게시글이 삭제되었습니다.`);
         } catch (error) {
             console.error('게시글 삭제 중 오류:', error);
+            if (isAuthError(error)) {
+                redirectToLogin(navigate);
+                return;
+            }
             alert('일부 게시글 삭제에 실패했습니다. 다시 시도해주세요.');
         }
     };
@@ -113,6 +117,10 @@ const AdminPage = () => {
             setIsBasketOpen(false);
         } catch (error) {
             console.error('상태 변경 중 오류:', error);
+            if (isAuthError(error)) {
+                redirectToLogin(navigate);
+                return;
+            }
             alert('상태 변경에 실패했습니다. 다시 시도해주세요.');
         }
     };
@@ -142,6 +150,10 @@ const AdminPage = () => {
             alert('일괄 탈퇴가 완료되었습니다.');
         } catch (error) {
             console.error('탈퇴 처리 오류:', error);
+            if (isAuthError(error)) {
+                redirectToLogin(navigate);
+                return;
+            }
             alert('탈퇴 처리에 실패했습니다. 다시 시도해주세요.');
         }
     };
@@ -173,6 +185,10 @@ const AdminPage = () => {
 
             } catch (error) {
                 console.error("데이터를 불러오는데 실패했습니다.", error);
+                if (isAuthError(error)) {
+                    redirectToLogin(navigate);
+                    return;
+                }
                 alert("서버와 연결할 수 없습니다.");
             } finally {
                 // 로딩 끝
@@ -181,7 +197,7 @@ const AdminPage = () => {
         };
 
         loadInitialData();
-    }, [currentPage, postCategory, postSearch]); // 딱 한번 실행되도록 빈 배열을 넣음
+    }, [currentPage, postCategory, postSearch, navigate]); // 딱 한번 실행되도록 빈 배열을 넣음
 
     // 카테고리 key를 화면에 보여줄 한글로 변환
     function getCategoryText(category) {

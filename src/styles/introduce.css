@@ -145,7 +145,7 @@ body {
     font-size: 15px;
 }
 
-.invite-section{
+.invite-section {
     text-align: center;
     padding: 50px;
 }
@@ -158,28 +158,28 @@ body {
     border-radius: 5px;
 }
 
-.invite-title{
-    color:var(--point-mint);
+.invite-title {
+    color: var(--point-mint);
 }
 
-.invite-subtitle{
-    padding:40px;
-    color:var(--text-muted);
+.invite-subtitle {
+    padding: 40px;
+    color: var(--text-muted);
     font-size: 16px;
 }
 
-.invite-input-area{
+.invite-input-area {
     display: flex;
     align-items: center;
     flex-direction: column;
-    gap:20px;
-    padding:10px;
+    gap: 20px;
+    padding: 10px;
 }
 
-.invite-input{
-    border:1px solid var(--bg-box);
+.invite-input {
+    border: 1px solid var(--bg-box);
     border-radius: 5px;
-    padding:10px;
+    padding: 10px;
     background-color: black;
 }
 
@@ -187,15 +187,15 @@ body {
     outline: none;
 }
 
-.invite-btn{
+.invite-btn {
     background-color: rgba(0, 255, 163, 0.15);
     border: 1px solid var(--point-mint);
     color: #00ffa285;
 }
 
-.invite-btn:hover{
+.invite-btn:hover {
     box-shadow: 0 0 12px rgba(0, 255, 163, 0.2);
-    color:var(--point-mint);
+    color: var(--point-mint);
 }
 
 .invite-result{
@@ -212,40 +212,40 @@ body {
     color:var(--text-muted);
 }
 
-.outro-divider{
-    width:75%;
+.outro-divider {
+    width: 75%;
     border-color: #00ffa216;
 }
 
-.member-section{
-   padding: 60px;
-   padding-left:13%;
-   padding-right:13%;
+.member-section {
+    padding: 60px;
+    padding-left: 13%;
+    padding-right: 13%;
 }
 
-.member-card{
-    border-top:1px solid #00ffa22a;
-    border-bottom:1px solid #00ffa22a;
+.member-card {
+    border-top: 1px solid #00ffa22a;
+    border-bottom: 1px solid #00ffa22a;
     background-color: transparent;
-    padding : 10px;
+    padding: 10px;
     margin-bottom: 40px;
 }
 
-.member-title{
+.member-title {
     padding-bottom: 30px;
-    color:var(--text-muted);
+    color: var(--text-muted);
 }
 
-.fa-angle-right{
-    color:var(--point-mint);
+.fa-angle-right {
+    color: var(--point-mint);
 }
 
-.mamber-name{
+.mamber-name {
     text-align: left;
 }
 
-@madia(max-width:1000px){
-    .features-item{
+@media(max-width:1000px) {
+    .features-item {
         min-width: 1000px;
     }
 }

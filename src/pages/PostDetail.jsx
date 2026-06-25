@@ -8,6 +8,7 @@ import DOMPurify from "dompurify";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
+import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
 import "../styles/post-detail.css";
 import "../styles/board.css";
@@ -58,13 +59,7 @@ function PostDetail() {
 
   // 게시글 상세 정보 가져오기
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-      return;
-    }
+    if (!requireLogin(navigate)) return;
 
     if (fetchedRef.current) {
       return;
@@ -91,6 +86,11 @@ function PostDetail() {
 setDislike(result.data.isDisliked);
       } catch (error) {
         console.error("게시글 상세 조회 실패:", error);
+
+        if (isAuthError(error)) {
+          redirectToLogin(navigate);
+          return;
+        }
 
         setErrorMessage(
           error.response?.data?.message ||
@@ -163,6 +163,11 @@ setDislike(result.data.isDisliked);
     } catch (error) {
       console.error("게시글 삭제 실패:", error);
 
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
+
       setReactionMessage(
         error.response?.data?.message ||
         "게시글 삭제에 실패했습니다."
@@ -197,6 +202,11 @@ setDislike(result.data.isDisliked);
       setDislike(result.data.isDisliked);
     } catch (error) {
       console.error("좋아요 처리 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
 
       setReactionMessage(
         error.response?.data?.message ||
@@ -233,6 +243,11 @@ setDislike(result.data.isDisliked);
     } catch (error) {
       console.error("싫어요 처리 실패:", error);
 
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
+
       setReactionMessage(
         error.response?.data?.message ||
         "싫어요 처리에 실패했습니다."
@@ -263,6 +278,11 @@ setDislike(result.data.isDisliked);
       setCommentMessage("");
     } catch (error) {
       console.error("댓글 작성 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
 
       setCommentMessage(
         error.response?.data?.message ||
@@ -303,6 +323,11 @@ setDislike(result.data.isDisliked);
     } catch (error) {
       console.error("댓글 수정 실패:", error);
 
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
+
       setCommentMessage(
         error.response?.data?.message ||
         "댓글 수정에 실패했습니다."
@@ -326,6 +351,11 @@ setDislike(result.data.isDisliked);
       setCommentMessage("");
     } catch (error) {
       console.error("댓글 삭제 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate);
+        return;
+      }
 
       setCommentMessage(
         error.response?.data?.message ||
