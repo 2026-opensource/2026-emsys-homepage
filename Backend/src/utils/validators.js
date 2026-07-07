@@ -1,7 +1,13 @@
 function isValidPassword(password) {
     // 영문 최소 1개, 숫자 최소 1개, 전체 8자 이상
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // ^: 문자열 시작, $: 문자열 끝
     return passwordRegex.test(password);
+}
+
+function isValidPhoneNumber(phone_number) {
+    // - 없이 숫자만 입력
+    const phoneNumberRegex = /^0\d{10}$/; // 0으로 시작하고 10자리 필요
+    return phoneNumberRegex.test(phone_number);
 }
 
 function isValidStatus(status) {
@@ -31,6 +37,7 @@ function isValidArchiveCategory(category) {
 
 module.exports = {
     isValidPassword,
+    isValidPhoneNumber,
     isValidStatus,
     isValidBoardType,
     isValidCommunityCategory,

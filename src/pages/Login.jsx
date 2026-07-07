@@ -53,7 +53,7 @@ function Login() {
         result.token ||
         result.accessToken;
 
-      if(!token) {
+      if (!token) {
         throw new Error("로그인 토큰을 받지 못했습니다.");
       }
 
@@ -73,6 +73,18 @@ function Login() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // 캡스락 눌렸는지 체크
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+
+  function checkCapsLock(e) {
+    setIsCapsLockOn(e.getModifierState("CapsLock"));
+  }
+
+  // input에서 포커스 헤재되면 자동으로 캡스락 false로
+  function resetCapsLock() {
+    setIsCapsLockOn(false);
   }
 
   return (
@@ -108,8 +120,16 @@ function Login() {
                   placeholder="비밀번호"
                   value={formData.password}
                   onChange={handleChange}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
+                  onBlur={resetCapsLock}
                   required
                 />
+                {isCapsLockOn && (
+                  <p className="caps-lock-warning">
+                    *CAPS LOCK이 켜져 있습니다.
+                  </p>
+                )}
 
                 <button
                   className="auth-btn"

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchExecutives } from '../api/introduceAPI.js';
 import { getInvitationCode } from '../api/invitationAPI.js';
 import { useNavigate } from 'react-router-dom';
+import { setHideIntroduceLanding, shouldHideIntroduceLanding } from '../utils/landingPreference.js';
 import '../styles/introduce.css';
 
 function Introduce() {
@@ -10,6 +11,7 @@ function Introduce() {
     const [name, setName] = useState("");
     const [inviteResult, setInviteResult] = useState(null);
     const [inviteError, setInviteError] = useState("");
+    const [hideLanding, setHideLanding] = useState(() => shouldHideIntroduceLanding());
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -41,6 +43,17 @@ function Introduce() {
         }
     }
 
+    function handleHideLandingChange(event) {
+        const checked = event.target.checked;
+        setHideLanding(checked);
+        setHideIntroduceLanding(checked);
+    }
+
+    function handleHomepageClick() {
+        setHideIntroduceLanding(hideLanding);
+        navigate('/', { state: { showHome: true } });
+    }
+
     return (
         <div className="back-color">
             <section className="landing-hero">
@@ -57,9 +70,17 @@ function Introduce() {
                         <i className="fa-solid fa-key"></i> Get Invite Code
                     </button>
 
-                    <button className="home-btn" onClick={() => navigate('/')}>
+                    <button className="home-btn" onClick={handleHomepageClick}>
                         HOMEPAGE
                     </button>
+                    <label className="landing-hide-option">
+                        <input
+                            type="checkbox"
+                            checked={hideLanding}
+                            onChange={handleHideLandingChange}
+                        />
+                        <span>이 페이지 다시 보지 않기</span>
+                    </label>
                 </div>
             </section>
 
