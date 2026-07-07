@@ -157,7 +157,7 @@ body {
   width: 20px !important;
   height: 20px !important;
   fill: #ffffff !important;
-  
+
 }
 
 .jodit-popup__content{
@@ -189,7 +189,7 @@ body {
   height: auto !important;
   display: inline-block !important;
   margin: 8px !important;
-  vertical-align: top !important;
+  vertical-align: middle !important;
 }
 
 .jodit-resizer,

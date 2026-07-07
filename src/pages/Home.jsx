@@ -140,7 +140,7 @@ function Home() {
             </div>
 
             <div className="col-6 col-sm-3">
-              <a href="https://software.cbnu.ac.kr/sub040301">
+              <a href="/resources">
                 <div className="shortcut-item">
                   <i className="fa-regular fa-file-lines"></i>
                   <h4>자료실</h4>
