@@ -18,6 +18,7 @@ import PostWrite from "./pages/PostWrite";
 import Gallery from "./pages/Gallery";
 
 import AdminFloatingButton from "./components/admin/adminFloatingButton";
+import MemberInfo from "./pages/MemberInfo";
 
 const AuthRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ function AppContent() {
         <Route path="/posts/:id/edit" element={<AuthRoute><PostWrite /></AuthRoute>} />
 
         <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
+        <Route path="/admin-page/memberInfo" element={<AdminRoute><MemberInfo /></AdminRoute>} />
         <Route path="/post-detail" element={<AuthRoute><PostDetail /></AuthRoute>} />
         <Route path="/post-write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/gallery" element={<Gallery />} />

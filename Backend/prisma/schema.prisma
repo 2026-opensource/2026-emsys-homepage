@@ -38,8 +38,8 @@ model finances {
   item_name   String?   @db.VarChar(255)
   amount      Int?
   category    String?   @db.VarChar(255)
-  semester    String?   @db.VarChar(20)
   uploaded_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  semester    String?   @db.VarChar(20)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -48,6 +48,7 @@ model invitation_codes {
   code       String?   @unique(map: "code") @db.VarChar(255)
   student_id String?   @db.VarChar(255)
   name       String?   @db.VarChar(255)
+  phone      String?   @db.VarChar(20)
   is_used    Boolean?  @default(false)
   used_at    DateTime? @db.Timestamp(0)
 }
@@ -66,29 +67,15 @@ model post_dislikes {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model post_images {
   id            Int     @id @default(autoincrement())
-  thumbnail_url String  @db.VarChar(500)
+  caption       String? @db.VarChar(255)
+  post_id       Int
   display_url   String  @db.VarChar(500)
   original_name String? @db.VarChar(255)
-  caption       String? @db.VarChar(255)
   sort_order    Int     @default(0)
-  post_id       Int
+  thumbnail_url String  @db.VarChar(500)
   posts         posts   @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_images_ibfk_1")
 
   @@index([post_id], map: "post_id")
-}
-
-model post_files {
-  id            Int     @id @default(autoincrement())
-  original_name String  @db.VarChar(255)
-  file_name     String  @db.VarChar(255)
-  file_url      String  @db.VarChar(500)
-  download_url  String  @db.VarChar(500)
-  size          Int
-  sort_order    Int     @default(0)
-  post_id       Int
-  posts         posts   @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([post_id])
 }
 
 model post_likes {
@@ -108,7 +95,7 @@ model posts {
   board_type    String?         @default("COMMUNITY") @db.VarChar(255)
   category      String?         @db.VarChar(255)
   title         String?         @db.VarChar(255)
-  content       String?         @db.LongText
+  content       String?         @db.Text
   view_count    Int?            @default(0)
   created_at    DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
   updated_at    DateTime?       @db.Timestamp(0)
@@ -117,30 +104,44 @@ model posts {
   post_dislikes post_dislikes[]
   post_images   post_images[]
   post_likes    post_likes[]
-  post_files    post_files[]
   users         users           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "posts_ibfk_1")
+  post_files    post_files[]
 
   @@index([author_id], map: "author_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  id            Int             @id @default(autoincrement())
-  email         String?         @unique(map: "email") @db.VarChar(255)
-  password      String?         @db.VarChar(255)
-  name          String?         @db.VarChar(255)
-  student_id    String?         @unique(map: "student_id") @db.VarChar(255)
-  role          String?         @default("MEMBER") @db.VarChar(255)
-  position      String?         @db.VarChar(255)
-  status        String          @db.VarChar(255)
-  profile_image String?         @db.VarChar(255)
-  visit_count   Int?            @default(0)
-  created_at    DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
-  is_active       Boolean?      @default(true)
-  withdraw_reason String?       @db.VarChar(255)
-  deleted_at      DateTime?     @db.Timestamp(0)
-  comments      comments[]
-  post_dislikes post_dislikes[]
-  post_likes    post_likes[]
-  posts         posts[]
+  id              Int             @id @default(autoincrement())
+  email           String?         @unique(map: "email") @db.VarChar(255)
+  password        String?         @db.VarChar(255)
+  name            String?         @db.VarChar(255)
+  student_id      String?         @unique(map: "student_id") @db.VarChar(255)
+  role            String?         @default("MEMBER") @db.VarChar(255)
+  status          String          @db.VarChar(255)
+  profile_image   String?         @db.VarChar(255)
+  visit_count     Int?            @default(0)
+  created_at      DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
+  deleted_at      DateTime?       @db.Timestamp(0)
+  is_active       Boolean?        @default(true)
+  withdraw_reason String?         @db.VarChar(255)
+  position        String?         @db.VarChar(255)
+  comments        comments[]
+  post_dislikes   post_dislikes[]
+  post_likes      post_likes[]
+  posts           posts[]
+}
+
+model post_files {
+  id            Int     @id @default(autoincrement())
+  post_id       Int
+  original_name String? @db.VarChar(255)
+  file_name     String? @db.VarChar(255)
+  file_url      String  @db.VarChar(500)
+  download_url  String? @db.VarChar(500)
+  size          Int?
+  sort_order    Int     @default(0)
+  posts         posts   @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([post_id])
 }

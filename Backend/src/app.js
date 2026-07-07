@@ -7,6 +7,7 @@ const path = require("path");
 const authRoutes = require("./routes/auth.routes");
 const swaggerSpec = require("./config/swagger");
 const adminRoutes = require("./routes/admin.routes");
+const memberRoutes = require("./routes/member.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const postRoutes = require("./routes/post.routes");
@@ -44,6 +45,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/auth", authRoutes);
 
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin", memberRoutes);
 
 app.use("/api/event", eventRoutes);
 app.use("/api/comment", commentRoutes);

@@ -1,8 +1,16 @@
-.admin-floating-btn {
+.admin-floating-wrapper {
   position: fixed;
   bottom: 32px;
   right: 32px;
   z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.admin-floating-btn {
+  position: static; /* wrapper가 fixed 위치를 담당하므로 static으로 변경 */
   background: #555555;
   color: #fff;
   border: none;
@@ -18,8 +26,53 @@
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.admin-floating-btn:hover {
+.admin-floating-btn:hover,
+.admin-floating-btn.active {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  color:#00ffa3;
+  color: #00ffa3;
+}
+
+.admin-floating-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #2b2b2b;
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  animation: admin-menu-fade-in 0.15s ease-out;
+}
+
+.admin-floating-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.admin-floating-menu-item:hover {
+  background: rgba(0, 255, 163, 0.12);
+  color: #00ffa3;
+}
+
+@keyframes admin-menu-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
