@@ -43,18 +43,18 @@ body {
 .auth-page-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: 800px;      
+    min-height: 800px;
     width: 100%;
-    
+
 }
 
 .auth-content-area {
-    flex:1;
+    flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;    
+    align-items: center;
     width: 100%;
-    padding: 40px 0;         
+    padding: 40px 0;
 }
 
 .auth-box,
@@ -160,6 +160,7 @@ body {
     width: 400px;
     max-width: 100%;
     color: #ff6b6b;
+    margin: auto;
     font-size: 13px;
     text-align: left;
 }
@@ -230,12 +231,13 @@ body {
 }
 
 .input-box:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px var(--bg-box) inset; /* 배경색을 box-shadow 스타일로 덮어쓰기 */
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-box) inset;
+    /* 배경색을 box-shadow 스타일로 덮어쓰기 */
     -webkit-text-fill-color: var(--text-main);
 }
 
 .login-link,
-.signup-link{
+.signup-link {
     font-size: 16px;
     color: var(--text-main);
     margin: 10px 0px;
@@ -427,7 +429,7 @@ body {
 }
 
 @media (max-width: 500px) {
-   .find-tabs>li>a {
+    .find-tabs>li>a {
         font-size: 24px;
     }
 }

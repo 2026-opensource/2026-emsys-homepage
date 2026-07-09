@@ -156,13 +156,16 @@ function Signup() {
 
     // 캡스락 눌렸는지 체크
     const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+    const [focusedPasswordField, setFocusedPasswordField] = useState(""); // 비밀번호, 비밀번호 확인 같이 표시되는 거 고치기 위함
 
-    function checkCapsLock(e) {
+    function checkCapsLock(e, fieldName) {
+        setFocusedPasswordField(fieldName);
         setIsCapsLockOn(e.getModifierState("CapsLock"));
     }
 
     // input에서 포커스 헤재되면 자동으로 캡스락 false로
     function resetCapsLock() {
+        setFocusedPasswordField("");
         setIsCapsLockOn(false);
     }
 
@@ -283,12 +286,13 @@ function Signup() {
                                             placeholder="비밀번호(영문, 숫자 조합으로 8자리 이상)"
                                             value={formData.password}
                                             onChange={handleChange}
-                                            onKeyDown={checkCapsLock}
-                                            onKeyUp={checkCapsLock}
+                                            onFocus={() => setFocusedPasswordField("password")}
+                                            onKeyDown={(e) => checkCapsLock(e, "password")}
+                                            onKeyUp={(e) => checkCapsLock(e, "password")}
                                             onBlur={resetCapsLock}
                                             required
                                         />
-                                        {isCapsLockOn && (
+                                        {focusedPasswordField === "password" && isCapsLockOn && (
                                             <p className="caps-lock-warning">
                                                 *CAPS LOCK이 켜져 있습니다.
                                             </p>
@@ -301,12 +305,13 @@ function Signup() {
                                             placeholder="비밀번호 확인"
                                             value={formData.passwordConfirm}
                                             onChange={handleChange}
-                                            onKeyDown={checkCapsLock}
-                                            onKeyUp={checkCapsLock}
+                                            onFocus={() => setFocusedPasswordField("passwordConfirm")}
+                                            onKeyDown={(e) => checkCapsLock(e, "passwordConfirm")}
+                                            onKeyUp={(e) => checkCapsLock(e, "passwordConfirm")}
                                             onBlur={resetCapsLock}
                                             required
                                         />
-                                        {isCapsLockOn && (
+                                        {focusedPasswordField === "passwordConfirm" && isCapsLockOn && (
                                             <p className="caps-lock-warning">
                                                 *CAPS LOCK이 켜져 있습니다.
                                             </p>
