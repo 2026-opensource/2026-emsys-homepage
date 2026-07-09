@@ -79,7 +79,7 @@ function MyPage() {
     if (!confirmReset) {
       return;
     }
-    
+
     try {
       const result = await resetProfileImage();
 
@@ -200,7 +200,7 @@ function MyPage() {
     if (category === "class") return "수업";
     if (category === "activity") return "행사";
     return category;
-}
+  }
 
   return (
     <>
@@ -248,24 +248,29 @@ function MyPage() {
             <section className="user-info-content1">
               <div className="user-info-inner-box">
                 <div className="user-info-row">
-                  <div className="user-info-label">사용자 이름</div>
-                  <div className="user-info-value">{user?.name}</div>
-                </div>
-
-                <div className="user-info-row">
-                  <div className="user-info-label">아이디</div>
-                  <div className="user-info-value">{user?.email}</div>
-                </div>
-
-
-                <div className="user-info-row">
                   <div className="user-info-label">학번</div>
                   <div className="user-info-value">{user?.student_id}</div>
                 </div>
 
                 <div className="user-info-row">
+                  <div className="user-info-label">이름</div>
+                  <div className="user-info-value">{user?.name}</div>
+                </div>
+
+                {/* 전화번호 인증 있으니까 그냥 아이디를 학번으로 바꾸자 나중에 이메일 관련 사용한다고 하면 주석처리 풀면 됨 */}
+                {/* {<div className="user-info-row">
+                  <div className="user-info-label">아이디</div>
+                  <div className="user-info-value">{user?.email}</div>
+                </div>} */}
+
+                <div className="user-info-row">
                   <div className="user-info-label">등급</div>
                   <div className="user-info-value">{getRoleText(user?.role)}</div>
+                </div>
+
+                <div className="user-info-row">
+                  <div className="user-info-label">전화번호</div>
+                  <div className="user-info-value">010-1234-1234{user?.phone_number}</div>
                 </div>
               </div>
             </section>

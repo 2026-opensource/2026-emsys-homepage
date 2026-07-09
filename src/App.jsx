@@ -19,7 +19,7 @@ import Gallery from "./pages/Gallery";
 
 import AdminFloatingButton from "./components/admin/adminFloatingButton";
 import MemberInfo from "./pages/MemberInfo";
-
+import { shouldHideIntroduceLanding } from "./utils/landingPreference";
 const AuthRoute = ({ children }) => {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
@@ -58,15 +58,29 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+const RootRoute = () => {
+  const location = useLocation();
+
+  if (location.state?.showHome) {
+    return <Home />;
+  }
+
+  return shouldHideIntroduceLanding() ? <Home /> : <Introduce />;
+};
+
 function AppContent() {
   const location = useLocation();
+  const showHomeFromLanding = Boolean(location.state?.showHome);
+  const isLandingVisible =
+    location.pathname === "/introduce" ||
+    (location.pathname === "/" && !showHomeFromLanding && !shouldHideIntroduceLanding());
 
   return (
     <>
-      {location.pathname !== "/introduce" && <AdminFloatingButton />}
+      {!isLandingVisible && <AdminFloatingButton />}
       <Routes>
         <Route path="/introduce" element={<Introduce />} />
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<RootRoute />} />
         <Route path="/community" element={<Community />} />
         <Route path="/resources" element={<AuthRoute><Resources /></AuthRoute>} />
         <Route path="/mypage" element={<AuthRoute><Mypage /></AuthRoute>} />

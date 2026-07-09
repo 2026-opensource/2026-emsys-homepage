@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt"); //  비밀번호 암호화, 비교
 const prisma = require("../lib/prisma");
-const { isValidPassword, isValidStatus } = require("../utils/validators");
+const { isValidPassword, isValidStatus, isValidPhoneNumber } = require("../utils/validators");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
@@ -12,6 +12,7 @@ async function registerUser(body) {
         passwordConfirm,
         name,
         student_id,
+        phone_number,
         status,
         invitationCode,
     } = body;
@@ -23,6 +24,7 @@ async function registerUser(body) {
         !passwordConfirm ||
         !name ||
         !student_id ||
+        !phone_number ||
         !status ||
         !invitationCode
     ) {
@@ -31,10 +33,14 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 학적 상태 검사
-    if (!isValidStatus(status)) {
-        const error = new Error("학적 상태는 재학생, 휴학생, 졸업생 중 하나여야 합니다.");
-        error.statusCode = 400;
+    // 이메일 중복 검사
+    const existingEmailUser = await prisma.users.findUnique({
+        where: { email },
+    });
+
+    if (existingEmailUser) {
+        const error = new Error("이미 사용 중인 아이디(이메일)입니다.");
+        error.statusCode = 409;
         throw error;
     }
 
@@ -52,14 +58,18 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 이메일 중복 검사
-    const existingEmailUser = await prisma.users.findUnique({
-        where: { email },
-    });
+    // 전화번호 규칙 검사
+    if (!isValidPhoneNumber(phone_number)) {
+        const error = new Error("전화번호는 11자 이상이어야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
 
-    if (existingEmailUser) {
-        const error = new Error("이미 사용 중인 아이디(이메일)입니다.");
-        error.statusCode = 409;
+
+    // 학적 상태 검사
+    if (!isValidStatus(status)) {
+        const error = new Error("학적 상태는 재학생, 휴학생, 졸업생 중 하나여야 합니다.");
+        error.statusCode = 400;
         throw error;
     }
 
