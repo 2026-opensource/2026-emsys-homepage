@@ -10,6 +10,7 @@ import {
   deleteUnusedPostFiles,
 } from "../api/postAPI";
 import JoditEditor from "jodit-react";
+import { Jodit } from "jodit";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -95,6 +96,47 @@ function PostWrite() {
     "eraser",
   ];
 
+  const mobileButtons = [
+    "bold",
+    "strikethrough",
+    "underline",
+    "italic",
+    "|",
+    "ul",
+    "ol",
+    "|",
+    "font",
+    "fontsize",
+    "brush",
+    "paragraph",
+    "|",
+    "dots",
+  ];
+
+  const smallButtons = [
+    "bold",
+    "strikethrough",
+    "underline",
+    "italic",
+    "|",
+    "ul",
+    "ol",
+    "|",
+    "font",
+    "fontsize",
+    "dots",
+  ];
+
+  const mobileSmallButtons = [
+    "bold",
+    "strikethrough",
+    "underline",
+    "italic",
+    "|",
+    "ul",
+    "dots",
+  ];
+
   // 에디터 설정
   const config = useMemo(
     () => ({
@@ -104,7 +146,22 @@ function PostWrite() {
       language: "ko",
       toolbarButtonSize: "middle",
 
-      toolbarAdaptive: false,
+      toolbarAdaptive: true,
+      sizeLG: 890,
+      sizeMD: 532,
+      sizeSM: 420,
+      sizeXS: 200,
+
+      toolbarInline: false,
+      toolbarInlineForSelection: false,
+      popup: {
+        a: [],
+        table: [],
+        tr: [],
+        td: [],
+        th: [],
+        cells: [],
+      },
 
       allowResizeX: false,
       allowResizeY: false,
@@ -115,9 +172,9 @@ function PostWrite() {
 
       // 화면 크기에 상관없이 항상 같은 버튼 보이도록 설정
       buttons: editorButtons,
-      buttonsMD: editorButtons,
-      buttonsSM: editorButtons,
-      buttonsXS: editorButtons,
+      buttonsMD: mobileButtons,
+      buttonsSM: smallButtons,
+      buttonsXS: mobileSmallButtons,
 
       controls: {
         uploadImages: {

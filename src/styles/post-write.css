@@ -131,8 +131,6 @@ body {
   --jd-dark-background-darknes: red;
 }
 
-
-
 .jodit-wysiwyg ul li::marker {
   color: #ffffff !important;
 }
@@ -149,7 +147,7 @@ body {
   list-style-position: outside !important;
 }
 
-.jodit-container{
+.jodit-container {
   border: 2px solid var(--border-color) !important;
 }
 
@@ -157,10 +155,20 @@ body {
   width: 20px !important;
   height: 20px !important;
   fill: #ffffff !important;
-
 }
 
-.jodit-popup__content{
+.jodit-popup input,
+.jodit-popup textarea,
+.jodit-popup select {
+  color: #222 !important;
+}
+
+.jodit-popup input::placeholder,
+.jodit-popup textarea::placeholder {
+  color: #777 !important;
+}
+
+.jodit-popup__content {
   border: 2px solid var(--border-color);
   border-radius: 5px;
 }
@@ -169,7 +177,7 @@ body {
   border-bottom: 2px solid var(--border-color);
 }
 
-.jodit_hovered{
+.jodit_hovered {
   background-color: var(--text-muted) !important;
 }
 
@@ -177,10 +185,14 @@ body {
   display: none !important;
 }
 
-@media (max-width: 768px) {
-  .post-write-box {
-    margin: 0px 10px;
-  }
+.jodit-wysiwyg a {
+  color: #9fd0ff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}
+
+.jodit-wysiwyg a:hover {
+  color: #b9ddff !important;
 }
 
 /* 에디터 안 이미지 스타일 */
@@ -263,4 +275,56 @@ body {
   font-size: 22px;
   font-weight: 700;
   cursor: pointer;
+}
+
+@media (max-width: 780px) {
+  .jodit-toolbar__box,
+  .jodit-toolbar-editor-collection,
+  .jodit-toolbar-editor-collection_mode_horizontal,
+  .jodit-toolbar-collection,
+  .jodit-toolbar-collection_mode_horizontal {
+    flex-wrap: nowrap !important;
+  }
+
+  .jodit-toolbar-editor-collection .jodit-ui-group,
+  .jodit-toolbar-collection .jodit-ui-group {
+    flex-wrap: nowrap !important;
+  }
+
+  .write-container {
+    margin-top: 20px;
+    padding: 20px 20px;
+    border-radius: 12px;
+  }
+
+  .post-write-box {
+    margin: 0px 10px;
+  }
+
+  .jodit-toolbar-button {
+    min-width: 32px !important;
+    height: 32px !important;
+  }
+
+  .jodit-toolbar-button svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+@media (max-width: 505px) {
+  .title-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .category-select {
+    width: 100%;
+    margin-right: 0;
+    height: 34px;
+  }
+
+  .title-input-box {
+    width: 100%;
+  }
 }

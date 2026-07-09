@@ -120,6 +120,38 @@
   vertical-align: top;
 }
 
+.detail-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.detail-content th,
+.detail-content td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  vertical-align: top;
+}
+
+.detail-content th {
+  background-color: var(--bg-box);
+  font-weight: 700;
+}
+
+.detail-content td {
+  background-color: transparent;
+}
+
+.detail-content a {
+  color: #9fd0ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.detail-content a:hover {
+  color: #b9ddff;
+}
+
 /* ========================================
   피드백(좋아요/싫어요) 영역
 ======================================== */
@@ -157,7 +189,7 @@
   color: salmon;
   font-size: clamp(12px, 4vw, 16px);
   margin: 0;
-  padding-bottom: 15px
+  padding-bottom: 15px;
 }
 
 /* ========================================
@@ -337,12 +369,12 @@
 }
 
 .img-viewer-close {
-  position: fixed;   /* overlay 기준 고정 */
+  position: fixed; /* overlay 기준 고정 */
   top: 15px;
   right: 15px;
   font-size: 30px;
-  color:var(--text-muted);
-  background-color:transparent;
+  color: var(--text-muted);
+  background-color: transparent;
   border: none;
 }
 
@@ -351,15 +383,16 @@
   top: 15px;
   right: 70px;
   font-size: 30px;
-  color:var(--text-muted);
+  color: var(--text-muted);
 }
 
-.img-viewer-next, .img-viewer-prev{
+.img-viewer-next,
+.img-viewer-prev {
   position: fixed;
   background-color: transparent;
   border: none;
   font-size: 30px;
-  color:var(--text-muted);
+  color: var(--text-muted);
 }
 
 .img-viewer-prev {
@@ -370,11 +403,11 @@
   right: 2vw;
 }
 
-.img-viewer-next:hover, 
-.img-viewer-prev:hover, 
-.img-viewer-close:hover, 
+.img-viewer-next:hover,
+.img-viewer-prev:hover,
+.img-viewer-close:hover,
 .img-viewer-download:hover {
-  color:var(--point-mint);
+  color: var(--point-mint);
 }
 
 .img-viewer-count {
