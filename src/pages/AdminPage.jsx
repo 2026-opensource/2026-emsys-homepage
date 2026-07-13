@@ -69,7 +69,7 @@ const AdminPage = () => {
         } catch (error) {
             console.error('게시글 삭제 중 오류:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('일부 게시글 삭제에 실패했습니다. 다시 시도해주세요.');
@@ -118,7 +118,7 @@ const AdminPage = () => {
         } catch (error) {
             console.error('상태 변경 중 오류:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('상태 변경에 실패했습니다. 다시 시도해주세요.');
@@ -151,7 +151,7 @@ const AdminPage = () => {
         } catch (error) {
             console.error('탈퇴 처리 오류:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('탈퇴 처리에 실패했습니다. 다시 시도해주세요.');
@@ -186,7 +186,7 @@ const AdminPage = () => {
             } catch (error) {
                 console.error("데이터를 불러오는데 실패했습니다.", error);
                 if (isAuthError(error)) {
-                    redirectToLogin(navigate);
+                    redirectToLogin(navigate, error);
                     return;
                 }
                 alert("서버와 연결할 수 없습니다.");

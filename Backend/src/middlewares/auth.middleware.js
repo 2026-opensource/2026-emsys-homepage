@@ -53,6 +53,14 @@ async function requireAuth(req, res, next) {
 
         next();
     } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({
+                success: false,
+                code: "TOKEN_EXPIRED",
+                message: "토큰이 만료되었습니다.\n다시 로그인 해주세요.",
+            });
+        }
+
         return res.status(401).json({
             success: false,
             message: "인증에 실패했습니다.",

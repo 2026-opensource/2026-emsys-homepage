@@ -57,7 +57,7 @@ function MyPage() {
       console.error("프로필 이미지 변경 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -95,7 +95,7 @@ function MyPage() {
       console.error("기본 프로필 변경 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -120,7 +120,7 @@ function MyPage() {
         console.error("마이페이지 정보 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 
@@ -148,7 +148,7 @@ function MyPage() {
         console.error("내 게시글 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
         }
       }
     }

@@ -137,7 +137,12 @@ function Signup() {
         try {
             setLoading(true);
 
-            await registerUser(formData);
+            const submitData = {
+                ...formData,
+                phone_number: formData.phone_number.replace(/\D/g, ""),
+            };
+
+            await registerUser(submitData);
 
             alert("회원가입이 완료되었습니다.");
             navigate("/login");

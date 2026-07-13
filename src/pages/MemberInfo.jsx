@@ -52,7 +52,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('회원 정보 로드 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('서버와 연결할 수 없습니다.');
@@ -133,7 +133,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('저장 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert(error.response?.data?.message || '저장에 실패했습니다.');
@@ -151,7 +151,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('삭제 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('삭제에 실패했습니다.');
@@ -191,7 +191,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('엑셀 업로드 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert(error.response?.data?.message || '엑셀 처리 중 오류가 발생했습니다.');

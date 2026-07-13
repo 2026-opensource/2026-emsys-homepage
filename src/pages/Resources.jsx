@@ -69,7 +69,7 @@ function Resources() {
         console.error("게시글 목록 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 
