@@ -3,7 +3,7 @@ import { Upload } from 'lucide-react';
 import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell
 } from 'recharts';
-import '../../styles/financeStats.css';
+import '../../styles/FinanceStats.css';
 
 const FinanceStats = () => {
     const [activeTab, setActiveTab] = useState('semester');        // 'semester' | 'monthly'
