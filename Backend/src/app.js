@@ -20,8 +20,6 @@ const invitationRoutes = require("./routes/invitation.routes");
 
 const app = express();
 
-app.disable('etag');
-
 app.use(cors({
   origin: '*',  // 프론트 주소 
   credentials: true,
