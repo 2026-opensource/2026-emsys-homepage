@@ -200,6 +200,21 @@ const MemberInfo = () => {
         }
     };
 
+    const formatPhone = (phone) => {
+        if (!phone) return '';
+        const digits = phone.replace(/[^0-9]/g, '');
+
+        if (digits.length === 11) {
+            // 010-1234-5678
+            return digits.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        }
+        if (digits.length === 10) {
+            // 010-123-4567 (구형 번호 등)
+            return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        }
+        return phone; // 형식에 안 맞으면 원본 그대로
+    };
+
     return (
         <>
             <Navbar />
@@ -277,7 +292,7 @@ const MemberInfo = () => {
                                             <tr key={member.id}>
                                                 <td>{member.name}</td>
                                                 <td>{member.student_id}</td>
-                                                <td>{member.phone}</td>
+                                                <td>{formatPhone(member.phone)}</td>
                                                 <td className="member-info-code">{member.code}</td>
                                                 <td>
                                                     <span className={`status-badge ${member.is_used ? 'mint' : 'gray'}`}>
