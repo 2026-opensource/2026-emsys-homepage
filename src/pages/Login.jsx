@@ -5,7 +5,7 @@ import "../styles/auth.css";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/authApi";
+import { loginUser } from "../api/authAPI";
 import { saveToken, isLoggedIn, saveUserInfo } from "../utils/token";
 
 function Login() {

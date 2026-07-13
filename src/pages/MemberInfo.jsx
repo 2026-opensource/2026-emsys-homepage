@@ -11,7 +11,7 @@ import {
 } from '../api/memberInfoAPI.js';
 import { isAuthError, redirectToLogin } from '../utils/token';
 import { useNavigate } from 'react-router-dom';
-import Pagination from '../components/Pagination.jsx';
+import Pagination from '../components/pagination.jsx';
 import '../layout/common.css';
 import '../styles/memberInfo.css';
 

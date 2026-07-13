@@ -5,7 +5,7 @@ import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import Pagination from "../components/Pagination";
+import Pagination from "../components/pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";

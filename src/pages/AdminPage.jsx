@@ -3,10 +3,10 @@ import Navbar from '../layout/Nav';
 import Footer from '../layout/Footer';
 import { useNavigate } from 'react-router-dom';
 import '../layout/common.css';
-import '../styles/adminPage.css';
+import '../styles/AdminPage.css';
 import { getUserRole, isAuthError, redirectToLogin } from "../utils/token"
 import { fetchMembers, fetchPosts, fetchExecutives, deletePost, updateUsersStatus, withdrawUsers } from '../api/adminAPI.js';
-import Pagination from '../components/Pagination.jsx';
+import Pagination from '../components/pagination.jsx';
 import DangerZone from '../components/admin/danger_zone.jsx';
 import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
