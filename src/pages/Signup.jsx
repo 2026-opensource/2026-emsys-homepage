@@ -127,7 +127,12 @@ function Signup() {
         e.preventDefault();
         setErrorMessage("");
 
-        console.log("회원가입 요청 데이터:", formData);
+        const submitData = {
+            ...formData,
+            phone_number: formData.phone_number.replace(/\D/g, ""),
+        };
+
+        console.log("회원가입 요청 데이터:", submitData);
 
         if (formData.password !== formData.passwordConfirm) {
             setErrorMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
@@ -136,11 +141,6 @@ function Signup() {
 
         try {
             setLoading(true);
-
-            const submitData = {
-                ...formData,
-                phone_number: formData.phone_number.replace(/\D/g, ""),
-            };
 
             await registerUser(submitData);
 

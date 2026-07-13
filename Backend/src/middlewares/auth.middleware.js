@@ -34,6 +34,7 @@ async function requireAuth(req, res, next) {
                 email: true,
                 name: true,
                 student_id: true,
+                phone_number: true,
                 role: true,
                 status: true,
                 visit_count: true,

@@ -202,6 +202,16 @@ function MyPage() {
     return category;
   }
 
+  function formatPhoneNumber(phoneNumber) {
+    const numbers = String(phoneNumber || "").replace(/\D/g, "");
+
+    if (numbers.length === 11) {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
+    }
+
+    return phoneNumber || "";
+  }
+
   return (
     <>
       <Navbar />
@@ -270,7 +280,7 @@ function MyPage() {
 
                 <div className="user-info-row">
                   <div className="user-info-label">전화번호</div>
-                  <div className="user-info-value">010-1234-1234{user?.phone_number}</div>
+                  <div className="user-info-value">{formatPhoneNumber(user?.phone_number)}</div>
                 </div>
               </div>
             </section>

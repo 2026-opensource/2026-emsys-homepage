@@ -33,6 +33,8 @@ async function registerUser(body) {
         throw error;
     }
 
+    const normalizedPhoneNumber = phone_number.replace(/\D/g, "");
+
     // 이메일 중복 검사
     const existingEmailUser = await prisma.users.findUnique({
         where: { email },
@@ -59,7 +61,7 @@ async function registerUser(body) {
     }
 
     // 전화번호 규칙 검사
-    if (!isValidPhoneNumber(phone_number)) {
+    if (!isValidPhoneNumber(normalizedPhoneNumber)) {
         const error = new Error("전화번호는 11자 이상이어야 합니다.");
         error.statusCode = 400;
         throw error;
@@ -121,6 +123,7 @@ async function registerUser(body) {
                 password: hashedPassword,
                 name,
                 student_id,
+                phone_number: normalizedPhoneNumber,
                 status,
                 role: "MEMBER",
             },
@@ -129,6 +132,7 @@ async function registerUser(body) {
                 email: true,
                 name: true,
                 student_id: true,
+                phone_number: true,
                 role: true,
                 status: true,
                 created_at: true,
@@ -209,6 +213,7 @@ async function loginUser(body) {
             email: user.email,
             name: user.name,
             student_id: user.student_id,
+            phone_number: user.phone_number,
             role: user.role,
             status: user.status,
         },
@@ -368,6 +373,7 @@ async function getMe(userId) {
             email: true,
             name: true,
             student_id: true,
+            phone_number: true,
             role: true,
             status: true,
             profile_image: true,
