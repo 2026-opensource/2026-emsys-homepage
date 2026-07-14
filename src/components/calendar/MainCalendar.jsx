@@ -7,7 +7,8 @@ import "./calendar.css";
 import { getToken, getUserRole } from "../../utils/token";
 
 const ALLOWED_ROLES = ["OFFICER", "PRESIDENT"];
-const API_BASE = "/api/event";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = `${API_BASE_URL}/api/event`;
 
 function getAuthToken() {
   return getToken();
