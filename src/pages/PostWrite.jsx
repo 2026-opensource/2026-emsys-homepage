@@ -244,7 +244,7 @@ function PostWrite() {
                 console.error("이미지 업로드 실패:", error);
 
                 if (isAuthError(error)) {
-                  redirectToLogin(navigate);
+                  redirectToLogin(navigate, error);
                   return;
                 }
 
@@ -308,7 +308,7 @@ function PostWrite() {
                 console.error("파일 업로드 실패:", error);
 
                 if (isAuthError(error)) {
-                  redirectToLogin(navigate);
+                  redirectToLogin(navigate, error);
                   return;
                 }
 
@@ -401,7 +401,7 @@ function PostWrite() {
       console.error("임시 업로드 이미지 삭제 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
       }
     }
   }
@@ -416,7 +416,7 @@ function PostWrite() {
       console.error("임시 업로드 파일 삭제 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
       }
     }
   }
@@ -494,7 +494,7 @@ function PostWrite() {
       console.error(isEditMode ? "글 수정 실패:" : "글 작성 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -573,7 +573,7 @@ function PostWrite() {
         console.error("수정할 게시글 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 

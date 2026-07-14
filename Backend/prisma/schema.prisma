@@ -118,6 +118,7 @@ model users {
   name            String?         @db.VarChar(255)
   phone_number    String?         @db.VarChar(20)
   student_id      String?         @unique(map: "student_id") @db.VarChar(255)
+  phone_number    String?         @db.VarChar(20)
   role            String?         @default("MEMBER") @db.VarChar(255)
   status          String          @db.VarChar(255)
   profile_image   String?         @db.VarChar(255)

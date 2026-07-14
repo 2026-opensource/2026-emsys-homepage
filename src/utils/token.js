@@ -40,10 +40,22 @@ export function isAuthError(error) {
     return error?.response?.status === 401;
 }
 
-export function showLoginRequiredAlert() {
+export function isTokenExpiredError(error) {
+    return error?.response?.data?.code === "TOKEN_EXPIRED";
+}
+
+function getLoginAlertMessage(error) {
+    if (isTokenExpiredError(error)) {
+        return "토큰이 만료되었습니다.\n다시 로그인 해주세요.";
+    }
+
+    return "로그인이 필요합니다.";
+}
+
+export function showLoginRequiredAlert(error) {
     if (!loginRequiredAlertShown) {
         loginRequiredAlertShown = true;
-        alert("로그인이 필요합니다.");
+        alert(getLoginAlertMessage(error));
     }
 
     clearTimeout(loginRequiredAlertTimer);
@@ -52,10 +64,10 @@ export function showLoginRequiredAlert() {
     }, 1000);
 }
 
-export function redirectToLogin(navigate) {
+export function redirectToLogin(navigate, error) {
     removeToken();
     removeUserInfo();
-    showLoginRequiredAlert();
+    showLoginRequiredAlert(error);
 
     if (navigate) {
         navigate("/login", { replace: true });
