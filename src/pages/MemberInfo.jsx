@@ -267,6 +267,15 @@ const MemberInfo = () => {
                             <label htmlFor="member-excel-input" className="member-info-file-label">
                                 {excelFile ? excelFile.name : '엑셀 파일 선택 (학번/이름/전화번호 열 포함)'}
                             </label>
+
+                            <button
+                                className="apply-btn member-info-upload-btn"
+                                onClick={handleExcelUpload}
+                                disabled={isUploading || !excelFile}
+                            >
+                                <Upload size={14} />
+                                {isUploading ? '업로드 중...' : '업로드'}
+                            </button>
                         </div>
 
                         {/* 목록 테이블 */}
