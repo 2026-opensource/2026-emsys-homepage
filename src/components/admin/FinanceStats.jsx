@@ -5,10 +5,12 @@ import {
 } from 'recharts';
 import '../../styles/FinanceStats.css';
 
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
+
 const FinanceStats = () => {
-    const [activeTab, setActiveTab] = useState('semester');        // 'semester' | 'monthly'
-    const [semesters, setSemesters] = useState([]);                // 사용 가능한 학기 목록
-    const [selectedSemester, setSelectedSemester] = useState(null); // 월별 탭에서 선택된 학기
+    const [activeTab, setActiveTab] = useState('semester');
+    const [semesters, setSemesters] = useState([]);
+    const [selectedSemester, setSelectedSemester] = useState(null);
 
     const [chartData, setChartData] = useState([]);
     const [headline, setHeadline] = useState({ title: '데이터를 로드하는 중입니다...', subtitle: '' });
@@ -17,17 +19,14 @@ const FinanceStats = () => {
     const [isUploading, setIsUploading] = useState(false);
 
     const token = localStorage.getItem('accessToken');
-
     const authHeader = { 'Authorization': `Bearer ${token}` };
 
-    // 학기 목록 조회
     const fetchSemesters = async () => {
         try {
-            const res = await fetch('/api/finance/semesters', { headers: authHeader });
+            const res = await fetch(`${BASE_URL}/finance/semesters`, { headers: authHeader });
             const data = await res.json();
             if (data.success) {
                 setSemesters(data.data);
-                // 월별 탭 기본 선택: 가장 최신 학기
                 if (data.data.length > 0) setSelectedSemester(data.data[data.data.length - 1]);
             }
         } catch (e) {
@@ -35,10 +34,9 @@ const FinanceStats = () => {
         }
     };
 
-    // 학기별 통계 조회
     const fetchSemesterStats = async () => {
         try {
-            const res = await fetch('/api/finance/stats/semester', { headers: authHeader });
+            const res = await fetch(`${BASE_URL}/finance/stats/semester`, { headers: authHeader });
             const data = await res.json();
             if (data.success) {
                 setChartData(data.data.chartData);
@@ -49,11 +47,10 @@ const FinanceStats = () => {
         }
     };
 
-    // 월별 통계 조회
     const fetchMonthlyStats = async (semester) => {
         try {
             const res = await fetch(
-                `/api/finance/stats/monthly?semester=${encodeURIComponent(semester)}`,
+                `${BASE_URL}/finance/stats/monthly?semester=${encodeURIComponent(semester)}`,
                 { headers: authHeader }
             );
             const data = await res.json();
@@ -66,7 +63,6 @@ const FinanceStats = () => {
         }
     };
 
-    // 탭 전환 시 데이터 로드
     useEffect(() => {
         fetchSemesters();
     }, []);
@@ -83,7 +79,6 @@ const FinanceStats = () => {
         }
     }, [activeTab, selectedSemester]);
 
-    // 엑셀 업로드
     const handleExcelUpload = async () => {
         if (!excelFile) return alert('업로드할 엑셀 파일을 선택해주세요.');
 
@@ -92,7 +87,7 @@ const FinanceStats = () => {
 
         setIsUploading(true);
         try {
-            const res = await fetch('/api/finance/upload', {
+            const res = await fetch(`${BASE_URL}/finance/upload`, {
                 method: 'POST',
                 headers: authHeader,
                 body: formData,
@@ -101,7 +96,6 @@ const FinanceStats = () => {
             if (data.success) {
                 alert(data.message);
                 setExcelFile(null);
-                // 업로드 후 학기 목록 + 현재 탭 데이터 갱신
                 await fetchSemesters();
                 if (activeTab === 'semester') fetchSemesterStats();
                 else if (selectedSemester) fetchMonthlyStats(selectedSemester);
