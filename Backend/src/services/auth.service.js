@@ -5,6 +5,9 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
 
+const SIGNUP_FAILED_MESSAGE =
+    "입력 정보가 이미 사용 중이거나 초대 정보와 일치하지 않습니다.\n다시 확인하거나 관리자에게 문의해 주세요.";
+
 async function registerUser(body) {
     const {
         email,
@@ -41,7 +44,7 @@ async function registerUser(body) {
     });
 
     if (existingEmailUser) {
-        const error = new Error("이미 사용 중인 아이디(이메일)입니다.");
+        const error = new Error(SIGNUP_FAILED_MESSAGE);
         error.statusCode = 409;
         throw error;
     }
@@ -81,7 +84,7 @@ async function registerUser(body) {
     });
 
     if (existingStudentUser) {
-        const error = new Error("이미 사용 중인 학번입니다.");
+        const error = new Error(SIGNUP_FAILED_MESSAGE);
         error.statusCode = 409;
         throw error;
     }
@@ -92,13 +95,13 @@ async function registerUser(body) {
     });
 
     if (!invitation) {
-        const error = new Error("유효하지 않은 초대코드입니다.");
+        const error = new Error(SIGNUP_FAILED_MESSAGE);
         error.statusCode = 400;
         throw error;
     }
 
     if (invitation.is_used) {
-        const error = new Error("이미 사용된 초대코드입니다.");
+        const error = new Error(SIGNUP_FAILED_MESSAGE);
         error.statusCode = 400;
         throw error;
     }
@@ -106,7 +109,7 @@ async function registerUser(body) {
     // 선택 사항:
     // 초대코드에 등록된 학번/이름과 회원가입 입력값이 일치하는지 검사
     if (invitation.student_id !== student_id || invitation.name !== name) {
-        const error = new Error("초대코드 정보와 이름 또는 학번이 일치하지 않습니다.");
+        const error = new Error(SIGNUP_FAILED_MESSAGE);
         error.statusCode = 400;
         throw error;
     }

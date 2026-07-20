@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { setHideIntroduceLanding, shouldHideIntroduceLanding } from '../utils/landingPreference.js';
 import '../styles/introduce.css';
 
+const SIGNUP_FAILED_MESSAGE =
+    "입력 정보가 이미 사용 중이거나 초대 정보와 일치하지 않습니다.\n다시 확인하거나 관리자에게 문의해 주세요.";
+
 function Introduce() {
     const [executives, setExecutives] = useState([]);
     const [studentId, setStudentId] = useState("");
@@ -42,7 +45,7 @@ function Introduce() {
             console.error("초대코드 조회 실패:", error);
             console.error("응답 상태:", error.response?.status);
             console.error("응답 데이터:", error.response?.data);
-            setInviteError("일치하는 정보가 없습니다.");
+            setInviteError(SIGNUP_FAILED_MESSAGE);
             
         }
     }

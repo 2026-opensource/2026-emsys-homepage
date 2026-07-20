@@ -343,7 +343,9 @@ body {
 .error-message {
     color: #ff6b6b;
     font-size: 14px;
+    line-height: 1.5;
     margin-bottom: 10px;
+    white-space: pre-line;
 }
 
 /* ID 찾기/PW 탭 */
