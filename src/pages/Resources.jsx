@@ -5,7 +5,7 @@ import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import Pagination from "../components/Pagination";
+import Pagination from "../components/pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -69,7 +69,7 @@ function Resources() {
         console.error("게시글 목록 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 

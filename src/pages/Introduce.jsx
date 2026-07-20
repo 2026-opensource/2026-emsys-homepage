@@ -39,7 +39,11 @@ function Introduce() {
             const result = await getInvitationCode({ student_id: studentId, name });
             setInviteResult(result.data);
         } catch (error) {
+            console.error("초대코드 조회 실패:", error);
+            console.error("응답 상태:", error.response?.status);
+            console.error("응답 데이터:", error.response?.data);
             setInviteError("일치하는 정보가 없습니다.");
+            
         }
     }
 

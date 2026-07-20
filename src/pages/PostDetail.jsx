@@ -94,7 +94,7 @@ function PostDetail() {
         console.error("게시글 상세 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 
@@ -169,7 +169,7 @@ function PostDetail() {
       console.error("게시글 삭제 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -208,7 +208,7 @@ function PostDetail() {
       console.error("좋아요 처리 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -247,7 +247,7 @@ function PostDetail() {
       console.error("싫어요 처리 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -282,7 +282,7 @@ function PostDetail() {
       console.error("댓글 작성 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -325,7 +325,7 @@ function PostDetail() {
       console.error("댓글 수정 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -353,7 +353,7 @@ function PostDetail() {
       console.error("댓글 삭제 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 

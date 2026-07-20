@@ -5,9 +5,9 @@ function isValidPassword(password) {
 }
 
 function isValidPhoneNumber(phone_number) {
-    // - 없이 숫자만 입력
+    const normalizedPhoneNumber = String(phone_number || "").replace(/\D/g, "");
     const phoneNumberRegex = /^0\d{10}$/; // 0으로 시작하고 10자리 필요
-    return phoneNumberRegex.test(phone_number);
+    return phoneNumberRegex.test(normalizedPhoneNumber);
 }
 
 function isValidStatus(status) {

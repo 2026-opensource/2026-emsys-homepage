@@ -11,7 +11,7 @@ import {
 } from '../api/memberInfoAPI.js';
 import { isAuthError, redirectToLogin } from '../utils/token';
 import { useNavigate } from 'react-router-dom';
-import Pagination from '../components/Pagination.jsx';
+import Pagination from '../components/pagination.jsx';
 import '../layout/common.css';
 import '../styles/memberInfo.css';
 
@@ -52,7 +52,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('회원 정보 로드 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('서버와 연결할 수 없습니다.');
@@ -133,7 +133,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('저장 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert(error.response?.data?.message || '저장에 실패했습니다.');
@@ -151,7 +151,7 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('삭제 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert('삭제에 실패했습니다.');
@@ -191,13 +191,28 @@ const MemberInfo = () => {
         } catch (error) {
             console.error('엑셀 업로드 실패:', error);
             if (isAuthError(error)) {
-                redirectToLogin(navigate);
+                redirectToLogin(navigate, error);
                 return;
             }
             alert(error.response?.data?.message || '엑셀 처리 중 오류가 발생했습니다.');
         } finally {
             setIsUploading(false);
         }
+    };
+
+    const formatPhone = (phone) => {
+        if (!phone) return '';
+        const digits = phone.replace(/[^0-9]/g, '');
+
+        if (digits.length === 11) {
+            // 010-1234-5678
+            return digits.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        }
+        if (digits.length === 10) {
+            // 010-123-4567 (구형 번호 등)
+            return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        }
+        return phone; // 형식에 안 맞으면 원본 그대로
     };
 
     return (
@@ -252,6 +267,15 @@ const MemberInfo = () => {
                             <label htmlFor="member-excel-input" className="member-info-file-label">
                                 {excelFile ? excelFile.name : '엑셀 파일 선택 (학번/이름/전화번호 열 포함)'}
                             </label>
+
+                            <button
+                                className="apply-btn member-info-upload-btn"
+                                onClick={handleExcelUpload}
+                                disabled={isUploading || !excelFile}
+                            >
+                                <Upload size={14} />
+                                {isUploading ? '업로드 중...' : '업로드'}
+                            </button>
                         </div>
 
                         {/* 목록 테이블 */}
@@ -277,7 +301,7 @@ const MemberInfo = () => {
                                             <tr key={member.id}>
                                                 <td>{member.name}</td>
                                                 <td>{member.student_id}</td>
-                                                <td>{member.phone}</td>
+                                                <td>{formatPhone(member.phone)}</td>
                                                 <td className="member-info-code">{member.code}</td>
                                                 <td>
                                                     <span className={`status-badge ${member.is_used ? 'mint' : 'gray'}`}>

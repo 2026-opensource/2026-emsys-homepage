@@ -226,17 +226,16 @@ function PostWrite() {
                 setUploadedImages((prev) => [...prev, ...uploadedResults]);
                 setIsDirty(true);
 
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
                 uploadedResults.forEach((image) => {
-                  // 1. 에디터 내부의 문서 객체를 사용해 직접 img 엘리먼트 생성
                   const imgNode = jodit.createInside.element("img");
 
-                  // 2. 속성 부여
                   imgNode.className = "post-editor-image";
-                  imgNode.src = image.thumbnailUrl;
-                  imgNode.setAttribute("data-display", image.displayUrl);
+                  imgNode.src = `${API_BASE_URL}${image.thumbnailUrl}`;
+                  imgNode.setAttribute("data-display", `${API_BASE_URL}${image.displayUrl}`);
                   imgNode.alt = image.originalName;
 
-                  // 3. 문자열이 아닌 DOM 노드 자체를 에디터에 삽입
                   const figure = jodit.createInside.element("figure");
                   figure.appendChild(imgNode);
 
@@ -249,13 +248,13 @@ function PostWrite() {
                 console.error("이미지 업로드 실패:", error);
 
                 if (isAuthError(error)) {
-                  redirectToLogin(navigate);
+                  redirectToLogin(navigate, error);
                   return;
                 }
 
                 alert(
                   error.response?.data?.message ||
-                    "이미지 업로드에 실패했습니다.",
+                  "이미지 업로드에 실패했습니다.",
                 );
               } finally {
                 setUploadingImages(false);
@@ -313,13 +312,13 @@ function PostWrite() {
                 console.error("파일 업로드 실패:", error);
 
                 if (isAuthError(error)) {
-                  redirectToLogin(navigate);
+                  redirectToLogin(navigate, error);
                   return;
                 }
 
                 alert(
                   error.response?.data?.message ||
-                    "파일 업로드에 실패했습니다.",
+                  "파일 업로드에 실패했습니다.",
                 );
               }
             };
@@ -406,7 +405,7 @@ function PostWrite() {
       console.error("임시 업로드 이미지 삭제 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
       }
     }
   }
@@ -421,7 +420,7 @@ function PostWrite() {
       console.error("임시 업로드 파일 삭제 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
       }
     }
   }
@@ -502,7 +501,7 @@ function PostWrite() {
       console.error(isEditMode ? "글 수정 실패:" : "글 작성 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -581,14 +580,14 @@ function PostWrite() {
         console.error("수정할 게시글 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 
         setErrorMessage(
           error.response?.data?.message ||
-            error.message ||
-            "수정할 게시글을 불러오지 못했습니다.",
+          error.message ||
+          "수정할 게시글을 불러오지 못했습니다.",
         );
       } finally {
         setLoading(false);

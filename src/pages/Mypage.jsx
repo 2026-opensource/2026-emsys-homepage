@@ -1,6 +1,6 @@
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import Pagination from "../components/Pagination";
+import Pagination from "../components/pagination";
 import "../layout/common.css";
 import "../styles/mypage.css";
 
@@ -57,7 +57,7 @@ function MyPage() {
       console.error("프로필 이미지 변경 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -95,7 +95,7 @@ function MyPage() {
       console.error("기본 프로필 변경 실패:", error);
 
       if (isAuthError(error)) {
-        redirectToLogin(navigate);
+        redirectToLogin(navigate, error);
         return;
       }
 
@@ -120,7 +120,7 @@ function MyPage() {
         console.error("마이페이지 정보 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
           return;
         }
 
@@ -148,7 +148,7 @@ function MyPage() {
         console.error("내 게시글 조회 실패:", error);
 
         if (isAuthError(error)) {
-          redirectToLogin(navigate);
+          redirectToLogin(navigate, error);
         }
       }
     }
@@ -200,6 +200,16 @@ function MyPage() {
     if (category === "class") return "수업";
     if (category === "activity") return "행사";
     return category;
+  }
+
+  function formatPhoneNumber(phoneNumber) {
+    const numbers = String(phoneNumber || "").replace(/\D/g, "");
+
+    if (numbers.length === 11) {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
+    }
+
+    return phoneNumber || "";
   }
 
   return (
@@ -270,7 +280,7 @@ function MyPage() {
 
                 <div className="user-info-row">
                   <div className="user-info-label">전화번호</div>
-                  <div className="user-info-value">010-1234-1234{user?.phone_number}</div>
+                  <div className="user-info-value">{formatPhoneNumber(user?.phone_number)}</div>
                 </div>
               </div>
             </section>
