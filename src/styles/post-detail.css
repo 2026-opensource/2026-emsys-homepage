@@ -255,24 +255,36 @@
 
 .comment-card {
   background-color: var(--bg-box);
-  padding: 12px 0px;
+  padding: 12px 15px;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .comment-writer,
 .comment-text {
+  margin: 0;
   font-size: clamp(12px, 4vw, 16px);
-  padding: 0 15px;
+  padding: 0px;
   align-items: center;
+}
+
+.comment-writer {
+  margin-bottom: 10px;
 }
 
 /* 댓글 작성 날짜 정보 스타일 (작성자보다 크기 작고, 색 어둡게) */
 .comment-date-info {
   font-size: clamp(10px, 3vw, 14px);
   color: var(--text-muted);
+  padding: 0 4px;
 }
 
 .comment-actions {
@@ -338,8 +350,14 @@
 
 .comment-card .comment-main .comment-input {
   width: 100%;
-  min-width: 500px;
-  margin-left: 10px;
+  min-width: 0;
+  margin-left: 0;
+  box-sizing: border-box;
+}
+
+.comment-main {
+  flex: 1;
+  min-width: 0;
 }
 
 .comment-submit-btn {

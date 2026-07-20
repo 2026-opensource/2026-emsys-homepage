@@ -154,6 +154,11 @@ function PostWrite() {
 
       toolbarInline: false,
       toolbarInlineForSelection: false,
+
+      link: {
+        openInNewTabCheckbox: true,
+        openInNewTabCheckboxDefaultChecked: false,
+      },
       popup: {
         a: [],
         table: [],
@@ -427,9 +432,12 @@ function PostWrite() {
 
     setErrorMessage("");
 
+    const latestContent = editor.current?.value ?? contentRef.current;
+    contentRef.current = latestContent;
+
     const postData = {
       ...formData,
-      content: contentRef.current, // Ref에서 최신 본문을 가져오므로 안전합니다.
+      content: latestContent,
       board_type,
       files: uploadedFiles,
     };
@@ -667,8 +675,11 @@ function PostWrite() {
       <JoditEditor
         key={isEditMode ? `edit-${id}` : "create"}
         ref={editor}
-        value={initialContent} // 최초 1회 혹은 서버 로드 시에만 이 값이 들어갈 것
+        value={initialContent}
         config={config}
+        onBlur={(newContent) => {
+          contentRef.current = newContent;
+        }}
         onChange={(newContent) => {
           contentRef.current = newContent;
           if (!isDirty) setIsDirty(true);

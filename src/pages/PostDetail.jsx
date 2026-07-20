@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  getPostById, togglePostLike, togglePostDislike,
-  increasePostView, createComment, updateComment, deletePost, deleteComment
+  getPostById,
+  togglePostLike,
+  togglePostDislike,
+  increasePostView,
+  createComment,
+  updateComment,
+  deletePost,
+  deleteComment,
 } from "../api/postAPI";
 import DOMPurify from "dompurify";
 
@@ -31,7 +37,7 @@ function PostDetail() {
   const [editingCommentContent, setEditingCommentContent] = useState("");
 
   const [viewerImages, setViewerImages] = useState([]); // 전체 이미지 목록
-  const [viewerIndex, setViewerIndex] = useState(0);    // 현재 이미지의 인덱스
+  const [viewerIndex, setViewerIndex] = useState(0); // 현재 이미지의 인덱스
 
   // 좋아요 / 싫어요 상태
   const [like, setLike] = useState(false);
@@ -83,7 +89,7 @@ function PostDetail() {
         });
 
         setLike(result.data.isLiked);
-setDislike(result.data.isDisliked);
+        setDislike(result.data.isDisliked);
       } catch (error) {
         console.error("게시글 상세 조회 실패:", error);
 
@@ -93,8 +99,7 @@ setDislike(result.data.isDisliked);
         }
 
         setErrorMessage(
-          error.response?.data?.message ||
-          "게시글을 불러오지 못했습니다."
+          error.response?.data?.message || "게시글을 불러오지 못했습니다.",
         );
       } finally {
         setLoading(false);
@@ -150,7 +155,7 @@ setDislike(result.data.isDisliked);
 
   const handleDelete = async () => {
     const isDelete = window.confirm(
-      "게시글을 삭제하면 복구할 수 없습니다. 삭제하시겠습니까?"
+      "게시글을 삭제하면 복구할 수 없습니다. 삭제하시겠습니까?",
     );
 
     if (!isDelete) return;
@@ -169,8 +174,7 @@ setDislike(result.data.isDisliked);
       }
 
       setReactionMessage(
-        error.response?.data?.message ||
-        "게시글 삭제에 실패했습니다."
+        error.response?.data?.message || "게시글 삭제에 실패했습니다.",
       );
     }
   };
@@ -209,8 +213,7 @@ setDislike(result.data.isDisliked);
       }
 
       setReactionMessage(
-        error.response?.data?.message ||
-        "좋아요 처리에 실패했습니다."
+        error.response?.data?.message || "좋아요 처리에 실패했습니다.",
       );
     }
   };
@@ -249,8 +252,7 @@ setDislike(result.data.isDisliked);
       }
 
       setReactionMessage(
-        error.response?.data?.message ||
-        "싫어요 처리에 실패했습니다."
+        error.response?.data?.message || "싫어요 처리에 실패했습니다.",
       );
     }
   };
@@ -285,8 +287,7 @@ setDislike(result.data.isDisliked);
       }
 
       setCommentMessage(
-        error.response?.data?.message ||
-        "댓글 작성에 실패했습니다."
+        error.response?.data?.message || "댓글 작성에 실패했습니다.",
       );
     }
   };
@@ -309,11 +310,11 @@ setDislike(result.data.isDisliked);
         comments: post.comments.map((comment) =>
           comment.id === commentId
             ? {
-              ...comment,
-              content: result.data.content,
-              updated_at: result.data.updated_at,
-            }
-            : comment
+                ...comment,
+                content: result.data.content,
+                updated_at: result.data.updated_at,
+              }
+            : comment,
         ),
       });
 
@@ -329,8 +330,7 @@ setDislike(result.data.isDisliked);
       }
 
       setCommentMessage(
-        error.response?.data?.message ||
-        "댓글 수정에 실패했습니다."
+        error.response?.data?.message || "댓글 수정에 실패했습니다.",
       );
     }
   };
@@ -358,8 +358,7 @@ setDislike(result.data.isDisliked);
       }
 
       setCommentMessage(
-        error.response?.data?.message ||
-        "댓글 삭제에 실패했습니다."
+        error.response?.data?.message || "댓글 삭제에 실패했습니다.",
       );
     }
   };
@@ -422,14 +421,13 @@ setDislike(result.data.isDisliked);
     if (e.target.tagName !== "IMG") return;
 
     const allImgs = [...e.currentTarget.querySelectorAll("img")];
-    const urls = allImgs.map(img => img.dataset.display || img.src);
+    const urls = allImgs.map((img) => img.dataset.display || img.src);
     const clickedUrl = e.target.dataset.display || e.target.src;
     const index = urls.indexOf(clickedUrl);
 
     setViewerImages(urls);
     setViewerIndex(index);
   };
-
 
   return (
     <>
@@ -482,8 +480,8 @@ setDislike(result.data.isDisliked);
                   {isEdited(post.created_at, post.updated_at)
                     ? formatDate(post.updated_at)
                     : formatDate(post.created_at)}
-                  {isEdited(post.created_at, post.updated_at) && " (수정됨)"}
-                  {" "}· 조회수 {post.view_count ?? 0}
+                  {isEdited(post.created_at, post.updated_at) && " (수정됨)"} ·
+                  조회수 {post.view_count ?? 0}
                 </p>
               </div>
             </div>
@@ -493,7 +491,11 @@ setDislike(result.data.isDisliked);
           <section
             className="detail-content"
             onClick={handleImageClick}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(post.content, {
+                ADD_ATTR: ["target", "rel"],
+              }),
+            }}
           />
 
           {post.post_files?.length > 0 && (
@@ -524,29 +526,55 @@ setDislike(result.data.isDisliked);
 
           {viewerImages.length > 0 && (
             <div className="img-viewer-overlay">
-              <button className="img-viewer-close" onClick={() => setViewerImages([])}>
+              <button
+                className="img-viewer-close"
+                onClick={() => setViewerImages([])}
+              >
                 <i className="fa-solid fa-xmark"></i>
               </button>
 
               {viewerImages.length > 1 && (
-                <button className="img-viewer-prev" onClick={() => setViewerIndex(
-                  viewerIndex === 0 ? viewerImages.length - 1 : viewerIndex - 1
-                )}>
+                <button
+                  className="img-viewer-prev"
+                  onClick={() =>
+                    setViewerIndex(
+                      viewerIndex === 0
+                        ? viewerImages.length - 1
+                        : viewerIndex - 1,
+                    )
+                  }
+                >
                   <i className="fa-solid fa-angle-left"></i>
                 </button>
               )}
 
-              <img className="img-viewer-img" src={viewerImages[viewerIndex]} alt="원본 이미지" />
+              <img
+                className="img-viewer-img"
+                src={viewerImages[viewerIndex]}
+                alt="원본 이미지"
+              />
 
               {viewerImages.length > 1 && (
-                <button className="img-viewer-next" onClick={() => setViewerIndex(
-                  viewerIndex === viewerImages.length - 1 ? 0 : viewerIndex + 1
-                )}>
+                <button
+                  className="img-viewer-next"
+                  onClick={() =>
+                    setViewerIndex(
+                      viewerIndex === viewerImages.length - 1
+                        ? 0
+                        : viewerIndex + 1,
+                    )
+                  }
+                >
                   <i className="fa-solid fa-angle-right"></i>
                 </button>
               )}
 
-              <a className="img-viewer-download" href={viewerImages[viewerIndex]} download onClick={(e) => e.stopPropagation()}>
+              <a
+                className="img-viewer-download"
+                href={viewerImages[viewerIndex]}
+                download
+                onClick={(e) => e.stopPropagation()}
+              >
                 <i className="fa-solid fa-download"></i>
               </a>
 
@@ -599,88 +627,102 @@ setDislike(result.data.isDisliked);
               <h2 className="comment-title">💬 댓글</h2>
 
               <div className="comment-list">
-                {
-                  post.comments?.length > 0 ? (
-                    post.comments.map((comment) => (
-                      <div className="comment-card" key={comment.id}>
-                        <div className="comment-main">
+                {post.comments?.length > 0 ? (
+                  post.comments.map((comment) => (
+                    <div className="comment-card" key={comment.id}>
+                      <div className="comment-main">
+                        <div className="comment-header">
                           <h3 className="comment-writer">
                             <span className="comment-writer-name">
                               {getUserDisplayName(comment.users)} ·
                             </span>
                             <span className="comment-date-info">
-                              작성일{" "}{isEdited(comment.created_at, comment.updated_at)
+                              작성일{" "}
+                              {isEdited(comment.created_at, comment.updated_at)
                                 ? formatDate(comment.updated_at)
                                 : formatDate(comment.created_at)}
-                              {isEdited(comment.created_at, comment.updated_at) && " (수정됨)"}
+                              {isEdited(
+                                comment.created_at,
+                                comment.updated_at,
+                              ) && " (수정됨)"}
                             </span>
                           </h3>
-                          {editingCommentId === comment.id ? (
-                            <input
-                              type="text"
-                              className="comment-input"
-                              value={editingCommentContent}
-                              onChange={(e) => setEditingCommentContent(e.target.value)}
-                            />
-                          ) : (
-                            <p className="comment-text">{comment.content}</p>
-                          )}
+                          <div className="comment-actions">
+                            {(() => {
+                              const commentAuthorId =
+                                comment.user_id ?? comment.author_id;
+
+                              const isCommentAuthor =
+                                Number(commentAuthorId) ===
+                                Number(loginUser?.id);
+
+                              const canEditComment = isCommentAuthor;
+                              const canDeleteComment =
+                                isCommentAuthor || isAdmin;
+
+                              return (
+                                <>
+                                  {canEditComment && (
+                                    <>
+                                      {editingCommentId === comment.id ? (
+                                        <button
+                                          type="button"
+                                          className="comment-edit-btn"
+                                          onClick={() =>
+                                            handleCommentUpdate(comment.id)
+                                          }
+                                        >
+                                          저장
+                                        </button>
+                                      ) : (
+                                        <button
+                                          type="button"
+                                          className="comment-edit-btn"
+                                          onClick={() =>
+                                            handleCommentEditStart(comment)
+                                          }
+                                        >
+                                          수정
+                                        </button>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {canDeleteComment && (
+                                    <button
+                                      type="button"
+                                      className="comment-delete-btn"
+                                      onClick={() =>
+                                        handleCommentDelete(comment.id)
+                                      }
+                                    >
+                                      삭제
+                                    </button>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
                         </div>
-
-                        <div className="comment-actions">
-                          {(() => {
-                            const commentAuthorId = comment.user_id ?? comment.author_id;
-
-                            const isCommentAuthor =
-                              Number(commentAuthorId) === Number(loginUser?.id);
-
-                            const canEditComment = isCommentAuthor;
-                            const canDeleteComment = isCommentAuthor || isAdmin;
-
-                            return (
-                              <>
-                                {canEditComment && (
-                                  <>
-                                    {editingCommentId === comment.id ? (
-                                      <button
-                                        type="button"
-                                        className="comment-edit-btn"
-                                        onClick={() => handleCommentUpdate(comment.id)}
-                                      >
-                                        저장
-                                      </button>
-                                    ) : (
-                                      <button
-                                        type="button"
-                                        className="comment-edit-btn"
-                                        onClick={() => handleCommentEditStart(comment)}
-                                      >
-                                        수정
-                                      </button>
-                                    )}
-                                  </>
-                                )}
-
-                                {canDeleteComment && (
-                                  <button
-                                    type="button"
-                                    className="comment-delete-btn"
-                                    onClick={() => handleCommentDelete(comment.id)}
-                                  >
-                                    삭제
-                                  </button >
-                                )}
-                              </>
-                            );
-                          })()}
-                        </div>
+                        {editingCommentId === comment.id ? (
+                          <input
+                            type="text"
+                            className="comment-input"
+                            value={editingCommentContent}
+                            onChange={(e) =>
+                              setEditingCommentContent(e.target.value)
+                            }
+                          />
+                        ) : (
+                          <p className="comment-text">{comment.content}</p>
+                        )}
                       </div>
-                    ))
-                  ) : (
-                    <p className="comment-text">아직 댓글이 없습니다.</p>
-                  )
-                }
-              </div >
+                    </div>
+                  ))
+                ) : (
+                  <p className="comment-text">아직 댓글이 없습니다.</p>
+                )}
+              </div>
 
               <p className="reaction-message">{commentMessage}</p>
 
@@ -696,44 +738,42 @@ setDislike(result.data.isDisliked);
                   type="button"
                   className="comment-submit-btn"
                   onClick={handleCommentSubmit}
-                > ➤
+                >
+                  {" "}
+                  ➤
                 </button>
-              </div >
-            </div >
+              </div>
+            </div>
 
             {/* 댓글 미리보기 */}
-            < div
+            <div
               className="comment-preview"
-              onClick={() => setCommentOpen(true)
-              }
+              onClick={() => setCommentOpen(true)}
             >
               <h2 className="comment-title">
                 💬 댓글 {post.comments?.length ?? 0}개 보기
               </h2>
 
-              {
-                post.comments?.length > 0 ? (
-                  <div className="comment-card">
-                    <div className="comment-main">
-                      <h3 className="comment-writer">
-                        {getUserDisplayName(post.comments[0].users)}
-                      </h3>
-                      <p className="comment-text">
-                        {post.comments[0].content}
-                      </p>
-                    </div>
+              {post.comments?.length > 0 ? (
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <h3 className="comment-writer">
+                      {getUserDisplayName(post.comments[0].users)}
+                    </h3>
+                    <p className="comment-text">{post.comments[0].content}</p>
                   </div>
-                ) : (
-                  <div className="comment-card">
-                    <div className="comment-main">
-                      <p className="comment-text">댓글이 없습니다.</p>
-                    </div>
+                </div>
+              ) : (
+                <div className="comment-card">
+                  <div className="comment-main">
+                    <p className="comment-text">댓글이 없습니다.</p>
                   </div>
-                )}
+                </div>
+              )}
             </div>
           </div>
-        </div >
-      </main >
+        </div>
+      </main>
 
       <Footer />
     </>
