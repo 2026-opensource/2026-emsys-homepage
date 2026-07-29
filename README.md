@@ -1,16 +1,74 @@
-# React + Vite
+# 2026-opensource-websoftware
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## EMSYS Homepage
 
-Currently, two official plugins are available:
+## 📌 프로젝트 소개
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**EMSYS Homepage**는 충북대학교 학술 동아리 **엠시스(EMSYS)** 를 위한 동아리 홈페이지 제작 프로젝트입니다.
 
-## React Compiler
+본 프로젝트는 2026 오픈소스 웹소프트웨어 팀 프로젝트로 진행되며,  
+동아리 소개, 커뮤니티, 자료실, 마이페이지, 관리자 페이지 등의 기능을 제공하는 웹사이트 제작을 목표로 합니다.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+엠시스의 활동 내용과 동아리 정보를 효과적으로 전달하고,  
+동아리원들이 공지사항, 게시글, 자료 등을 편리하게 확인할 수 있는 공간을 만드는 것이 주된 목적입니다.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 👥 팀원 소개
+
+| 이름 | 담당 분야 | 주요 역할 |
+| --- | --- | --- |
+| 이나연 | PM, Frontend, Backend ||
+| 심연우 | Frontend, Backend ||
+| 정소연| Frontend, Backend ||
+
+---
+
+## 🎯 프로젝트 목표
+
+- 엠시스 동아리 소개 페이지 제작
+- 동아리원 전용 커뮤니티 기능 구현
+- 스터디 자료 및 수업 자료를 공유할 수 있는 자료실 제작
+- 회원 정보 확인 및 수정이 가능한 마이페이지 제작
+- 관리자 전용 사용자 및 게시글 관리 기능 구현
+- Bootstrap을 활용한 반응형 웹 디자인 적용
+- Django를 활용한 백엔드 기능 구현
+
+---
+
+## 🛠 개발 기술
+
+### Frontend
+
+- HTML
+- CSS
+- JavaScript
+- Bootstrap
+- React
+
+### Backend
+
+- Django
+
+### Version Control
+
+- Git
+- GitHub
+
+---
+
+## 📁 주요 페이지 구성
+
+| 페이지 | 설명 |
+| --- | --- |
+| 메인페이지 | 동아리 소개, 주요 활동, 공지사항 및 커뮤니티 바로가기 제공 |
+| 로그인 페이지 | 동아리원 로그인을 위한 페이지 |
+| 회원가입 페이지 | 이메일, 이름, 학번, 비밀번호, 초대코드를 입력하여 가입 신청 |
+| 마이페이지 | 사용자 정보 확인, 비밀번호 변경, 내가 작성한 글 확인 |
+| 커뮤니티 페이지 | 동아리원들이 게시글을 작성하고 확인할 수 있는 게시판 |
+| 글 작성 페이지 | 커뮤니티 또는 자료실에 게시글을 작성하는 페이지 |
+| 글 상세 페이지 | 게시글 내용, 좋아요/싫어요, 댓글 확인 |
+| 자료실 | 스터디 자료 및 수업 자료를 공유하는 공간 |
+| 관리자 페이지 | 사용자 관리 및 게시글 관리를 위한 관리자 전용 페이지 |
+
+---
