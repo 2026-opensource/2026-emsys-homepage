@@ -20,23 +20,30 @@ async function registerUser(body) {
         invitationCode,
     } = body;
 
+    const normalizedName = name === undefined || name === null ? "" : String(name).trim();
+    const normalizedStudentId = student_id === undefined || student_id === null ? "" : String(student_id).trim();
+    const normalizedPhoneNumber = phone_number === undefined || phone_number === null
+        ? ""
+        : String(phone_number).replace(/\D/g, "");
+    const normalizedInvitationCode = invitationCode === undefined || invitationCode === null
+        ? ""
+        : String(invitationCode).trim();
+
     // 필수값 검사
     if (
         !email ||
         !password ||
         !passwordConfirm ||
-        !name ||
-        !student_id ||
-        !phone_number ||
+        !normalizedName ||
+        !normalizedStudentId ||
+        !normalizedPhoneNumber ||
         !status ||
-        !invitationCode
+        !normalizedInvitationCode
     ) {
         const error = new Error("모든 필드를 입력해야 합니다.");
         error.statusCode = 400;
         throw error;
     }
-
-    const normalizedPhoneNumber = phone_number.replace(/\D/g, "");
 
     // 이메일 중복 검사
     const existingEmailUser = await prisma.users.findUnique({
@@ -80,7 +87,7 @@ async function registerUser(body) {
 
     // 학번 중복 검사
     const existingStudentUser = await prisma.users.findUnique({
-        where: { student_id },
+        where: { student_id: normalizedStudentId },
     });
 
     if (existingStudentUser) {
@@ -91,7 +98,7 @@ async function registerUser(body) {
 
     // 초대코드 검증
     const invitation = await prisma.invitation_codes.findUnique({
-        where: { code: invitationCode },
+        where: { code: normalizedInvitationCode },
     });
 
     if (!invitation) {
@@ -106,9 +113,16 @@ async function registerUser(body) {
         throw error;
     }
 
-    // 선택 사항:
-    // 초대코드에 등록된 학번/이름과 회원가입 입력값이 일치하는지 검사
-    if (invitation.student_id !== student_id || invitation.name !== name) {
+    // 초대코드에 등록된 학번/이름/전화번호와 회원가입 입력값이 모두 일치하는지 검사
+    const invitationStudentId = String(invitation.student_id || "").trim();
+    const invitationName = String(invitation.name || "").trim();
+    const invitationPhone = String(invitation.phone || "").replace(/\D/g, "");
+
+    if (
+        invitationStudentId !== normalizedStudentId ||
+        invitationName !== normalizedName ||
+        invitationPhone !== normalizedPhoneNumber
+    ) {
         const error = new Error(SIGNUP_FAILED_MESSAGE);
         error.statusCode = 400;
         throw error;
@@ -124,8 +138,8 @@ async function registerUser(body) {
             data: {
                 email,
                 password: hashedPassword,
-                name,
-                student_id,
+                name: normalizedName,
+                student_id: normalizedStudentId,
                 phone_number: normalizedPhoneNumber,
                 status,
                 role: "MEMBER",
@@ -143,7 +157,7 @@ async function registerUser(body) {
         });
 
         await tx.invitation_codes.update({
-            where: { code: invitationCode },
+            where: { code: normalizedInvitationCode },
             data: {
                 is_used: true,
                 used_at: new Date(),
