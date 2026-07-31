@@ -134,7 +134,7 @@ const ExecutiveTeamRoster = () => {
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+            <div className="admin-modal-header">
               <h3 className="modal-title">새 임원 임명</h3>
               <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>
                 <i className="fa-solid fa-xmark"></i>
@@ -151,7 +151,7 @@ const ExecutiveTeamRoster = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoFocus
                 />
-                <button className="search-btn" type="button">
+                <button className="admin-search-btn" type="button">
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </button>
               </div>

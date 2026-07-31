@@ -28,6 +28,28 @@ function normalizeStudentId(value) {
     return String(value).trim();
 }
 
+function normalizePhone(value) {
+    if (value === undefined || value === null) return null;
+
+    let str;
+    if (typeof value === "number") {
+        str = String(Math.trunc(value));
+    } else {
+        str = String(value).trim();
+    }
+
+    if (str === "") return null;
+
+    const digitsOnly = str.replace(/[^0-9]/g, "");
+
+    // 10자리인데 0으로 시작 안 하면 (앞자리 0 잘린 경우) 0 붙이기
+    if (digitsOnly.length === 10 && !digitsOnly.startsWith("0")) {
+        return "0" + digitsOnly;
+    }
+
+    return digitsOnly === "" ? null : digitsOnly;
+}
+
 async function createUniqueCode() {
     while (true) {
         const code = generateInvitationCode();
@@ -57,11 +79,13 @@ async function main() {
         defval: null,
     });
 
-    // F열에 초대코드 헤더 추가
-    // 엑셀 7행 = JS index 6
-    rows[6][5] = "초대코드";
+    // 엑셀 6행(헤더 행) = JS index 5
+    // F열: 전화번호, G열: 초대코드
+    rows[5][5] = "전화번호";
+    rows[5][6] = "초대코드";
 
-    const dataRows = rows.slice(7);
+    // 엑셀 7행(첫 데이터 행) = JS index 6부터 데이터 시작
+    const dataRows = rows.slice(6);
 
     let createdCount = 0;
     let skippedCount = 0;
@@ -72,14 +96,15 @@ async function main() {
 
         const studentId = normalizeStudentId(row[3]); // D열: 학번
         const name = row[4] ? String(row[4]).trim() : ""; // E열: 성명
+        const phone = normalizePhone(row[5]); // F열: 전화번호
 
         if (!studentId || !name) {
             continue;
         }
 
         // 실제 rows에서의 행 번호
-        // dataRows는 rows.slice(7)이므로 실제 index는 i + 7
-        const originalRowIndex = i + 7;
+        // dataRows는 rows.slice(6)이므로 실제 index는 i + 6
+        const originalRowIndex = i + 6;
 
         const existingInvitation = await prisma.invitation_codes.findFirst({
             where: {
@@ -88,21 +113,26 @@ async function main() {
         });
 
         if (existingInvitation) {
-            // 기존 초대코드도 엑셀에 써줌
-            rows[originalRowIndex][5] = existingInvitation.code;
+            // 기존 초대코드도 엑셀 G열에 써줌
+            rows[originalRowIndex][6] = existingInvitation.code;
 
             if (existingInvitation.is_used) {
                 skippedCount++;
                 continue;
             }
 
-            if (existingInvitation.name !== name) {
+            const needsUpdate =
+                existingInvitation.name !== name ||
+                existingInvitation.phone !== phone;
+
+            if (needsUpdate) {
                 await prisma.invitation_codes.update({
                     where: {
                         code: existingInvitation.code,
                     },
                     data: {
                         name,
+                        phone,
                     },
                 });
 
@@ -121,12 +151,13 @@ async function main() {
                 code,
                 student_id: studentId,
                 name,
+                phone,
                 is_used: false,
             },
         });
 
-        // 새로 생성한 초대코드를 엑셀 F열에 추가
-        rows[originalRowIndex][5] = code;
+        // 새로 생성한 초대코드를 엑셀 G열에 추가
+        rows[originalRowIndex][6] = code;
 
         createdCount++;
     }
