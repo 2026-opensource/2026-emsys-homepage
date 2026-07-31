@@ -302,7 +302,8 @@ const MemberInfo = () => {
                                                 <td>
                                                     {member.name}
                                                     {member.status && (
-                                                        <span className={`status-badge ${member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint'}`}>
+                                                        <span className={`status-badge ${member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint'}`}
+                                                        style={{ marginLeft: '5px' }}>
                                                             {member.status.charAt(0)}
                                                         </span>
                                                     )}
