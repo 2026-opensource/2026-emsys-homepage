@@ -21,10 +21,11 @@ const invitationRoutes = require("./routes/invitation.routes");
 const app = express();
 
 app.use(cors({
-  origin: '*',  // 프론트 주소 
+  origin: '26-emsys-homepage.vercel.app',  // 프론트 주소 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400
 }));
 
 app.use(express.json({ limit: "10mb" }));
