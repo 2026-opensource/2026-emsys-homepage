@@ -31,6 +31,7 @@ function normalizePhone(value) {
 }
 
 // 목록 조회 (검색 / 가입상태 필터 / 페이지네이션)
+// 목록 조회 (검색 / 가입상태 필터 / 페이지네이션)
 async function getInvitationMembers(query) {
     const page = parseInt(query.page) || 1;
     const pageSize = parseInt(query.pageSize) || 15;
@@ -57,11 +58,33 @@ async function getInvitationMembers(query) {
         where,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        orderBy: { id: "desc" },
+        orderBy: { id: "asc" },
     });
 
+    // student_id 기준으로 users.status 조회 후 매핑
+    const studentIds = data
+        .map((m) => m.student_id)
+        .filter((id) => !!id);
+
+    let statusMap = {};
+    if (studentIds.length > 0) {
+        const users = await prisma.users.findMany({
+            where: { student_id: { in: studentIds } },
+            select: { student_id: true, status: true },
+        });
+        statusMap = users.reduce((acc, u) => {
+            acc[u.student_id] = u.status;
+            return acc;
+        }, {});
+    }
+
+    const dataWithStatus = data.map((member) => ({
+        ...member,
+        status: statusMap[member.student_id] ?? null,
+    }));
+
     return {
-        data,
+        data: dataWithStatus,
         pagination: {
             total,
             page,

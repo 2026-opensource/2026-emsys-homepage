@@ -299,7 +299,14 @@ const MemberInfo = () => {
                                     <tbody>
                                         {members.map((member) => (
                                             <tr key={member.id}>
-                                                <td>{member.name}</td>
+                                                <td>
+                                                    {member.name}
+                                                    {member.status && (
+                                                        <span className={`status-badge ${member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint'}`}>
+                                                            {member.status.charAt(0)}
+                                                        </span>
+                                                    )}
+                                                </td>
                                                 <td>{member.student_id}</td>
                                                 <td>{formatPhone(member.phone)}</td>
                                                 <td className="member-info-code">{member.code}</td>

@@ -136,7 +136,7 @@ const AdminPage = () => {
         if (!window.confirm(`정말 바구니에 있는 ${basketMembers.length}명을 일괄 탈퇴 처리하시겠습니까?`)) {
             return;
         }
-            
+
         try {
             const userIds = basketMembers.map(m => Number(m.id));
             const reason = prompt('탈퇴 사유를 입력하세요.');
@@ -351,7 +351,7 @@ const AdminPage = () => {
                                             {filteredMembers.map(member => (
                                                 <li key={member.id} onDoubleClick={() => moveToBasket(member)} className="member-item">
                                                     <span>{member.name}</span>
-                                                    <span className={`status-badge ${member.status === '졸업' ? 'gray' : 'mint'}`}>
+                                                    <span className={`status-badge ${member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint'}`}>
                                                         {member.status}
                                                     </span>
                                                 </li>
