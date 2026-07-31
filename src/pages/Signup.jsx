@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api/authAPI";
 
-const SIGNUP_STEPS = ["기본 정보", "비밀번호", "전화번호/인증코드"];
+const SIGNUP_STEPS = ["기본 정보", "비밀번호", "전화번호/초대코드"];
 
 function Signup() {
     const navigate = useNavigate();
@@ -80,7 +80,7 @@ function Signup() {
             }
 
             if (!formData.invitationCode.trim()) {
-                setErrorMessage("인증코드를 입력해주세요.");
+                setErrorMessage("초대코드를 입력해주세요.");
                 return false;
             }
 
@@ -309,7 +309,7 @@ function Signup() {
                                             className="input-box"
                                             type="text"
                                             name="invitationCode"
-                                            placeholder="인증코드"
+                                            placeholder="초대코드"
                                             value={formData.invitationCode}
                                             onChange={handleChange}
                                             required
