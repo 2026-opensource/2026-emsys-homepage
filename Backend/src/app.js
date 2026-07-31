@@ -21,7 +21,7 @@ const invitationRoutes = require("./routes/invitation.routes");
 const app = express();
 
 app.use(cors({
-  origin: '26-emsys-homepage.vercel.app',  // 프론트 주소 
+  origin: 'https://26-emsys-homepage.vercel.app',  // 프론트 주소 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
