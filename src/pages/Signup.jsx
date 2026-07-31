@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api/authAPI";
 
-const SIGNUP_STEPS = ["기본 정보", "전화번호 인증", "비밀번호"];
+const SIGNUP_STEPS = ["기본 정보", "비밀번호", "전화번호/인증코드"];
 
 function Signup() {
     const navigate = useNavigate();
@@ -25,7 +25,6 @@ function Signup() {
 
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [verificationCode, setVerificationCode] = useState("");
     const [currentStep, setCurrentStep] = useState(0);
     const isLastStep = currentStep === SIGNUP_STEPS.length - 1;
 
@@ -58,18 +57,6 @@ function Signup() {
         }
 
         if (currentStep === 1) {
-            if (!formData.phone_number.trim()) {
-                setErrorMessage("전화번호를 입력해주세요.");
-                return false;
-            }
-
-            if (!verificationCode.trim()) {
-                setErrorMessage("인증번호를 입력해주세요.");
-                return false;
-            }
-        }
-
-        if (currentStep === 2) {
             if (!formData.password) {
                 setErrorMessage("비밀번호를 입력해주세요.");
                 return false;
@@ -77,6 +64,23 @@ function Signup() {
 
             if (!formData.passwordConfirm) {
                 setErrorMessage("비밀번호 확인을 입력해주세요.");
+                return false;
+            }
+
+            if (formData.password !== formData.passwordConfirm) {
+                setErrorMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+                return false;
+            }
+        }
+
+        if (currentStep === 2) {
+            if (!formData.phone_number.trim()) {
+                setErrorMessage("전화번호를 입력해주세요.");
+                return false;
+            }
+
+            if (!formData.invitationCode.trim()) {
+                setErrorMessage("인증코드를 입력해주세요.");
                 return false;
             }
 
@@ -127,17 +131,16 @@ function Signup() {
         e.preventDefault();
         setErrorMessage("");
 
+        if (!validateCurrentStep()) {
+            return;
+        }
+
         const submitData = {
             ...formData,
             phone_number: formData.phone_number.replace(/\D/g, ""),
         };
 
         console.log("회원가입 요청 데이터:", submitData);
-
-        if (formData.password !== formData.passwordConfirm) {
-            setErrorMessage("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
-            return;
-        }
 
         try {
             setLoading(true);
@@ -243,47 +246,6 @@ function Signup() {
 
                                 {currentStep === 1 && (
                                     <>
-                                        <div className="verification-input-row">
-                                            <input
-                                                className="verification-input"
-                                                type="tel"
-                                                maxLength={13}
-                                                name="phone_number"
-                                                placeholder="전화번호(-없이 숫자만 입력)"
-                                                value={formData.phone_number}
-                                                onChange={(e) => {
-                                                    setFormData({
-                                                        ...formData,
-                                                        phone_number: formatPhoneNumber(e.target.value),
-                                                    });
-                                                    setErrorMessage("");
-                                                }}
-                                                required
-                                            />
-                                            <button className="verification-btn" type="button">
-                                                인증
-                                            </button>
-                                        </div>
-
-                                        <div className="verification-input-row">
-                                            <input
-                                                className="verification-input"
-                                                type="text"
-                                                name="verificationCode"
-                                                placeholder="인증번호"
-                                                value={verificationCode}
-                                                onChange={(e) => setVerificationCode(e.target.value)}
-                                                required
-                                            />
-                                            <button className="verification-btn" type="button">
-                                                확인
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
-
-                                {currentStep === 2 && (
-                                    <>
                                         <input
                                             className="input-box"
                                             type="password"
@@ -321,12 +283,33 @@ function Signup() {
                                                 *CAPS LOCK이 켜져 있습니다.
                                             </p>
                                         )}
+                                    </>
+                                )}
+
+                                {currentStep === 2 && (
+                                    <>
+                                        <input
+                                            className="input-box"
+                                            type="tel"
+                                            maxLength={13}
+                                            name="phone_number"
+                                            placeholder="전화번호(-없이 숫자만 입력)"
+                                            value={formData.phone_number}
+                                            onChange={(e) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    phone_number: formatPhoneNumber(e.target.value),
+                                                });
+                                                setErrorMessage("");
+                                            }}
+                                            required
+                                        />
 
                                         <input
                                             className="input-box"
                                             type="text"
                                             name="invitationCode"
-                                            placeholder="초대코드"
+                                            placeholder="인증코드"
                                             value={formData.invitationCode}
                                             onChange={handleChange}
                                             required
