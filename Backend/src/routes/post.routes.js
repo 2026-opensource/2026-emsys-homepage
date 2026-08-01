@@ -42,6 +42,8 @@ router.get(
     postController.downloadPostFile
 );
 
+router.get("/download-proxy", postController.downloadImageProxy);
+
 router.get('/', postController.getAllPosts);
 
 // 사용자 본인 게시글만 불러오게

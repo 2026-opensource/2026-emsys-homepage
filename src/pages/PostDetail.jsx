@@ -429,25 +429,17 @@ function PostDetail() {
     setViewerIndex(index);
   };
 
-  const handleImageDownload = async (url) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+  const handleImageDownload = (url) => {
+  const filename = url.split("/").pop().split("?")[0];
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const downloadUrl = `${API_BASE_URL}/api/posts/download-proxy?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
 
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = url.split("/").pop().split("?")[0]; // URL 끝의 파일명 추출
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      console.error("이미지 다운로드 실패:", error);
-      alert("이미지 다운로드에 실패했습니다.");
-    }
-  };
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   return (
     <>

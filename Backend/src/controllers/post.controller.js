@@ -247,3 +247,12 @@ exports.getMyPosts = async (req, res, next) => {
       next(error);
   }
 };
+
+exports.downloadImageProxy = async (req, res, next) => {
+  try {
+    const { url, filename } = req.query;
+    await postService.streamImageDownload({ url, filename, res });
+  } catch (error) {
+    next(error);
+  }
+};

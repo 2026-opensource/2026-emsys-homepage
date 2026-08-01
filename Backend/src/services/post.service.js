@@ -1272,3 +1272,28 @@ function fixKoreanFileName(fileName) {
         return fileName;
     }
 }
+
+exports.streamImageDownload = async ({ url, filename, res }) => {
+  if (!url || !url.startsWith(process.env.R2_PUBLIC_URL)) {
+    const error = new Error("잘못된 요청입니다.");
+    error.status = 400;
+    throw error;
+  }
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const error = new Error("이미지를 찾을 수 없습니다.");
+    error.status = 404;
+    throw error;
+  }
+
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename*=UTF-8''${encodeURIComponent(filename || "image.jpg")}`
+  );
+  res.setHeader("Content-Type", response.headers.get("content-type") || "image/jpeg");
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  res.send(buffer);
+};
