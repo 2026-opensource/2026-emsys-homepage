@@ -2,6 +2,7 @@ const prisma = require("../lib/prisma");
 const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
+const { uploadToR2, deleteFromR2, extractR2Key } = require("../lib/uploadToR2");
 
 const {
     isValidBoardType,
@@ -348,11 +349,11 @@ exports.createPost = async ({ body, user }) => {
     }
 
     // 한 게시글당 이미지 총 용량 제한
-    if (getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE) {
-        const error = new Error("게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.");
-        error.status = 400;
-        throw error;
-    }
+    // if (getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE) {
+    //     const error = new Error("게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.");
+    //     error.status = 400;
+    //     throw error;
+    // } 로컬 파일 시스템 기준이라 R2에선 그대로 작동 X
 
     // transaction 사용해서 게시글 생성 + 이미지 저장 (둘 중 하나 실패하면 db에 둘 다 저장안됨)
     const newPost = await prisma.$transaction(async (tx) => {
@@ -497,11 +498,11 @@ exports.updatePost = async ({ id, body, user }) => {
     }
 
     // 한 게시글당 이미지 총 용량 제한
-    if (getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE) {
-        const error = new Error("게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.");
-        error.status = 400;
-        throw error;
-    }
+    // if (getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE) {
+    //     const error = new Error("게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.");
+    //     error.status = 400;
+    //     throw error;
+    // } 로컬 파일 시스템 기준이라 R2에선 그대로 작동 안함
 
     // 기존에는 있었는데 수정 후 content에서 빠진 이미지
     const removedImageUrls = oldImageUrls.filter(
@@ -574,8 +575,8 @@ exports.updatePost = async ({ id, body, user }) => {
     });
 
     // DB 수정 성공 후 로컬 이미지 파일 삭제
-    removedImageUrls.forEach(deleteUploadedPostImage);
-    removedFileUrls.forEach(deleteUploadedPostFile);
+    await Promise.all(removedImageUrls.map(deleteUploadedPostImage));
+    await Promise.all(removedFileUrls.map(deleteUploadedPostFile));
 
     return updatedPost;
 };
@@ -668,8 +669,8 @@ exports.deletePost = async ({ id, user }) => {
         });
     });
     // db 삭제 성공 후, 로컬 이미지 파일 삭제
-    [...new Set(imageUrls)].forEach(deleteUploadedPostImage);
-    [...new Set(fileUrls)].forEach(deleteUploadedPostFile);
+    await Promise.all([...new Set(imageUrls)].map(deleteUploadedPostImage));
+    await Promise.all([...new Set(fileUrls)].map(deleteUploadedPostFile));
 
     return true;
 };
@@ -872,57 +873,43 @@ exports.uploadPostImages = async (files) => {
             throw error;
         }
 
-        const thumbnailDir = path.join(
-            __dirname,
-            "../../uploads/post-images/thumbnails"
-        );
-
-        const displayDir = path.join(
-            __dirname,
-            "../../uploads/post-images/display"
-        );
-
-        // 서버에 폴더 없으면 생성
-        ensureDirectoryExists(thumbnailDir);
-        ensureDirectoryExists(displayDir);
-
         const uploadedImages = [];
 
         for (const file of files) {
             const baseName = Date.now() + "-" + Math.round(Math.random() * 1e9);
 
+            // 게시글 목록/게시글 상세 미리보기용: WebP 픽셀 리사이징
+            const thumbnailBuffer = await sharp(file.path)
+                .rotate()
+                .resize({ width: 400, withoutEnlargement: true })
+                .webp({ quality: 75 })
+                .toBuffer();
+
+            // 저장용 JPEG
+            const displayBuffer = await sharp(file.path)
+                .rotate()
+                .resize({ width: 1600, withoutEnlargement: true })
+                .jpeg({ quality: 82, mozjpeg: true })
+                .toBuffer();
+
             const thumbnailFileName = `${baseName}.webp`;
             const displayFileName = `${baseName}.jpg`;
 
-            const thumbnailPath = path.join(thumbnailDir, thumbnailFileName);
-            const displayPath = path.join(displayDir, displayFileName);
+            const thumbnailUrl = await uploadToR2(
+                thumbnailBuffer,
+                thumbnailFileName,
+                "image/webp",
+                "post-images/thumbnails"
+            );
 
-            // 게시글 목록/게시글 상세 미리보기용: WebP 픽셀 리사이징
-            await sharp(file.path)
-                .rotate()
-                .resize({
-                    width: 400,
-                    withoutEnlargement: true,
-                })
-                .webp({
-                    quality: 75,
-                })
-                .toFile(thumbnailPath);
+            const displayUrl = await uploadToR2(
+                displayBuffer,
+                displayFileName,
+                "image/jpeg",
+                "post-images/display"
+            );
 
-            // 저장용 JPEG
-            await sharp(file.path)
-                .rotate()
-                .resize({
-                    width: 1600,
-                    withoutEnlargement: true,
-                })
-                .jpeg({
-                    quality: 82,
-                    mozjpeg: true,
-                })
-                .toFile(displayPath);
-
-            // 임시 원본 삭제
+            // 임시 원본 삭제 (multer가 로컬에 저장한 원본)
             if (fs.existsSync(file.path)) {
                 fs.unlinkSync(file.path);
             }
@@ -931,40 +918,37 @@ exports.uploadPostImages = async (files) => {
                 originalName: fixKoreanFileName(file.originalname),
                 thumbnailFileName,
                 displayFileName,
-                thumbnailUrl: `/uploads/post-images/thumbnails/${thumbnailFileName}`,
-                displayUrl: `/uploads/post-images/display/${displayFileName}`,
+                thumbnailUrl,   // 완전한 R2 URL
+                displayUrl,     // 완전한 R2 URL
                 originalSize: file.size,
             });
         }
 
         return uploadedImages;
     } catch (error) {
-        // sharp 처리 중 실패하면 원본 파일 정리
         cleanupUploadedTempFiles(files);
-
         error.status = error.status || 500;
         error.message = error.message || "게시글 이미지 업로드 중 오류가 발생했습니다.";
-
         throw error;
     }
 };
 
 
-
 // 업로드했지만 게시글에 사용하지 않은 이미지 삭제
-// 이미지 업로드하면 폴더에 저장되고 안 사라지는거 방지하기 위함
 exports.deleteUnusedPostImages = async (images) => {
     if (!Array.isArray(images)) {
         const error = new Error("삭제할 이미지 목록이 올바르지 않습니다.");
         error.status = 400;
         throw error;
     }
-    images.forEach((image) => {
-        if (!image || typeof image !== "object") return;
 
-        deleteUploadedPostImage(image.thumbnailUrl);
-        deleteUploadedPostImage(image.displayUrl);
-    });
+    await Promise.all(
+        images.map(async (image) => {
+            if (!image || typeof image !== "object") return;
+            await deleteUploadedPostImage(image.thumbnailUrl);
+            await deleteUploadedPostImage(image.displayUrl);
+        })
+    );
 
     return true;
 };
@@ -980,25 +964,29 @@ exports.uploadPostFiles = async (files) => {
             throw error;
         }
 
-        const fileDir = path.join(__dirname, "../../uploads/post-files");
-
-        ensureDirectoryExists(fileDir);
-
         const uploadedFiles = [];
 
         for (const file of files) {
             const originalName = fixKoreanFileName(file.originalname);
-            const ext = path.extname(originalName);
-            const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-            const targetPath = path.join(fileDir, fileName);
+            const fileBuffer = fs.readFileSync(file.path);
 
-            fs.renameSync(file.path, targetPath);
+            const fileUrl = await uploadToR2(
+                fileBuffer,
+                originalName,
+                file.mimetype,
+                "post-files"
+            );
+
+            // 로컬 임시 파일 삭제
+            if (fs.existsSync(file.path)) {
+                fs.unlinkSync(file.path);
+            }
 
             uploadedFiles.push({
                 originalName,
-                fileName,
-                fileUrl: `/uploads/post-files/${fileName}`,
-                downloadUrl: `/api/posts/download/post-files/${fileName}?name=${encodeURIComponent(originalName)}`,
+                fileName: originalName,
+                fileUrl,          // 완전한 R2 URL
+                downloadUrl: fileUrl, // R2 URL 자체가 다운로드 링크
                 size: file.size,
             });
         }
@@ -1006,10 +994,8 @@ exports.uploadPostFiles = async (files) => {
         return uploadedFiles;
     } catch (error) {
         cleanupUploadedTempFiles(files);
-
         error.status = error.status || 500;
         error.message = error.message || "파일 업로드 중 오류가 발생했습니다.";
-
         throw error;
     }
 };
@@ -1056,11 +1042,12 @@ exports.deleteUnusedPostFiles = async (files) => {
         throw error;
     }
 
-    files.forEach((file) => {
-        if (!file || typeof file !== "object") return;
-
-        deleteUploadedPostFile(file.fileUrl);
-    });
+    await Promise.all(
+        files.map(async (file) => {
+            if (!file || typeof file !== "object") return;
+            await deleteUploadedPostFile(file.fileUrl);
+        })
+    );
 
     return true;
 };
@@ -1205,14 +1192,14 @@ function extractPostImages(content) {
     return images;
 }
 
-// 서버에 저장된 이미지 파일 삭제하기
-function deleteUploadedPostImage(imageUrl) {
-    const filePath = getLocalPostImagePath(imageUrl);
-
-    if (!filePath) return;
-
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+// 서버에 저장된 이미지 파일 삭제하기 (R2)
+async function deleteUploadedPostImage(imageUrl) {
+    const key = extractR2Key(imageUrl);
+    if (!key) return;
+    try {
+        await deleteFromR2(key);
+    } catch (err) {
+        console.error("R2 이미지 삭제 실패:", err);
     }
 }
 
@@ -1252,21 +1239,14 @@ function deleteLocalFile(filePath) {
     }
 }
 
-// 올렸던 파일 제거 기능
-function deleteUploadedPostFile(fileUrl) {
-    if (!fileUrl) return;
-
-    const allowedUploadPath = "/uploads/post-files/";
-
-    if (!fileUrl.includes(allowedUploadPath)) return;
-
-    const uploadsIndex = fileUrl.indexOf(allowedUploadPath);
-    const relativePath = fileUrl.slice(uploadsIndex + 1);
-
-    const filePath = path.join(__dirname, "../../", relativePath);
-
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+// 올렸던 파일 제거 기능 (R2)
+async function deleteUploadedPostFile(fileUrl) {
+    const key = extractR2Key(fileUrl);
+    if (!key) return;
+    try {
+        await deleteFromR2(key);
+    } catch (err) {
+        console.error("R2 파일 삭제 실패:", err);
     }
 }
 

@@ -18,6 +18,8 @@ const financeRoutes = require("./routes/finance.routes");
 const publicRoutes = require("./routes/introduce.routes");
 const invitationRoutes = require("./routes/invitation.routes");
 
+const uploadRoutes = require("./routes/upload.routes.js");
+
 const app = express();
 
 app.use(cors({
@@ -55,6 +57,8 @@ app.use("/api/posts", postRoutes);
 
 app.use("/api/introduce", publicRoutes);
 app.use("/api/invitation", invitationRoutes);
+
+app.use("/api/upload", uploadRoutes);
 
 // 에러 처리 미들웨어는 항상 마지막에 배치
 app.use(errorMiddleware);

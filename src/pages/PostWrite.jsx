@@ -232,8 +232,8 @@ function PostWrite() {
                   const imgNode = jodit.createInside.element("img");
 
                   imgNode.className = "post-editor-image";
-                  imgNode.src = `${API_BASE_URL}${image.thumbnailUrl}`;
-                  imgNode.setAttribute("data-display", `${API_BASE_URL}${image.displayUrl}`);
+                  imgNode.src = image.thumbnailUrl;
+                  imgNode.setAttribute("data-display", image.displayUrl);
                   imgNode.alt = image.originalName;
 
                   const figure = jodit.createInside.element("figure");
@@ -781,7 +781,7 @@ function PostWrite() {
                           >
                             <a
                               className="attached-file-name"
-                              href={`${import.meta.env.VITE_API_BASE_URL}${file.downloadUrl}`}
+                              href={file.downloadUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
