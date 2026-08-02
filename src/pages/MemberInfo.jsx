@@ -6,7 +6,6 @@ import {
     fetchInvitationMembers,
     createInvitationMember,
     updateInvitationMember,
-    deleteInvitationMember,
     uploadInvitationExcel,
 } from '../api/memberInfoAPI.js';
 import { isAuthError, redirectToLogin } from '../utils/token';
@@ -137,24 +136,6 @@ const MemberInfo = () => {
                 return;
             }
             alert(error.response?.data?.message || '저장에 실패했습니다.');
-        }
-    };
-
-    const handleDelete = async (member) => {
-        if (!window.confirm(`${member.name} (${member.student_id}) 정보를 삭제하시겠습니까?`)) {
-            return;
-        }
-
-        try {
-            await deleteInvitationMember(member.id);
-            await loadMembers();
-        } catch (error) {
-            console.error('삭제 실패:', error);
-            if (isAuthError(error)) {
-                redirectToLogin(navigate, error);
-                return;
-            }
-            alert('삭제에 실패했습니다.');
         }
     };
 
@@ -300,7 +281,7 @@ const MemberInfo = () => {
                                             <tr key={member.id}>
                                                 <td>{member.name}</td>
                                                 <td>{member.student_id}</td>
-                                                <td>{formatPhone(member.phone)}</td>
+                                                <td className="member-phone-number">{formatPhone(member.phone)}</td>
                                                 <td>
                                                     <span className=
                                                         {`status-badge ${member.is_used ? (member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint') : 'gray'}`}>
@@ -314,13 +295,6 @@ const MemberInfo = () => {
                                                         title="수정"
                                                     >
                                                         <Pencil size={14} />
-                                                    </button>
-                                                    <button
-                                                        className="icon-btn danger"
-                                                        onClick={() => handleDelete(member)}
-                                                        title="삭제"
-                                                    >
-                                                        <Trash2 size={14} />
                                                     </button>
                                                 </td>
                                             </tr>

@@ -46,9 +46,6 @@ async function getInvitationMembers(query) {
         ];
     }
 
-    // 가입 여부 판단 기준을 invitation_codes.is_used가 아니라
-    // users 테이블에 해당 student_id가 실제로 존재하는지로 바꾸기 위해
-    // 여기서는 status 필터 없이 전체를 먼저 가져온다.
     const allMembers = await prisma.invitation_codes.findMany({
         where,
         orderBy: { id: "asc" },
@@ -176,23 +173,6 @@ async function updateInvitationMember(id, body) {
     return updated;
 }
 
-// 삭제
-async function deleteInvitationMember(id) {
-    const memberId = Number(id);
-
-    const existing = await prisma.invitation_codes.findUnique({ where: { id: memberId } });
-
-    if (!existing) {
-        const error = new Error("해당 회원 정보를 찾을 수 없습니다.");
-        error.statusCode = 404;
-        throw error;
-    }
-
-    await prisma.invitation_codes.delete({ where: { id: memberId } });
-
-    return { success: true };
-}
-
 // 엑셀 업로드 (exceljs 사용) - 헤더 행에 '학번', '이름', '전화번호' 열이 있다고 가정
 async function uploadInvitationExcel(fileBuffer) {
     const workbook = new ExcelJS.Workbook();
@@ -269,6 +249,5 @@ module.exports = {
     getInvitationMembers,
     createInvitationMember,
     updateInvitationMember,
-    deleteInvitationMember,
     uploadInvitationExcel,
 };

@@ -204,6 +204,10 @@
     color:var(--point-mint);
 }
 
+.member-phone-number{
+    color:greenyellow;
+}
+
 @media (max-width: 768px) {
     .member-info-controls-row {
         flex-direction: column;
@@ -219,3 +223,4 @@
         align-items: stretch;
     }
 }
+

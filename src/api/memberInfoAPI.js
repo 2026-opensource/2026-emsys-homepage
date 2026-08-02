@@ -54,19 +54,6 @@ export const updateInvitationMember = async (id, { name, student_id, phone }) =>
     }
 };
 
-// 회원 삭제
-export const deleteInvitationMember = async (id) => {
-    try {
-        const response = await axios.delete(
-            `${BASE_URL}/admin/invitation-members/${id}`,
-            authHeaders()
-        );
-        return response.data;
-    } catch (error) {
-        console.error('회원 삭제 실패:', error);
-        throw error;
-    }
-};
 
 // 엑셀 업로드 - 서버에서 파싱 후 학번 기준 중복 제외하고 신규만 등록
 export const uploadInvitationExcel = async (formData) => {
