@@ -46,45 +46,55 @@ async function getInvitationMembers(query) {
         ];
     }
 
-    if (status === "joined") {
-        where.is_used = true;
-    } else if (status === "pending") {
-        where.is_used = false;
-    }
-
-    const total = await prisma.invitation_codes.count({ where });
-
-    const data = await prisma.invitation_codes.findMany({
+    // 가입 여부 판단 기준을 invitation_codes.is_used가 아니라
+    // users 테이블에 해당 student_id가 실제로 존재하는지로 바꾸기 위해
+    // 여기서는 status 필터 없이 전체를 먼저 가져온다.
+    const allMembers = await prisma.invitation_codes.findMany({
         where,
-        skip: (page - 1) * pageSize,
-        take: pageSize,
         orderBy: { id: "asc" },
     });
 
-    // student_id 기준으로 users.status 조회 후 매핑
-    const studentIds = data
+    const studentIds = allMembers
         .map((m) => m.student_id)
         .filter((id) => !!id);
 
-    let statusMap = {};
+    let userMap = {};
     if (studentIds.length > 0) {
         const users = await prisma.users.findMany({
             where: { student_id: { in: studentIds } },
-            select: { student_id: true, status: true },
+            select: { student_id: true, status: true, is_active: true },
         });
-        statusMap = users.reduce((acc, u) => {
-            acc[u.student_id] = u.status;
+        userMap = users.reduce((acc, u) => {
+            acc[u.student_id] = u;
             return acc;
         }, {});
     }
 
-    const dataWithStatus = data.map((member) => ({
-        ...member,
-        status: statusMap[member.student_id] ?? null,
-    }));
+    // users 테이블에 존재 + is_active면 가입으로 판정
+    const dataWithStatus = allMembers.map((member) => {
+        const user = userMap[member.student_id];
+        const isJoined = !!user && user.is_active !== false;
+
+        return {
+            ...member,
+            status: user?.status ?? null,
+            is_used: isJoined, // 프론트는 그대로 is_used 필드를 씀
+        };
+    });
+
+    // 가입상태 필터는 users 매칭 결과 기준으로 적용
+    let filtered = dataWithStatus;
+    if (status === "joined") {
+        filtered = dataWithStatus.filter((m) => m.is_used);
+    } else if (status === "pending") {
+        filtered = dataWithStatus.filter((m) => !m.is_used);
+    }
+
+    const total = filtered.length;
+    const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
     return {
-        data: dataWithStatus,
+        data: paginated,
         pagination: {
             total,
             page,
