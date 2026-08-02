@@ -284,7 +284,7 @@ const MemberInfo = () => {
                                                 <td className="member-phone-number">{formatPhone(member.phone)}</td>
                                                 <td>
                                                     <span className=
-                                                        {`status-badge ${member.is_used ? (member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint') : 'gray'}`}>
+                                                        {`status-badge ${member.is_used ? 'mint' : 'gray'}`}>
                                                         {member.is_used ? member.status : '미가입'}
                                                     </span>
                                                 </td>
