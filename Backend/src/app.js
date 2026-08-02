@@ -22,8 +22,22 @@ const uploadRoutes = require("./routes/upload.routes.js");
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGIN,
+  "http://localhost:5173",
+  "https://26-emsys-homepage.vercel.app",
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'https://26-emsys-homepage.vercel.app',  // 프론트 주소 
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],

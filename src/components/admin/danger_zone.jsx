@@ -38,7 +38,7 @@ const DangerZone = () => {
     const expectedText = `${selectedMember.name}을 회장으로 임명`;
 
     const inputText = prompt(
-      `정말 권한을 위임하려면\n"${expectedText}"\n를 정확히 입력하세요.`
+      `권한을 위임하려면\n"${expectedText}"\n를 정확히 입력하세요.`
     );
 
     if (inputText !== expectedText) {

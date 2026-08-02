@@ -524,7 +524,7 @@ function PostDetail() {
                     rel="noopener noreferrer"
                   >
                     <span className="detail-file-name">
-                      📎 {file.original_name}
+                      <span style={{ fontSize: "16px" }}>🗎</span> {file.original_name}
                     </span>
 
                     <span className="detail-file-size">
