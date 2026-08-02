@@ -4,6 +4,11 @@ import { getToken } from "../utils/token";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const authHeaders = () => {
+    const token = getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 // 게시글 작성
 export async function createPost(postData) {
     const token = getToken();
@@ -71,7 +76,10 @@ export async function getPosts({ board_type = "COMMUNITY", category = "all", exc
         params.category = category;
     }
 
-    const response = await axios.get(`${API_BASE_URL}/api/posts`, { params });
+    const response = await axios.get(`${API_BASE_URL}/api/posts`, {
+        params,
+        headers: authHeaders(),
+    });
     return response.data;
 }
 

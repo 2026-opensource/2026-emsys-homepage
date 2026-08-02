@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const postController = require("../controllers/post.controller");
-const { requireAuth } = require("../middlewares/auth.middleware");
+const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
 const { uploadPostImages, uploadPostFiles } = require("../middlewares/post.middleware");
 const uploadErrorHandler = require("../middlewares/uploadError.middleware");
 
@@ -39,19 +39,20 @@ router.delete(
 // 게시글 첨부파일 다운로드 라우터
 router.get(
     "/download/post-files/:fileName",
+    requireAuth,
     postController.downloadPostFile
 );
 
-router.get("/download-proxy", postController.downloadImageProxy);
+router.get("/download-proxy", requireAuth, postController.downloadImageProxy);
 
-router.get('/', postController.getAllPosts);
+router.get('/', optionalAuth, postController.getAllPosts);
 
 // 사용자 본인 게시글만 불러오게
 router.get('/my', requireAuth, postController.getMyPosts);
 
-router.post('/:id/view', requireAuth, postController.increaseViewCount);
+router.post('/:id/view', postController.increaseViewCount);
 
-router.get('/:id', requireAuth, postController.getPostById);
+router.get('/:id', optionalAuth, postController.getPostById);
 
 router.post('/', requireAuth, postController.createPost);
 

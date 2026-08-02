@@ -92,12 +92,12 @@ function AppContent() {
         <Route path="/community/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/resources/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/gallery/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
-        <Route path="/posts/:id" element={<AuthRoute><PostDetail /></AuthRoute>} />
+        <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/posts/:id/edit" element={<AuthRoute><PostWrite /></AuthRoute>} />
 
         <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
         <Route path="/admin-page/memberInfo" element={<AdminRoute><MemberInfo /></AdminRoute>} />
-        <Route path="/post-detail" element={<AuthRoute><PostDetail /></AuthRoute>} />
+        <Route path="/post-detail" element={<PostDetail />} />
         <Route path="/post-write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/gallery" element={<Gallery />} />
       </Routes>

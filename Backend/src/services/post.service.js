@@ -28,7 +28,7 @@ const POST_FILE_UPLOAD_PATH = "/uploads/post-files/";
 const MAX_POST_IMAGE_TOTAL_SIZE = 50 * 1024 * 1024;
 
 // 게시글 목록 조회
-exports.getAllPosts = async (query) => {
+exports.getAllPosts = async (query, user) => {
     const {
         category,
         exclude_category,
@@ -54,6 +54,12 @@ exports.getAllPosts = async (query) => {
     if (!isValidBoardType(board_type)) {
         const error = new Error("올바른 게시판 타입이 아닙니다.");
         error.status = 400;
+        throw error;
+    }
+
+    if (board_type === "ARCHIVE" && !user) {
+        const error = new Error("자료실은 로그인 후 이용할 수 있습니다.");
+        error.status = 401;
         throw error;
     }
 
@@ -208,23 +214,34 @@ exports.getPostById = async ({ id, user }) => {
         throw error;
     }
 
-    const existingLike = await prisma.post_likes.findUnique({
-        where: {
-            post_id_user_id: {
-                post_id: postId,
-                user_id: user.id,
-            },
-        },
-    });
+    if (post.board_type === "ARCHIVE" && !user) {
+        const error = new Error("자료실은 로그인 후 이용할 수 있습니다.");
+        error.status = 401;
+        throw error;
+    }
 
-    const existingDislike = await prisma.post_dislikes.findUnique({
-        where: {
-            post_id_user_id: {
-                post_id: postId,
-                user_id: user.id,
+    let existingLike = null;
+    let existingDislike = null;
+
+    if (user) {
+        existingLike = await prisma.post_likes.findUnique({
+            where: {
+                post_id_user_id: {
+                    post_id: postId,
+                    user_id: user.id,
+                },
             },
-        },
-    });
+        });
+
+        existingDislike = await prisma.post_dislikes.findUnique({
+            where: {
+                post_id_user_id: {
+                    post_id: postId,
+                    user_id: user.id,
+                },
+            },
+        });
+    }
 
     return {
         ...post,

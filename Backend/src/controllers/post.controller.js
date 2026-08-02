@@ -12,7 +12,7 @@ function fixKoreanFileName(fileName) {
 // 게시글 전체 조회
 exports.getAllPosts = async (req, res, next) => {
   try {
-    const result = await postService.getAllPosts(req.query);
+    const result = await postService.getAllPosts(req.query, req.user);
 
     res.status(200).json({
       success: true,

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
+import { isLoggedIn, redirectToLogin } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -75,6 +76,13 @@ function Gallery() {
     fetchPosts();
   }, [category, search, currentPage]);
 
+  const handleWriteClick = (event) => {
+    if (!isLoggedIn()) {
+      event.preventDefault();
+      redirectToLogin(navigate);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -89,7 +97,7 @@ function Gallery() {
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
               {/* 글쓰기 */}
-              <Link to="/gallery/write">
+              <Link to="/gallery/write" onClick={handleWriteClick}>
                 <button className="board-write-btn btn btn-default">
                   글쓰기
                 </button>

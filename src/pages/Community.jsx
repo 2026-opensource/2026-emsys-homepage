@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
+import { isLoggedIn, redirectToLogin } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -8,9 +9,9 @@ import Pagination from "../components/pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
-import { Link } from "react-router-dom";
 
 function Community() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams(); //short cut을 위한 카테고리 selector
 
   const [posts, setPosts] = useState([]);
@@ -78,6 +79,13 @@ function Community() {
     fetchPosts();
   }, [category, search, currentPage]);
 
+  const handleWriteClick = (event) => {
+    if (!isLoggedIn()) {
+      event.preventDefault();
+      redirectToLogin(navigate);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -92,7 +100,7 @@ function Community() {
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
               {/* 글쓰기 */}
-              <Link to="/community/write">
+              <Link to="/community/write" onClick={handleWriteClick}>
                 <button className="board-write-btn btn btn-default">
                   글쓰기
                 </button>
