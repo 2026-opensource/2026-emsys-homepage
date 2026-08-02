@@ -33,13 +33,6 @@ router.put(
     memberController.updateInvitationMember
 );
 
-router.delete(
-    "/invitation-members/:id",
-    requireAuth,
-    requireAdmin,
-    memberController.deleteInvitationMember
-);
-
 router.post(
     "/invitation-members/upload",
     requireAuth,
