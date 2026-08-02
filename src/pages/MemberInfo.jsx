@@ -301,7 +301,6 @@ const MemberInfo = () => {
                                                 <td>{member.name}</td>
                                                 <td>{member.student_id}</td>
                                                 <td>{formatPhone(member.phone)}</td>
-                                                <td className="member-info-code">{member.code}</td>
                                                 <td>
                                                     <span className=
                                                         {`status-badge ${member.is_used ? (member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint') : 'gray'}`}>
