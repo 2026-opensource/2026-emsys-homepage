@@ -291,7 +291,6 @@ const MemberInfo = () => {
                                             <th>이름</th>
                                             <th>학번</th>
                                             <th>전화번호</th>
-                                            <th>초대코드</th>
                                             <th>가입상태</th>
                                             <th>관리</th>
                                         </tr>
@@ -299,21 +298,14 @@ const MemberInfo = () => {
                                     <tbody>
                                         {members.map((member) => (
                                             <tr key={member.id}>
-                                                <td>
-                                                    {member.name}
-                                                    {member.status && (
-                                                        <span className={`status-badge ${member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint'}`}
-                                                        style={{ marginLeft: '5px' }}>
-                                                            {member.status}
-                                                        </span>
-                                                    )}
-                                                </td>
+                                                <td>{member.name}</td>
                                                 <td>{member.student_id}</td>
                                                 <td>{formatPhone(member.phone)}</td>
                                                 <td className="member-info-code">{member.code}</td>
                                                 <td>
-                                                    <span className={`status-badge ${member.is_used ? 'mint' : 'gray'}`}>
-                                                        {member.is_used ? '가입완료' : '미가입'}
+                                                    <span className=
+                                                        {`status-badge ${member.is_used ? (member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint') : 'gray'}`}>
+                                                        {member.is_used ? member.status : '미가입'}
                                                     </span>
                                                 </td>
                                                 <td className="member-info-actions">
