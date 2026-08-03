@@ -87,7 +87,7 @@ const MemberInfo = () => {
         setForm({
             name: member.name || '',
             student_id: member.student_id || '',
-            phone: member.phone || '',
+            phone: formatPhoneNumber(member.phone || ''),
         });
         setIsFormOpen(true);
     };
@@ -138,6 +138,21 @@ const MemberInfo = () => {
             alert(error.response?.data?.message || '저장에 실패했습니다.');
         }
     };
+
+    // 입력 중 자동 하이픈(-) 추가 (표시용 formatPhone과는 별개)
+    function formatPhoneNumber(value) {
+        const numbers = value.replace(/\D/g, "");
+
+        if (numbers.length <= 3) {
+            return numbers;
+        }
+
+        if (numbers.length <= 7) {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        }
+
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+    }
 
     // 엑셀 업로드
     const handleFileChange = (e) => {
@@ -349,9 +364,10 @@ const MemberInfo = () => {
                             <label>전화번호</label>
                             <input
                                 type="text"
+                                maxLength={13}
                                 value={form.phone}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                placeholder="01012345678"
+                                onChange={(e) => setForm({ ...form, phone: formatPhoneNumber(e.target.value) })}
+                                placeholder="010-1234-5678"
                             />
 
                             {!editingId && (
