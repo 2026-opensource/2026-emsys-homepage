@@ -1,18 +1,6 @@
 /* =========================
   메인페이지 공통 변수 및 레이아웃
 ========================= */
-:root {
-  --bg-main: #333333;
-  --bg-box: #444444;
-  --text-main: #ffffff;
-  --text-muted: #aaaaaa;
-  --point-mint: #00ffa3;
-  --border-color: #555555;
-  --calendar-sunday: #ff6b6b;
-  --calendar-saturday: #4da3ff;
-  --calendar-active: lightpink;
-}
-
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -182,6 +170,23 @@
 .shortcut-item:hover i,
 .shortcut-item:hover h4 {
   color: #ffffff;
+}
+
+:root[data-theme="light"] .shortcut-item {
+  border: 2px solid var(--point-mint);
+  background-color: #ffffff;
+  color: var(--point-mint);
+}
+
+:root[data-theme="light"] .shortcut-item:hover {
+  background-color: #ffffff;
+  color: var(--point-mint);
+  box-shadow: 0 6px 16px rgba(0, 168, 120, 0.16);
+}
+
+:root[data-theme="light"] .shortcut-item:hover i,
+:root[data-theme="light"] .shortcut-item:hover h4 {
+  color: var(--point-mint);
 }
 
 /* =========================

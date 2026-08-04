@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.8",
+    "jodit": "^4.13.10",
     "jodit-react": "^5.3.21",
     "jquery": "^3.7.1",
     "lucide-react": "^1.16.0",

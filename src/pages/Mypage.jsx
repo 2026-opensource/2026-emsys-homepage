@@ -157,25 +157,25 @@ function MyPage() {
 
   if (loading) {
     return (
-      <>
+      <div className="mypage-page">
         <Navbar />
         <div className="mypage-container">
           <p className="mypage-loading">사용자 정보를 불러오는 중...</p>
         </div>
         <Footer />
-      </>
+      </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <>
+      <div className="mypage-page">
         <Navbar />
         <div className="mypage-container">
           <p className="mypage-error">{errorMessage}</p>
         </div>
         <Footer />
-      </>
+      </div>
     );
   }
 
@@ -213,7 +213,7 @@ function MyPage() {
   }
 
   return (
-    <>
+    <div className="mypage-page">
       <Navbar />
       <div className="mypage-container">
         <h1 className="mypage-text">마이페이지</h1>
@@ -341,7 +341,7 @@ function MyPage() {
         </section>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
 

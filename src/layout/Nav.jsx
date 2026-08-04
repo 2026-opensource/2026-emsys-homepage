@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Moon, Sun } from "lucide-react";
 import logoGreen from "../assets/images/logo-green-removebg.png";
 
 import { isLoggedIn, removeToken, removeUserInfo } from "../utils/token";
@@ -17,6 +18,56 @@ function Navbar() {
     setMenuOpen(false);
     alert("로그아웃되었습니다.");
     navigate("/");
+  }
+
+  function ThemeToggle() {
+    const transitionTimer = useRef(null);
+    const [theme, setTheme] = useState(
+      () => localStorage.getItem("theme") ?? "dark",
+    );
+
+    useEffect(() => {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem("theme", theme);
+    }, [theme]);
+
+    useEffect(() => {
+      return () => {
+        clearTimeout(transitionTimer.current);
+        document.documentElement.classList.remove("theme-transitioning");
+      };
+    }, []);
+
+    function handleThemeToggle() {
+      const nextTheme = theme === "dark" ? "light" : "dark";
+      const root = document.documentElement;
+
+      clearTimeout(transitionTimer.current);
+      root.classList.remove("theme-transitioning");
+      root.dataset.theme = nextTheme;
+      void root.offsetWidth;
+      root.classList.add("theme-transitioning");
+
+      setTheme(nextTheme);
+      transitionTimer.current = setTimeout(() => {
+        root.classList.remove("theme-transitioning");
+      }, 500);
+    }
+
+    return (
+      <button
+        type="button"
+        className="theme-toggle-btn"
+        onClick={handleThemeToggle}
+        aria-label="테마 전환"
+      >
+        {theme === "dark" ? (
+          <Sun aria-hidden="true" />
+        ) : (
+          <Moon aria-hidden="true" />
+        )}
+      </button>
+    );
   }
 
   return (
@@ -65,6 +116,9 @@ function Navbar() {
                 로그인
               </Link>
             )}
+          </li>
+          <li>
+            <ThemeToggle />
           </li>
         </ul>
       </div>

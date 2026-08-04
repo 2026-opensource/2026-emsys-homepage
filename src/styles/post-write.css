@@ -1,14 +1,4 @@
 /* 커뮤니티, 자료실, 글쓰기, 글 상세 페이지 공통 스타일 */
-
-:root {
-  --bg-main: #333333;
-  --bg-box: #444444;
-  --text-main: #ffffff;
-  --text-muted: #aaaaaa;
-  --point-mint: #00ffa3;
-  --border-color: #555555;
-}
-
 body {
   background-color: var(--bg-main);
 }

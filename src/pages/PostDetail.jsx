@@ -365,7 +365,7 @@ function PostDetail() {
 
   if (loading) {
     return (
-      <>
+      <div className="post-detail-page">
         <Navbar />
         <main className="board-page">
           <div className="detail-container">
@@ -373,13 +373,13 @@ function PostDetail() {
           </div>
         </main>
         <Footer />
-      </>
+      </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <>
+      <div className="post-detail-page">
         <Navbar />
         <main className="board-page">
           <div className="detail-container">
@@ -390,13 +390,13 @@ function PostDetail() {
           </div>
         </main>
         <Footer />
-      </>
+      </div>
     );
   }
 
   if (!post) {
     return (
-      <>
+      <div className="post-detail-page">
         <Navbar />
         <main className="board-page">
           <div className="detail-container">
@@ -404,7 +404,7 @@ function PostDetail() {
           </div>
         </main>
         <Footer />
-      </>
+      </div>
     );
   }
 
@@ -430,7 +430,7 @@ function PostDetail() {
   };
 
   return (
-    <>
+    <div className="post-detail-page">
       <Navbar />
 
       <main className="board-page">
@@ -776,7 +776,7 @@ function PostDetail() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
 
