@@ -516,3 +516,8 @@
   color: #ccc;
   font-size: 13px;
 }
+
+.img-viewer-download{
+  background-color: transparent;
+  border: none;
+}

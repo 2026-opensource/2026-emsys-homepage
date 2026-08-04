@@ -31,6 +31,7 @@ function normalizePhone(value) {
 }
 
 // 목록 조회 (검색 / 가입상태 필터 / 페이지네이션)
+// 목록 조회 (검색 / 가입상태 필터 / 페이지네이션)
 async function getInvitationMembers(query) {
     const page = parseInt(query.page) || 1;
     const pageSize = parseInt(query.pageSize) || 15;
@@ -45,23 +46,52 @@ async function getInvitationMembers(query) {
         ];
     }
 
-    if (status === "joined") {
-        where.is_used = true;
-    } else if (status === "pending") {
-        where.is_used = false;
-    }
-
-    const total = await prisma.invitation_codes.count({ where });
-
-    const data = await prisma.invitation_codes.findMany({
+    const allMembers = await prisma.invitation_codes.findMany({
         where,
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        orderBy: { id: "desc" },
+        orderBy: { id: "asc" },
     });
 
+    const studentIds = allMembers
+        .map((m) => m.student_id)
+        .filter((id) => !!id);
+
+    let userMap = {};
+    if (studentIds.length > 0) {
+        const users = await prisma.users.findMany({
+            where: { student_id: { in: studentIds } },
+            select: { student_id: true, status: true, is_active: true },
+        });
+        userMap = users.reduce((acc, u) => {
+            acc[u.student_id] = u;
+            return acc;
+        }, {});
+    }
+
+    // users 테이블에 존재 + is_active면 가입으로 판정
+    const dataWithStatus = allMembers.map((member) => {
+        const user = userMap[member.student_id];
+        const isJoined = !!user && user.is_active !== false;
+
+        return {
+            ...member,
+            status: user?.status ?? null,
+            is_used: isJoined, // 프론트는 그대로 is_used 필드를 씀
+        };
+    });
+
+    // 가입상태 필터는 users 매칭 결과 기준으로 적용
+    let filtered = dataWithStatus;
+    if (status === "joined") {
+        filtered = dataWithStatus.filter((m) => m.is_used);
+    } else if (status === "pending") {
+        filtered = dataWithStatus.filter((m) => !m.is_used);
+    }
+
+    const total = filtered.length;
+    const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
     return {
-        data,
+        data: paginated,
         pagination: {
             total,
             page,
@@ -143,23 +173,6 @@ async function updateInvitationMember(id, body) {
     return updated;
 }
 
-// 삭제
-async function deleteInvitationMember(id) {
-    const memberId = Number(id);
-
-    const existing = await prisma.invitation_codes.findUnique({ where: { id: memberId } });
-
-    if (!existing) {
-        const error = new Error("해당 회원 정보를 찾을 수 없습니다.");
-        error.statusCode = 404;
-        throw error;
-    }
-
-    await prisma.invitation_codes.delete({ where: { id: memberId } });
-
-    return { success: true };
-}
-
 // 엑셀 업로드 (exceljs 사용) - 헤더 행에 '학번', '이름', '전화번호' 열이 있다고 가정
 async function uploadInvitationExcel(fileBuffer) {
     const workbook = new ExcelJS.Workbook();
@@ -236,6 +249,5 @@ module.exports = {
     getInvitationMembers,
     createInvitationMember,
     updateInvitationMember,
-    deleteInvitationMember,
     uploadInvitationExcel,
 };

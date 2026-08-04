@@ -6,7 +6,6 @@ import {
     fetchInvitationMembers,
     createInvitationMember,
     updateInvitationMember,
-    deleteInvitationMember,
     uploadInvitationExcel,
 } from '../api/memberInfoAPI.js';
 import { isAuthError, redirectToLogin } from '../utils/token';
@@ -88,7 +87,7 @@ const MemberInfo = () => {
         setForm({
             name: member.name || '',
             student_id: member.student_id || '',
-            phone: member.phone || '',
+            phone: formatPhoneNumber(member.phone || ''),
         });
         setIsFormOpen(true);
     };
@@ -140,23 +139,20 @@ const MemberInfo = () => {
         }
     };
 
-    const handleDelete = async (member) => {
-        if (!window.confirm(`${member.name} (${member.student_id}) 정보를 삭제하시겠습니까?`)) {
-            return;
+    // 입력 중 자동 하이픈(-) 추가 (표시용 formatPhone과는 별개)
+    function formatPhoneNumber(value) {
+        const numbers = value.replace(/\D/g, "");
+
+        if (numbers.length <= 3) {
+            return numbers;
         }
 
-        try {
-            await deleteInvitationMember(member.id);
-            await loadMembers();
-        } catch (error) {
-            console.error('삭제 실패:', error);
-            if (isAuthError(error)) {
-                redirectToLogin(navigate, error);
-                return;
-            }
-            alert('삭제에 실패했습니다.');
+        if (numbers.length <= 7) {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
         }
-    };
+
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+    }
 
     // 엑셀 업로드
     const handleFileChange = (e) => {
@@ -291,7 +287,6 @@ const MemberInfo = () => {
                                             <th>이름</th>
                                             <th>학번</th>
                                             <th>전화번호</th>
-                                            <th>초대코드</th>
                                             <th>가입상태</th>
                                             <th>관리</th>
                                         </tr>
@@ -301,11 +296,11 @@ const MemberInfo = () => {
                                             <tr key={member.id}>
                                                 <td>{member.name}</td>
                                                 <td>{member.student_id}</td>
-                                                <td>{formatPhone(member.phone)}</td>
-                                                <td className="member-info-code">{member.code}</td>
+                                                <td className="member-phone-number">{formatPhone(member.phone)}</td>
                                                 <td>
-                                                    <span className={`status-badge ${member.is_used ? 'mint' : 'gray'}`}>
-                                                        {member.is_used ? '가입완료' : '미가입'}
+                                                    <span className=
+                                                        {`status-badge ${member.is_used ? 'mint' : 'gray'}`}>
+                                                        {member.is_used ? member.status : '미가입'}
                                                     </span>
                                                 </td>
                                                 <td className="member-info-actions">
@@ -315,13 +310,6 @@ const MemberInfo = () => {
                                                         title="수정"
                                                     >
                                                         <Pencil size={14} />
-                                                    </button>
-                                                    <button
-                                                        className="icon-btn danger"
-                                                        onClick={() => handleDelete(member)}
-                                                        title="삭제"
-                                                    >
-                                                        <Trash2 size={14} />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -376,9 +364,10 @@ const MemberInfo = () => {
                             <label>전화번호</label>
                             <input
                                 type="text"
+                                maxLength={13}
                                 value={form.phone}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                placeholder="01012345678"
+                                onChange={(e) => setForm({ ...form, phone: formatPhoneNumber(e.target.value) })}
+                                placeholder="010-1234-5678"
                             />
 
                             {!editingId && (

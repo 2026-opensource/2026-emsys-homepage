@@ -18,13 +18,30 @@ const financeRoutes = require("./routes/finance.routes");
 const publicRoutes = require("./routes/introduce.routes");
 const invitationRoutes = require("./routes/invitation.routes");
 
+const uploadRoutes = require("./routes/upload.routes.js");
+
 const app = express();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGIN,
+  "http://localhost:5173",
+  "https://26-emsys-homepage.vercel.app",
+].filter(Boolean);
+
 app.use(cors({
-  origin: '*',  // 프론트 주소 
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400
 }));
 
 app.use(express.json({ limit: "10mb" }));
@@ -54,6 +71,8 @@ app.use("/api/posts", postRoutes);
 
 app.use("/api/introduce", publicRoutes);
 app.use("/api/invitation", invitationRoutes);
+
+app.use("/api/upload", uploadRoutes);
 
 // 에러 처리 미들웨어는 항상 마지막에 배치
 app.use(errorMiddleware);

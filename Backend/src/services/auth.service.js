@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt"); //  비밀번호 암호화, 비교
 const prisma = require("../lib/prisma");
-const { isValidPassword, isValidStatus, isValidPhoneNumber } = require("../utils/validators");
+const { isValidPassword, isValidEmail, isValidStatus, isValidPhoneNumber } = require("../utils/validators");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
@@ -20,6 +20,7 @@ async function registerUser(body) {
         invitationCode,
     } = body;
 
+    const normalizedEmail = email === undefined || email === null ? "" : String(email).trim();
     const normalizedName = name === undefined || name === null ? "" : String(name).trim();
     const normalizedStudentId = student_id === undefined || student_id === null ? "" : String(student_id).trim();
     const normalizedPhoneNumber = phone_number === undefined || phone_number === null
@@ -31,7 +32,7 @@ async function registerUser(body) {
 
     // 필수값 검사
     if (
-        !email ||
+        !normalizedEmail ||
         !password ||
         !passwordConfirm ||
         !normalizedName ||
@@ -45,9 +46,15 @@ async function registerUser(body) {
         throw error;
     }
 
+    if (!isValidEmail(normalizedEmail)) {
+        const error = new Error("이메일 형식으로 입력해야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
     // 이메일 중복 검사
     const existingEmailUser = await prisma.users.findUnique({
-        where: { email },
+        where: { email: normalizedEmail },
     });
 
     if (existingEmailUser) {
@@ -136,7 +143,7 @@ async function registerUser(body) {
     const result = await prisma.$transaction(async (tx) => {
         const newUser = await tx.users.create({
             data: {
-                email,
+                email: normalizedEmail,
                 password: hashedPassword,
                 name: normalizedName,
                 student_id: normalizedStudentId,
@@ -172,19 +179,26 @@ async function registerUser(body) {
 
 async function loginUser(body) {
     const { email, password } = body;
+    const normalizedEmail = email === undefined || email === null ? "" : String(email).trim();
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
         const error = new Error("이메일과 비밀번호를 입력해야 합니다.");
         error.statusCode = 400;
         throw error;
     }
 
+    if (!isValidEmail(normalizedEmail)) {
+        const error = new Error("이메일 형식으로 입력해야 합니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
     const user = await prisma.users.findUnique({
-        where: { email },
+        where: { email: normalizedEmail },
     });
 
     if (!user) {
-        const error = new Error("아이디 또는 비밀번호를 확인하세요.");
+        const error = new Error("이메일 또는 비밀번호를 확인하세요.");
         error.statusCode = 401;
         throw error;
     }
@@ -198,7 +212,7 @@ async function loginUser(body) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-        const error = new Error("아이디 또는 비밀번호를 확인하세요.");
+        const error = new Error("이메일 또는 비밀번호를 확인하세요.");
         error.statusCode = 401;
         throw error;
     }

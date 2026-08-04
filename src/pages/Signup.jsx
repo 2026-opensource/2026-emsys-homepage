@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api/authAPI";
 
 const SIGNUP_STEPS = ["기본 정보", "비밀번호", "전화번호/초대코드"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Signup() {
     const navigate = useNavigate();
@@ -42,6 +43,11 @@ function Signup() {
         if (currentStep === 0) {
             if (!formData.email) {
                 setErrorMessage("이메일을 입력해주세요.");
+                return false;
+            }
+
+            if (!EMAIL_REGEX.test(formData.email.trim())) {
+                setErrorMessage("이메일 형식으로 입력해주세요.");
                 return false;
             }
 
@@ -215,7 +221,8 @@ function Signup() {
                                             className="input-box"
                                             type="email"
                                             name="email"
-                                            placeholder="아이디(이메일)"
+                                            autoComplete="email"
+                                            placeholder="이메일"
                                             value={formData.email}
                                             onChange={handleChange}
                                             required

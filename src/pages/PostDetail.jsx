@@ -14,7 +14,7 @@ import DOMPurify from "dompurify";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
+import { getToken, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
 
 import "../styles/post-detail.css";
 import "../styles/board.css";
@@ -65,8 +65,6 @@ function PostDetail() {
 
   // 게시글 상세 정보 가져오기
   useEffect(() => {
-    if (!requireLogin(navigate)) return;
-
     if (fetchedRef.current) {
       return;
     }
@@ -183,6 +181,11 @@ function PostDetail() {
   // 좋아요 클릭
   // =========================
   const handleLike = async () => {
+    if (!isLoggedIn()) {
+      redirectToLogin(navigate);
+      return;
+    }
+
     try {
       const result = await togglePostLike(id);
 
@@ -222,6 +225,11 @@ function PostDetail() {
   // 싫어요 클릭
   // =========================
   const handleDislike = async () => {
+    if (!isLoggedIn()) {
+      redirectToLogin(navigate);
+      return;
+    }
+
     try {
       const result = await togglePostDislike(id);
 
@@ -261,6 +269,11 @@ function PostDetail() {
   // 댓글 작성
   // =========================
   const handleCommentSubmit = async () => {
+    if (!isLoggedIn()) {
+      redirectToLogin(navigate);
+      return;
+    }
+
     if (!commentContent.trim()) {
       setCommentMessage("댓글 내용을 입력해주세요.");
       return;
@@ -310,10 +323,10 @@ function PostDetail() {
         comments: post.comments.map((comment) =>
           comment.id === commentId
             ? {
-                ...comment,
-                content: result.data.content,
-                updated_at: result.data.updated_at,
-              }
+              ...comment,
+              content: result.data.content,
+              updated_at: result.data.updated_at,
+            }
             : comment,
         ),
       });
@@ -429,6 +442,53 @@ function PostDetail() {
     setViewerIndex(index);
   };
 
+  const downloadBlob = (blob, filename) => {
+    const objectUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(objectUrl);
+  };
+
+  const handleImageDownload = async (url) => {
+    if (!isLoggedIn()) {
+      redirectToLogin(navigate);
+      return;
+    }
+
+    const filename = url.split("/").pop().split("?")[0];
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const downloadUrl = `${API_BASE_URL}/api/posts/download-proxy?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
+
+    try {
+      const response = await fetch(downloadUrl, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("이미지 다운로드에 실패했습니다.");
+      }
+
+      const blob = await response.blob();
+      downloadBlob(blob, filename);
+    } catch (error) {
+      console.error("이미지 다운로드 실패:", error);
+      setReactionMessage("이미지 다운로드에 실패했습니다.");
+    }
+  };
+
+  const handleFileDownloadClick = (event) => {
+    if (!isLoggedIn()) {
+      event.preventDefault();
+      redirectToLogin(navigate);
+    }
+  };
+
   return (
     <div className="post-detail-page">
       <Navbar />
@@ -507,12 +567,13 @@ function PostDetail() {
                   <a
                     key={file.id}
                     className="detail-file-item"
-                    href={`${import.meta.env.VITE_API_BASE_URL}${file.download_url}`}
+                    href={file.download_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={handleFileDownloadClick}
                   >
                     <span className="detail-file-name">
-                      📎 {file.original_name}
+                      <span style={{ fontSize: "16px" }}>🗎</span> {file.original_name}
                     </span>
 
                     <span className="detail-file-size">
@@ -569,14 +630,16 @@ function PostDetail() {
                 </button>
               )}
 
-              <a
+              <button
+                type="button"
                 className="img-viewer-download"
-                href={viewerImages[viewerIndex]}
-                download
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleImageDownload(viewerImages[viewerIndex]);
+                }}
               >
                 <i className="fa-solid fa-download"></i>
-              </a>
+              </button>
 
               <span className="img-viewer-count">
                 {viewerIndex + 1} / {viewerImages.length}

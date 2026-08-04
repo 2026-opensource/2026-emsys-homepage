@@ -55,10 +55,32 @@ async function updateUsersStatus(body) {
         error.statusCode = 400;
         throw error;
     }
+    const sameStatusUser = await prisma.users.findFirst({
+        where: {
+            id: { in: userIds },
+            status,
+        },
+        select: { id: true },
+    });
+
+    if (sameStatusUser) {
+        const error = new Error("동일한 상태로는 변경할 수 없습니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    // 졸업생으로 상태 변경 시 시간 업데이트
+    const data = { status };
+
+    if (status === "졸업생") {
+        data.graduated_at = new Date();
+    } else {
+        data.graduated_at = null;
+    }
 
     const result = await prisma.users.updateMany({
         where: { id: { in: userIds } },
-        data: { status },
+        data,
     });
 
     return { count: result.count };

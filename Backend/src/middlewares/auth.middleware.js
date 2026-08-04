@@ -69,6 +69,50 @@ async function requireAuth(req, res, next) {
     }
 }
 
+async function optionalAuth(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return next();
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        if (!token || token === "null" || token === "undefined") {
+            return next();
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await prisma.users.findUnique({
+            where: {
+                id: decoded.id,
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                student_id: true,
+                phone_number: true,
+                role: true,
+                status: true,
+                visit_count: true,
+                profile_image: true,
+            },
+        });
+
+        if (user) {
+            req.user = user;
+        }
+
+        return next();
+    } catch (error) {
+        return next();
+    }
+}
+
 module.exports = {
     requireAuth,
+    optionalAuth,
 };

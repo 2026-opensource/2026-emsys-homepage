@@ -46,21 +46,6 @@ async function updateInvitationMember(req, res, next) {
     }
 }
 
-// 회원 삭제
-async function deleteInvitationMember(req, res, next) {
-    try {
-        const result = await memberService.deleteInvitationMember(req.params.id);
-
-        return res.status(200).json({
-            success: true,
-            message: "회원이 삭제되었습니다.",
-            data: result,
-        });
-    } catch (error) {
-        next(error);
-    }
-}
-
 // 엑셀 업로드 (일괄 등록)
 async function uploadInvitationExcel(req, res, next) {
     try {
@@ -87,6 +72,5 @@ module.exports = {
     getInvitationMembers,
     createInvitationMember,
     updateInvitationMember,
-    deleteInvitationMember,
     uploadInvitationExcel,
 };

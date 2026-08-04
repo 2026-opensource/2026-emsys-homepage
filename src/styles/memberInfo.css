@@ -198,10 +198,16 @@
 .modal-header{
     padding: 0 0 15px 0;
     margin: 0;
+    display: flex;
+    justify-content: space-between;
 }
 
 .schedule-list-close-btn:hover{
     color:var(--point-mint);
+}
+
+.member-phone-number{
+    color:greenyellow;
 }
 
 @media (max-width: 768px) {
@@ -219,3 +225,4 @@
         align-items: stretch;
     }
 }
+

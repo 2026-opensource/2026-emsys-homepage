@@ -97,8 +97,15 @@ const AdminPage = () => {
     };
 
     const handleBatchUpdate = async () => {
-        if (basketMembers.length === 0) return alert('바구니에 회원을 먼저 담아주세요!');
+        if (basketMembers.length === 0) return alert('부원을 선택해주세요.');
         if (!selectedStatus) return alert('변경할 상태를 선택해주세요.');
+        if (basketMembers.some(member => member.status === selectedStatus)) {
+            return alert('동일한 상태로는 변경할 수 없습니다.');
+        }
+        const memberNames = basketMembers.map(member => member.name).join(', ');
+        if (!window.confirm(`선택한 ${basketMembers.length}명(${memberNames})의 상태를 ${selectedStatus}(으)로 변경하시겠습니까?`)) {
+            return;
+        }
 
         try {
             const userIds = basketMembers.map(m => Number(m.id));
@@ -111,7 +118,8 @@ const AdminPage = () => {
             }));
             setAvailableMembers(prev => [...prev, ...updatedBasket]);
 
-            alert(`${basketMembers.length}명의 상태를 '${selectedStatus}'(으)로 변경했습니다.`);
+            // alert에 memberNames 넣어서 보여주기
+            alert(`${basketMembers.length}명(${memberNames})의 상태를 '${selectedStatus}'(으)로 변경했습니다.`);
             setBasketMembers([]);
             setSelectedStatus('');
             setIsBasketOpen(false);
@@ -121,22 +129,24 @@ const AdminPage = () => {
                 redirectToLogin(navigate, error);
                 return;
             }
-            alert('상태 변경에 실패했습니다. 다시 시도해주세요.');
+            alert(error.response?.data?.message || '상태 변경에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
     const handleBatchDelete = async () => {
-        if (basketMembers.length === 0) return alert('바구니에 탈퇴시킬 회원을 담아주세요!');
+        if (basketMembers.length === 0) return alert('탈퇴시킬 부원을 담아주세요.');
 
         const hasPrivileged = basketMembers.some(m => m.role === 'OFFICER' || m.role === 'PRESIDENT');
         if (hasPrivileged) {
             return alert('임원 또는 회장은 탈퇴 처리할 수 없습니다. 먼저 해임 후 탈퇴 처리해주세요.');
         }
-
-        if (!window.confirm(`정말 바구니에 있는 ${basketMembers.length}명을 일괄 탈퇴 처리하시겠습니까?`)) {
+        // 이름 , 붙여서 나열
+        const memberNames = basketMembers.map(member => member.name).join(', ');
+        
+        if (!window.confirm(`선택한 ${basketMembers.length}명(${memberNames})을 일괄 탈퇴 처리하시겠습니까?\n탈퇴 처리 후에는 복구할 수 없습니다.`)) {
             return;
         }
-            
+
         try {
             const userIds = basketMembers.map(m => Number(m.id));
             const reason = prompt('탈퇴 사유를 입력하세요.');
@@ -160,7 +170,7 @@ const AdminPage = () => {
 
     const handleResetBasket = () => {
         if (basketMembers.length === 0) return;
-        if (window.confirm('바구니를 비우고 모든 회원을 대기 목록으로 되돌리시겠습니까?')) {
+        if (window.confirm('선택한 부원을 모두 대기 목록으로 되돌리시겠습니까?')) {
             setAvailableMembers([...availableMembers, ...basketMembers]);
             setBasketMembers([]);
             setSelectedStatus('');
@@ -351,7 +361,7 @@ const AdminPage = () => {
                                             {filteredMembers.map(member => (
                                                 <li key={member.id} onDoubleClick={() => moveToBasket(member)} className="member-item">
                                                     <span>{member.name}</span>
-                                                    <span className={`status-badge ${member.status === '졸업' ? 'gray' : 'mint'}`}>
+                                                    <span className={`status-badge ${member.status === '졸업생' || member.status === '휴학생' ? 'gray' : 'mint'}`}>
                                                         {member.status}
                                                     </span>
                                                 </li>
