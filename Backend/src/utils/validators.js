@@ -4,6 +4,11 @@ function isValidPassword(password) {
     return passwordRegex.test(password);
 }
 
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(String(email || "").trim());
+}
+
 function isValidPhoneNumber(phone_number) {
     const normalizedPhoneNumber = String(phone_number || "").replace(/\D/g, "");
     const phoneNumberRegex = /^0\d{10}$/; // 0으로 시작하고 10자리 필요
@@ -37,6 +42,7 @@ function isValidArchiveCategory(category) {
 
 module.exports = {
     isValidPassword,
+    isValidEmail,
     isValidPhoneNumber,
     isValidStatus,
     isValidBoardType,

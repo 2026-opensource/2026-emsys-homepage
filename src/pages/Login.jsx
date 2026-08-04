@@ -107,7 +107,8 @@ function Login() {
                   className="input-box"
                   type="email"
                   name="email"
-                  placeholder="아이디(이메일)"
+                  autoComplete="email"
+                  placeholder="이메일"
                   value={formData.email}
                   onChange={handleChange}
                   required

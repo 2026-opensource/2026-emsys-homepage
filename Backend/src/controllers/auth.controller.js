@@ -30,7 +30,7 @@ async function login(req, res, next) {
     }
 }
 
-// 아이디 찾기
+// 이메일 찾기
 async function findEmail(req, res, next) {
     try {
         const result = await authService.findEmail(req.body);

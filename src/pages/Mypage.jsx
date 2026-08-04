@@ -267,12 +267,6 @@ function MyPage() {
                   <div className="user-info-value">{user?.name}</div>
                 </div>
 
-                {/* 전화번호 인증 있으니까 그냥 아이디를 학번으로 바꾸자 나중에 이메일 관련 사용한다고 하면 주석처리 풀면 됨 */}
-                {/* {<div className="user-info-row">
-                  <div className="user-info-label">아이디</div>
-                  <div className="user-info-value">{user?.email}</div>
-                </div>} */}
-
                 <div className="user-info-row">
                   <div className="user-info-label">등급</div>
                   <div className="user-info-value">{getRoleText(user?.role)}</div>

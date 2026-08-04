@@ -5,6 +5,7 @@
 require("dotenv").config();
 
 const app = require("./src/app");
+const { startGraduationScheduler } = require("./src/schedulers/graduation.scheduler");
 
 const PORT = process.env.PORT || 5000;
 
@@ -13,4 +14,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🟢 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
   console.log(`📘 Swagger 문서: http://localhost:${PORT}/api-docs`);
   console.log(`=============================================`);
+
+  startGraduationScheduler();
 });

@@ -9,7 +9,7 @@ import { findEmail, verifyPasswordUser } from "../api/authAPI";
 function FindAccount() {
     const [activeTab, setActiveTab] = useState("find-id");
 
-    // 아이디 찾기
+    // 이메일 찾기
     const [idForm, setIdForm] = useState({ name: '', student_id: '' });
     const [foundEmail, setFoundEmail] = useState(null);
 
@@ -46,7 +46,7 @@ function FindAccount() {
                             <ul className="nav nav-tabs find-tabs">
                                 <li className={activeTab === "find-id" ? "active" : ""}>
                                     <a href="#find-id" onClick={(e) => { e.preventDefault(); setActiveTab("find-id"); }}>
-                                        아이디 찾기
+                                        이메일 찾기
                                     </a>
                                 </li>
                                 <li className={activeTab === "find-pw" ? "active" : ""}>
@@ -63,7 +63,7 @@ function FindAccount() {
                                             onChange={(e) => setIdForm({ ...idForm, name: e.target.value })} required />
                                         <input className="input-box" type="text" placeholder="학번" value={idForm.student_id}
                                             onChange={(e) => setIdForm({ ...idForm, student_id: e.target.value })} required />
-                                        <button className="auth-btn" type="submit">아이디 찾기</button>
+                                        <button className="auth-btn" type="submit">이메일 찾기</button>
                                         {foundEmail && (
                                             <div className="result-box">
                                                 <i className="fa-solid fa-envelope"></i>
@@ -85,7 +85,7 @@ function FindAccount() {
                                             onChange={(e) => setPwForm({ ...pwForm, name: e.target.value })} required />
                                         <input className="input-box" type="text" placeholder="학번" value={pwForm.student_id}
                                             onChange={(e) => setPwForm({ ...pwForm, student_id: e.target.value })} required />
-                                        <input className="input-box" type="email" placeholder="아이디(이메일)" value={pwForm.email}
+                                        <input className="input-box" type="email" placeholder="이메일" value={pwForm.email}
                                             onChange={(e) => setPwForm({ ...pwForm, email: e.target.value })} required />
                                         <button className="auth-btn" type="submit">비밀번호 변경하러 가기</button>
                                     </form>
