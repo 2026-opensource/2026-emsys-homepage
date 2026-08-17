@@ -1129,6 +1129,74 @@ exports.getMyPosts = async ({ user, query }) => {
     };
 };
 
+exports.getMyPostCategoryStats = async ({ user }) => {
+    const userId = user.id;
+
+    const stats = await prisma.posts.groupBy({
+        by: ["category"],
+        where: {
+            author_id: userId,
+        },
+        _count: {
+            _all: true,
+        },
+    });
+
+    return stats
+        .map((item) => ({
+            category: item.category || "uncategorized",
+            count: item._count._all,
+        }))
+        .sort((a, b) => b.count - a.count);
+};
+
+exports.getMyPostActivityStats = async ({ user, query }) => {
+    const userId = user.id;
+    const currentYear = new Date().getFullYear();
+    let yearNumber = parseInt(query.year, 10);
+
+    if (Number.isNaN(yearNumber) || yearNumber < 2000 || yearNumber > currentYear) {
+        yearNumber = currentYear;
+    }
+
+    const posts = await prisma.posts.findMany({
+        where: {
+            author_id: userId,
+            created_at: {
+                gte: new Date(yearNumber, 0, 1),
+                lt: new Date(yearNumber + 1, 0, 1),
+            },
+        },
+        select: {
+            created_at: true,
+        },
+    });
+
+    const countByDate = posts.reduce((stats, post) => {
+        if (!post.created_at) return stats;
+
+        const date = new Date(post.created_at);
+        const dateKey = [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0"),
+        ].join("-");
+
+        stats[dateKey] = (stats[dateKey] || 0) + 1;
+        return stats;
+    }, {});
+
+    const activity = Object.entries(countByDate)
+        .map(([date, count]) => ({ date, count }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+        year: yearNumber,
+        total: posts.length,
+        activity,
+    };
+};
+
 
 
 

@@ -123,6 +123,24 @@ async function resetProfileImage(req, res, next) {
     }
 }
 
+// 사용자 인사말 수정
+async function updateGreetingMessage(req, res, next) {
+    try {
+        const result = await authService.updateGreetingMessage(
+            req.user.id,
+            req.body
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "사용자 인사말이 변경되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -132,4 +150,5 @@ module.exports = {
     getMe,
     updateProfileImage,
     resetProfileImage,
+    updateGreetingMessage,
 };
