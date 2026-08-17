@@ -78,6 +78,12 @@ router.delete(
     authController.resetProfileImage
 );
 
+router.patch(
+    "/me/greeting",
+    requireAuth,
+    authController.updateGreetingMessage
+);
+
 router.post("/find-email", authController.findEmail);
 
 

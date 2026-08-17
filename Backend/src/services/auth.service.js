@@ -408,6 +408,7 @@ async function getMe(userId) {
             role: true,
             status: true,
             profile_image: true,
+            greeting_message: true,
             visit_count: true,
             created_at: true,
         },
@@ -561,6 +562,33 @@ async function resetProfileImage(userId) {
     return updatedUser;
 }
 
+async function updateGreetingMessage(userId, body) {
+    const greetingMessage = typeof body.greeting_message === "string"
+        ? body.greeting_message
+        : "";
+
+    if (greetingMessage.length > 100) {
+        const error = new Error("인사말은 100자 이하로 입력해주세요.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const updatedUser = await prisma.users.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            greeting_message: greetingMessage.trim() ? greetingMessage : null,
+        },
+        select: {
+            id: true,
+            greeting_message: true,
+        },
+    });
+
+    return updatedUser;
+}
+
 module.exports = {
     registerUser,
     loginUser,
@@ -570,4 +598,5 @@ module.exports = {
     getMe,
     updateProfileImage,
     resetProfileImage,
+    updateGreetingMessage,
 };

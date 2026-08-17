@@ -248,6 +248,41 @@ exports.getMyPosts = async (req, res, next) => {
   }
 };
 
+// 마이페이지 내가 쓴 글 카테고리별 통계
+exports.getMyPostCategoryStats = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPostCategoryStats({
+      user: req.user,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
+// 마이페이지 내가 쓴 글 날짜별 활동 통계
+exports.getMyPostActivityStats = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPostActivityStats({
+      user: req.user,
+      query: req.query,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.activity,
+      total: result.total,
+      year: result.year,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
 exports.downloadImageProxy = async (req, res, next) => {
   try {
     const { url, filename } = req.query;

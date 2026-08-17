@@ -4,7 +4,7 @@ import { getToken } from "../utils/token"
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log("API_BASE_URL:", API_BASE_URL); // API_BASE_URL이 올바르게 로드되는지 확인
 
-export async function getMyInfo(formData) {
+export async function getMyInfo() {
     const token = getToken();
     const response = await axios.get(
         `${API_BASE_URL}/api/auth/me`,
@@ -43,6 +43,24 @@ export async function resetProfileImage() {
 
     const response = await axios.delete(
         `${API_BASE_URL}/api/auth/me/profile-image`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return response.data;
+}
+
+export async function updateGreetingMessage(greetingMessage) {
+    const token = getToken();
+
+    const response = await axios.patch(
+        `${API_BASE_URL}/api/auth/me/greeting`,
+        {
+            greeting_message: greetingMessage,
+        },
         {
             headers: {
                 Authorization: `Bearer ${token}`,

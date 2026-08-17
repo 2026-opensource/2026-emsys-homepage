@@ -48,6 +48,10 @@ router.get("/download-proxy", requireAuth, postController.downloadImageProxy);
 router.get('/', optionalAuth, postController.getAllPosts);
 
 // 사용자 본인 게시글만 불러오게
+router.get('/my/category-stats', requireAuth, postController.getMyPostCategoryStats);
+
+router.get('/my/activity', requireAuth, postController.getMyPostActivityStats);
+
 router.get('/my', requireAuth, postController.getMyPosts);
 
 router.post('/:id/view', postController.increaseViewCount);

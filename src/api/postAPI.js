@@ -251,6 +251,23 @@ export async function getMyPosts({ page = 1, limit = 5 }) {
     return response.data;
 };
 
+export async function getMyPostCategoryStats() {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/my/category-stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+export async function getMyPostActivityStats(year) {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/my/activity`, {
+        params: { year },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
 // 게시글 첨부파일 업로드
 // 게시글 첨부파일 업로드
 export async function uploadPostFiles(files) {
