@@ -65,6 +65,8 @@ router.post("/login", authController.login);
 
 router.get("/me", requireAuth, authController.getMe);
 
+router.get("/users/:id", requireAuth, authController.getUserProfile);
+
 router.patch(
     "/me/profile-image",
     requireAuth,

@@ -6,7 +6,7 @@ exports.getCommentsByPostId = async (postId) => {
         where: { post_id: parseInt(postId) },
         orderBy: { created_at: 'desc' },
         include: {
-            users: { select: { name: true, student_id: true, status: true, is_active: true } }
+            users: { select: { name: true, student_id: true, status: true, is_active: true, profile_image: true } }
         }
     });
 };
@@ -28,6 +28,7 @@ exports.createComment = async (post_id, content, author_id) => {
                     student_id: true,
                     status: true,
                     is_active: true,
+                    profile_image: true,
                 },
             },
         },
@@ -68,7 +69,7 @@ exports.updateComment = async (id, content, userId) => {
     const result = await prisma.comments.findUnique({
         where: { id: commentId },
         include: {
-            users: { select: { name: true, student_id: true, status: true, is_active: true, } }
+            users: { select: { name: true, student_id: true, status: true, is_active: true, profile_image: true, } }
         }
     });
 

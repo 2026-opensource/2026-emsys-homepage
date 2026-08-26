@@ -155,6 +155,7 @@ exports.getPostById = async ({ id, user }) => {
                     student_id: true,
                     status: true,
                     is_active: true,
+                    profile_image: true,
                 },
             },
             comments: {
@@ -165,6 +166,7 @@ exports.getPostById = async ({ id, user }) => {
                             student_id: true,
                             status: true,
                             is_active: true,
+                            profile_image: true,
                         },
                     },
                 },
@@ -1071,11 +1073,17 @@ exports.deleteUnusedPostFiles = async (files) => {
 
 
 exports.getMyPosts = async ({ user, query }) => {
-    const userId = user.id;
-    const { page = 1, limit = 5 } = query;
+    const userId = Number(user.id);
+    const { page = 1, limit = 5, category = "all", sort = "latest" } = query;
 
     let pageNumber = parseInt(page, 10);
     let limitNumber = parseInt(limit, 10);
+
+    if (Number.isNaN(userId) || userId < 1) {
+        const error = new Error("잘못된 사용자 ID입니다.");
+        error.statusCode = 400;
+        throw error;
+    }
 
     if (Number.isNaN(pageNumber) || pageNumber < 1) {
         pageNumber = 1;
@@ -1085,9 +1093,48 @@ exports.getMyPosts = async ({ user, query }) => {
         limitNumber = 5;
     }
 
+    const validMyPostCategories = [
+        "notice",
+        "free",
+        "qna",
+        "recruit",
+        "study",
+        "class",
+        "project",
+        "contest",
+        "activity",
+        "uncategorized",
+    ];
+    const normalizedCategory = String(category || "all");
+    const normalizedSort = String(sort || "latest");
+    const orderByMap = {
+        latest: [{ created_at: "desc" }, { id: "desc" }],
+        views: [{ view_count: "desc" }, { created_at: "desc" }, { id: "desc" }],
+        likes: [{ post_likes: { _count: "desc" } }, { created_at: "desc" }, { id: "desc" }],
+        comments: [{ comments: { _count: "desc" } }, { created_at: "desc" }, { id: "desc" }],
+    };
+
+    if (normalizedCategory !== "all" && !validMyPostCategories.includes(normalizedCategory)) {
+        const error = new Error("올바른 카테고리가 아닙니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (!orderByMap[normalizedSort]) {
+        const error = new Error("올바른 정렬 기준이 아닙니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
     const where = {
         author_id: userId,
     };
+
+    if (normalizedCategory === "uncategorized") {
+        where.category = null;
+    } else if (normalizedCategory !== "all") {
+        where.category = normalizedCategory;
+    }
 
     const totalCount = await prisma.posts.count({
         where,
@@ -1097,9 +1144,7 @@ exports.getMyPosts = async ({ user, query }) => {
         where,
         skip: (pageNumber - 1) * limitNumber,
         take: limitNumber,
-        orderBy: {
-            created_at: "desc",
-        },
+        orderBy: orderByMap[normalizedSort],
         include: {
             users: {
                 select: {
@@ -1130,7 +1175,13 @@ exports.getMyPosts = async ({ user, query }) => {
 };
 
 exports.getMyPostCategoryStats = async ({ user }) => {
-    const userId = user.id;
+    const userId = Number(user.id);
+
+    if (Number.isNaN(userId) || userId < 1) {
+        const error = new Error("잘못된 사용자 ID입니다.");
+        error.statusCode = 400;
+        throw error;
+    }
 
     const stats = await prisma.posts.groupBy({
         by: ["category"],
@@ -1151,9 +1202,15 @@ exports.getMyPostCategoryStats = async ({ user }) => {
 };
 
 exports.getMyPostActivityStats = async ({ user, query }) => {
-    const userId = user.id;
+    const userId = Number(user.id);
     const currentYear = new Date().getFullYear();
     let yearNumber = parseInt(query.year, 10);
+
+    if (Number.isNaN(userId) || userId < 1) {
+        const error = new Error("잘못된 사용자 ID입니다.");
+        error.statusCode = 400;
+        throw error;
+    }
 
     if (Number.isNaN(yearNumber) || yearNumber < 2000 || yearNumber > currentYear) {
         yearNumber = currentYear;

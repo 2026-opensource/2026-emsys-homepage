@@ -54,6 +54,12 @@ router.get('/my/activity', requireAuth, postController.getMyPostActivityStats);
 
 router.get('/my', requireAuth, postController.getMyPosts);
 
+router.get('/users/:userId/category-stats', requireAuth, postController.getUserPostCategoryStats);
+
+router.get('/users/:userId/activity', requireAuth, postController.getUserPostActivityStats);
+
+router.get('/users/:userId', requireAuth, postController.getUserPosts);
+
 router.post('/:id/view', postController.increaseViewCount);
 
 router.get('/:id', optionalAuth, postController.getPostById);

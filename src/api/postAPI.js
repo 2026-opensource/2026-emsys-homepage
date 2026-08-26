@@ -242,10 +242,19 @@ export async function deleteUnusedPostImages(images) {
 
     return response.data;
 }
-export async function getMyPosts({ page = 1, limit = 5 }) {
+export async function getMyPosts({ page = 1, limit = 5, category = "all", sort = "latest" }) {
     const token = getToken();
     const response = await axios.get(`${API_BASE_URL}/api/posts/my`, {
-        params: { page, limit },
+        params: { page, limit, category, sort },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+export async function getUserPosts(userId, { page = 1, limit = 5, category = "all", sort = "latest" }) {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/users/${userId}`, {
+        params: { page, limit, category, sort },
         headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -259,9 +268,26 @@ export async function getMyPostCategoryStats() {
     return response.data;
 };
 
+export async function getUserPostCategoryStats(userId) {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/users/${userId}/category-stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
 export async function getMyPostActivityStats(year) {
     const token = getToken();
     const response = await axios.get(`${API_BASE_URL}/api/posts/my/activity`, {
+        params: { year },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+export async function getUserPostActivityStats(userId, year) {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/users/${userId}/activity`, {
         params: { year },
         headers: { Authorization: `Bearer ${token}` },
     });
