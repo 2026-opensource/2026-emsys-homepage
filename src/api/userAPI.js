@@ -18,6 +18,20 @@ export async function getMyInfo() {
     return response.data;
 }
 
+export async function getUserInfoById(userId) {
+    const token = getToken();
+    const response = await axios.get(
+        `${API_BASE_URL}/api/auth/users/${userId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return response.data;
+}
+
 export async function updateProfileImage(file) {
     const token = getToken();
 

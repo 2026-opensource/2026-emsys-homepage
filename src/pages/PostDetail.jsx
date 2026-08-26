@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   getPostById,
   togglePostLike,
@@ -15,6 +15,7 @@ import DOMPurify from "dompurify";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import { getToken, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
+import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 import "../styles/post-detail.css";
 import "../styles/board.css";
@@ -125,6 +126,18 @@ function PostDetail() {
     const studentYear = user.student_id?.slice(2, 4) || "";
 
     return `${studentYear} ${user.name}`;
+  }
+
+  function getUserProfileImageUrl(user) {
+    if (!user?.profile_image || user.is_active === false || user.is_active === 0) {
+      return defaultProfile;
+    }
+
+    if (user.profile_image.startsWith("http")) {
+      return user.profile_image;
+    }
+
+    return `${import.meta.env.VITE_API_BASE_URL}${user.profile_image}`;
   }
 
   // 글 수정 시간
@@ -535,14 +548,25 @@ function PostDetail() {
 
               <div className="detail-title-content">
                 <h1 className="detail-title">{post.title}</h1>
-                <p className="detail-info">
-                  {getUserDisplayName(post.users)} · 작성일{" "}
-                  {isEdited(post.created_at, post.updated_at)
-                    ? formatDate(post.updated_at)
-                    : formatDate(post.created_at)}
-                  {isEdited(post.created_at, post.updated_at) && " (수정됨)"} ·
-                  조회수 {post.view_count ?? 0}
-                </p>
+                <div className="detail-info">
+                  <Link
+                    className="post-author-info post-author-link"
+                    to={`/mypage/${post.author_id}`}
+                  >
+                    <img
+                      className="post-author-avatar"
+                      src={getUserProfileImageUrl(post.users)}
+                      alt=""
+                    />
+                    <span>{getUserDisplayName(post.users)}</span>
+                  </Link>
+                  <span>· 작성일{" "}
+                    {isEdited(post.created_at, post.updated_at)
+                      ? formatDate(post.updated_at)
+                      : formatDate(post.created_at)}
+                    {isEdited(post.created_at, post.updated_at) && " (수정됨)"}</span>
+                  <span>· 조회수 {post.view_count ?? 0}</span>
+                </div>
               </div>
             </div>
           </section>
@@ -587,12 +611,37 @@ function PostDetail() {
 
           {viewerImages.length > 0 && (
             <div className="img-viewer-overlay">
-              <button
-                className="img-viewer-close"
-                onClick={() => setViewerImages([])}
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
+              <div className="img-viewer-actions">
+                <button
+                  type="button"
+                  className="img-viewer-download-all"
+                  aria-label="전체 이미지 다운로드"
+                >
+                  <i className="fa-solid fa-download"></i>
+                  <span>전체 다운로드</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="img-viewer-download"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImageDownload(viewerImages[viewerIndex]);
+                  }}
+                  aria-label="현재 이미지 다운로드"
+                >
+                  <i className="fa-solid fa-download"></i>
+                </button>
+
+                <button
+                  type="button"
+                  className="img-viewer-close"
+                  onClick={() => setViewerImages([])}
+                  aria-label="이미지 뷰어 닫기"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
 
               {viewerImages.length > 1 && (
                 <button
@@ -629,17 +678,6 @@ function PostDetail() {
                   <i className="fa-solid fa-angle-right"></i>
                 </button>
               )}
-
-              <button
-                type="button"
-                className="img-viewer-download"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleImageDownload(viewerImages[viewerIndex]);
-                }}
-              >
-                <i className="fa-solid fa-download"></i>
-              </button>
 
               <span className="img-viewer-count">
                 {viewerIndex + 1} / {viewerImages.length}
@@ -696,9 +734,20 @@ function PostDetail() {
                       <div className="comment-main">
                         <div className="comment-header">
                           <h3 className="comment-writer">
-                            <span className="comment-writer-name">
-                              {getUserDisplayName(comment.users)} ·
-                            </span>
+                            <Link
+                              className="comment-author-link"
+                              to={`/mypage/${comment.author_id}`}
+                            >
+                              <img
+                                className="comment-author-avatar"
+                                src={getUserProfileImageUrl(comment.users)}
+                                alt=""
+                              />
+                              <span className="comment-writer-name">
+                                {getUserDisplayName(comment.users)}
+                              </span>
+                            </Link>
+                            <span>·</span>
                             <span className="comment-date-info">
                               작성일{" "}
                               {isEdited(comment.created_at, comment.updated_at)

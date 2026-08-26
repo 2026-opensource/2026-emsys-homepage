@@ -84,6 +84,7 @@ function AppContent() {
         <Route path="/community" element={<Community />} />
         <Route path="/resources" element={<AuthRoute><Resources /></AuthRoute>} />
         <Route path="/mypage" element={<AuthRoute><Mypage /></AuthRoute>} />
+        <Route path="/mypage/:userId" element={<AuthRoute><Mypage /></AuthRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/find-account" element={<FindAccount />} />

@@ -452,6 +452,18 @@ async function getMe(userId) {
     };
 }
 
+async function getUserProfile(userId) {
+    const targetUserId = Number(userId);
+
+    if (Number.isNaN(targetUserId) || targetUserId < 1) {
+        const error = new Error("잘못된 사용자 ID입니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return getMe(targetUserId);
+}
+
 async function updateProfileImage(userId, file) {
     if (!file || !file.filename) {
         const error = new Error("업로드된 이미지 파일 정보가 올바르지 않습니다.");
@@ -596,6 +608,7 @@ module.exports = {
     verifyPasswordUser,
     changePassword,
     getMe,
+    getUserProfile,
     updateProfileImage,
     resetProfileImage,
     updateGreetingMessage,

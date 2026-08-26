@@ -739,10 +739,45 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .posts-header {
   margin: 0;
+}
+
+.mypage-post-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mypage-post-select {
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: #3a3a3a;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mypage-post-select-category {
+  width: 130px;
+}
+
+.mypage-post-select-sort {
+  width: 105px;
+}
+
+.mypage-post-select:focus {
+  border-color: var(--point-mint);
+  box-shadow: none;
+  outline: none;
 }
 
 /* 초록 구분선 */
@@ -1056,7 +1091,18 @@ body {
   }
 
   .posts-header {
-    align-items: center;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mypage-post-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .mypage-post-select {
+    flex: 1 1 145px;
+    min-width: 0;
   }
 
   .mypage-board-card {

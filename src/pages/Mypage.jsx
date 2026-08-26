@@ -7,17 +7,35 @@ import "../styles/mypage.css";
 import { useEffect, useRef, useState } from "react";
 import { PencilLine, UserKey, FileText, Heart, MessageSquare, Settings } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { useNavigate } from "react-router-dom";
-import { getMyInfo, resetProfileImage, updateGreetingMessage, updateProfileImage } from "../api/userAPI";
-import { getMyPosts, getMyPostActivityStats, getMyPostCategoryStats } from "../api/postAPI";
-import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
-import defaultProfile from "../assets/images/기본_프로필.png";
+import { useNavigate, useParams } from "react-router-dom";
+import { getMyInfo, getUserInfoById, resetProfileImage, updateGreetingMessage, updateProfileImage } from "../api/userAPI";
+import { getMyPosts, getMyPostActivityStats, getMyPostCategoryStats, getUserPosts, getUserPostActivityStats, getUserPostCategoryStats } from "../api/postAPI";
+import { getUserInfo as getStoredUserInfo, isAuthError, redirectToLogin, requireLogin } from "../utils/token";
+import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 const ACTIVITY_YEAR = new Date().getFullYear();
 const ACTIVITY_YEARS = [ACTIVITY_YEAR, ACTIVITY_YEAR - 1, ACTIVITY_YEAR - 2];
 const ACTIVITY_WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const ACTIVITY_MONTHS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const DEFAULT_GREETING_MESSAGE = "안녕하세요!";
+const MY_POST_CATEGORY_OPTIONS = [
+  { value: "all", label: "전체" },
+  { value: "notice", label: "공지사항" },
+  { value: "free", label: "자유" },
+  { value: "qna", label: "질문" },
+  { value: "recruit", label: "팀원 모집" },
+  { value: "study", label: "스터디" },
+  { value: "class", label: "수업" },
+  { value: "project", label: "과제/프로젝트" },
+  { value: "contest", label: "대회/공모전" },
+  { value: "activity", label: "행사" },
+];
+const MY_POST_SORT_OPTIONS = [
+  { value: "latest", label: "최신순" },
+  { value: "views", label: "조회수 순" },
+  { value: "likes", label: "좋아요 순" },
+  { value: "comments", label: "댓글 순" },
+];
 const CATEGORY_CHART_COLORS = [
   "#00ffa3",
   "#4fc3f7",
@@ -111,6 +129,12 @@ function CategoryChartTooltip({ active, payload, coordinate, viewBox }) {
 
 function MyPage() {
   const navigate = useNavigate();
+  const { userId } = useParams();
+  const requestedUserId = userId ? Number(userId) : null;
+  const storedUserId = Number(getStoredUserInfo()?.id);
+  const isInvalidRequestedUserId = userId && (Number.isNaN(requestedUserId) || requestedUserId < 1);
+  const isOwnPage = !requestedUserId || requestedUserId === storedUserId;
+  const profileUserId = isOwnPage ? null : requestedUserId;
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -121,6 +145,8 @@ function MyPage() {
   const [activityStats, setActivityStats] = useState([]);
   const [myPostsPage, setMyPostsPage] = useState(1);
   const [myPostsTotalPages, setMyPostsTotalPages] = useState(1);
+  const [myPostsCategory, setMyPostsCategory] = useState("all");
+  const [myPostsSort, setMyPostsSort] = useState("latest");
   const [selectedActivityYear, setSelectedActivityYear] = useState(ACTIVITY_YEAR);
   const [profileSettingsOpen, setProfileSettingsOpen] = useState(false);
   const [greetingEditOpen, setGreetingEditOpen] = useState(false);
@@ -141,6 +167,15 @@ function MyPage() {
   const activityTotalCount = activityWeeks
     .flat()
     .reduce((total, day) => total + (day.count || 0), 0);
+
+  useEffect(() => {
+    setProfileSettingsOpen(false);
+    setGreetingEditOpen(false);
+    setGreetingDraft("");
+    setMyPostsPage(1);
+    setMyPostsCategory("all");
+    setMyPostsSort("latest");
+  }, [profileUserId]);
 
   function handleOpenProfileUpload() {
     setProfileSettingsOpen(false);
@@ -276,8 +311,19 @@ function MyPage() {
     async function fetchMyInfo() {
       if (!requireLogin(navigate)) return;
 
+      setLoading(true);
+      setErrorMessage("");
+
+      if (isInvalidRequestedUserId) {
+        setErrorMessage("잘못된 사용자 ID입니다.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const result = await getMyInfo();
+        const result = profileUserId
+          ? await getUserInfoById(profileUserId)
+          : await getMyInfo();
 
         console.log("마이페이지 사용자 정보:", result);
 
@@ -300,14 +346,27 @@ function MyPage() {
     }
 
     fetchMyInfo();
-  }, [navigate]);
+  }, [isInvalidRequestedUserId, navigate, profileUserId]);
 
   useEffect(() => {
     async function fetchMyPosts() {
       if (!requireLogin(navigate)) return;
+      if (isInvalidRequestedUserId) return;
 
       try {
-        const result = await getMyPosts({ page: myPostsPage, limit: MY_POSTS_PER_PAGE });
+        const result = profileUserId
+          ? await getUserPosts(profileUserId, {
+            page: myPostsPage,
+            limit: MY_POSTS_PER_PAGE,
+            category: myPostsCategory,
+            sort: myPostsSort,
+          })
+          : await getMyPosts({
+            page: myPostsPage,
+            limit: MY_POSTS_PER_PAGE,
+            category: myPostsCategory,
+            sort: myPostsSort,
+          });
         setMyPosts(result.data);
         setMyPostsTotalPages(result.pagination?.totalPages || 1);
       } catch (error) {
@@ -319,14 +378,17 @@ function MyPage() {
       }
     }
     fetchMyPosts();
-  }, [myPostsPage, navigate]);
+  }, [isInvalidRequestedUserId, myPostsCategory, myPostsPage, myPostsSort, navigate, profileUserId]);
 
   useEffect(() => {
     async function fetchMyPostCategoryStats() {
       if (!requireLogin(navigate)) return;
+      if (isInvalidRequestedUserId) return;
 
       try {
-        const result = await getMyPostCategoryStats();
+        const result = profileUserId
+          ? await getUserPostCategoryStats(profileUserId)
+          : await getMyPostCategoryStats();
         setCategoryStats(result.data || []);
       } catch (error) {
         console.error("작성 글 비율 조회 실패:", error);
@@ -338,14 +400,17 @@ function MyPage() {
     }
 
     fetchMyPostCategoryStats();
-  }, [navigate]);
+  }, [isInvalidRequestedUserId, navigate, profileUserId]);
 
   useEffect(() => {
     async function fetchMyPostActivityStats() {
       if (!requireLogin(navigate)) return;
+      if (isInvalidRequestedUserId) return;
 
       try {
-        const result = await getMyPostActivityStats(selectedActivityYear);
+        const result = profileUserId
+          ? await getUserPostActivityStats(profileUserId, selectedActivityYear)
+          : await getMyPostActivityStats(selectedActivityYear);
         setActivityStats(result.data || []);
       } catch (error) {
         console.error("작성 글 활동 기록 조회 실패:", error);
@@ -357,7 +422,7 @@ function MyPage() {
     }
 
     fetchMyPostActivityStats();
-  }, [navigate, selectedActivityYear]);
+  }, [isInvalidRequestedUserId, navigate, profileUserId, selectedActivityYear]);
 
   useEffect(() => {
     if (loading || selectedActivityYear !== ACTIVITY_YEAR || currentActivityWeekIndex < 0) {
@@ -433,6 +498,19 @@ function MyPage() {
     return date ? String(date).slice(0, 10) : "";
   }
 
+  function getUserStatusText(targetUser) {
+    const studentYear = targetUser?.student_id
+      ? String(targetUser.student_id).slice(2, 4)
+      : "";
+    const status = targetUser?.status || "";
+
+    if (studentYear && status) {
+      return `${studentYear}학번 ${status}`;
+    }
+
+    return status || "-";
+  }
+
   const categoryTotalCount = categoryStats.reduce(
     (total, item) => total + item.count,
     0
@@ -445,12 +523,22 @@ function MyPage() {
       ? Math.round((item.count / categoryTotalCount) * 100)
       : 0,
   }));
+  const dynamicMyPostCategoryOptions = categoryStats
+    .filter((item) => item.category && !MY_POST_CATEGORY_OPTIONS.some((option) => option.value === item.category))
+    .map((item) => ({
+      value: item.category,
+      label: getCategoryText(item.category),
+    }));
+  const myPostCategoryOptions = [
+    ...MY_POST_CATEGORY_OPTIONS,
+    ...dynamicMyPostCategoryOptions,
+  ];
 
   return (
     <>
       <Navbar />
       <div className="mypage-container">
-        <h1 className="mypage-text">마이페이지</h1>
+        <h1 className="mypage-text">{isOwnPage ? "마이페이지" : `${user?.name || "사용자"}님의 페이지`}</h1>
 
         {/* 사용자 정보 */}
         <div className="user-info-box">
@@ -468,43 +556,47 @@ function MyPage() {
                   alt="프로필 이미지"
                 />
 
-                <input
-                  ref={profileFileInputRef}
-                  className="profile-file-input"
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  tabIndex={-1}
-                  onChange={handleProfileImageChange}
-                />
+                {isOwnPage && (
+                  <>
+                    <input
+                      ref={profileFileInputRef}
+                      className="profile-file-input"
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      tabIndex={-1}
+                      onChange={handleProfileImageChange}
+                    />
 
-                <button
-                  type="button"
-                  className="profile-settings-btn"
-                  aria-label="프로필 설정"
-                  aria-expanded={profileSettingsOpen}
-                  onClick={() => setProfileSettingsOpen((isOpen) => !isOpen)}
-                >
-                  <Settings size={20} strokeWidth={2.4} />
-                </button>
-
-                {profileSettingsOpen && (
-                  <div className="profile-settings-menu">
                     <button
                       type="button"
-                      className="profile-settings-option"
-                      onClick={handleOpenProfileUpload}
+                      className="profile-settings-btn"
+                      aria-label="프로필 설정"
+                      aria-expanded={profileSettingsOpen}
+                      onClick={() => setProfileSettingsOpen((isOpen) => !isOpen)}
                     >
-                      프로필 사진 업로드
+                      <Settings size={20} strokeWidth={2.4} />
                     </button>
-                    <button
-                      type="button"
-                      className="profile-settings-option"
-                      onClick={handleSelectResetProfileImage}
-                    >
-                      기본 프로필로 변경
-                    </button>
-                  </div>
+
+                    {profileSettingsOpen && (
+                      <div className="profile-settings-menu">
+                        <button
+                          type="button"
+                          className="profile-settings-option"
+                          onClick={handleOpenProfileUpload}
+                        >
+                          프로필 사진 업로드
+                        </button>
+                        <button
+                          type="button"
+                          className="profile-settings-option"
+                          onClick={handleSelectResetProfileImage}
+                        >
+                          기본 프로필로 변경
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </section>
@@ -527,8 +619,10 @@ function MyPage() {
                   </dd>
                 </div>
                 <div className="user-info-row">
-                  <dt className="user-info-label">이메일</dt>
-                  <dd className="user-info-value">{user?.email}</dd>
+                  <dt className="user-info-label">{isOwnPage ? "이메일" : "상태"}</dt>
+                  <dd className="user-info-value">
+                    {isOwnPage ? user?.email : getUserStatusText(user)}
+                  </dd>
                 </div>
               </dl>
             </section>
@@ -538,14 +632,16 @@ function MyPage() {
               <section className="user-greeting-box">
                 <div className="user-greeting-header">
                   <h3 className="user-greeting-title">사용자 인사말</h3>
-                  <button
-                    type="button"
-                    className="user-greeting-edit-btn"
-                    aria-label="사용자 인사말 수정"
-                    onClick={handleOpenGreetingEdit}
-                  >
-                    <PencilLine size={18} strokeWidth={2.2} />
-                  </button>
+                  {isOwnPage && (
+                    <button
+                      type="button"
+                      className="user-greeting-edit-btn"
+                      aria-label="사용자 인사말 수정"
+                      onClick={handleOpenGreetingEdit}
+                    >
+                      <PencilLine size={18} strokeWidth={2.2} />
+                    </button>
+                  )}
                 </div>
 
                 {greetingEditOpen ? (
@@ -649,7 +745,7 @@ function MyPage() {
                 <div className="category-activity-stat">
                   <dt>
                     <FileText className="category-activity-icon" size={16} strokeWidth={2.2} />
-                    내가 쓴 게시글
+                    {isOwnPage ? "내가 쓴 게시글" : "작성 게시글"}
                   </dt>
                   <dd>
                     <strong>{user?.post_count ?? categoryTotalCount}</strong>
@@ -659,7 +755,7 @@ function MyPage() {
                 <div className="category-activity-stat">
                   <dt>
                     <MessageSquare className="category-activity-icon" size={16} strokeWidth={2.2} />
-                    내가 쓴 댓글
+                    {isOwnPage ? "내가 쓴 댓글" : "작성 댓글"}
                   </dt>
                   <dd>
                     <strong>{user?.comment_count ?? 0}</strong>
@@ -669,7 +765,7 @@ function MyPage() {
                 <div className="category-activity-stat">
                   <dt>
                     <Heart className="category-activity-icon" size={16} strokeWidth={2.2} />
-                    내가 보낸 좋아요
+                    {isOwnPage ? "내가 보낸 좋아요" : "보낸 좋아요"}
                   </dt>
                   <dd>
                     <strong>{user?.liked_post_count ?? 0}</strong>
@@ -799,7 +895,38 @@ function MyPage() {
 
         <section className="my-posts-box">
           <div className="posts-header">
-            <h2 className="section-title">내가 작성한 글</h2>
+            <h2 className="section-title">{isOwnPage ? "내가 작성한 글" : "작성한 글"}</h2>
+            <div className="mypage-post-controls" aria-label="작성 글 필터 및 정렬">
+              <select
+                className="form-control mypage-post-select mypage-post-select-category"
+                value={myPostsCategory}
+                onChange={(event) => {
+                  setMyPostsCategory(event.target.value);
+                  setMyPostsPage(1);
+                }}
+              >
+                {myPostCategoryOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="form-control mypage-post-select mypage-post-select-sort"
+                value={myPostsSort}
+                onChange={(event) => {
+                  setMyPostsSort(event.target.value);
+                  setMyPostsPage(1);
+                }}
+              >
+                {MY_POST_SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <hr className="header-divider" />
