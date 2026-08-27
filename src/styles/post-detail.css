@@ -235,69 +235,16 @@
   댓글 영역
 ======================================== */
 .comment-title {
-  font-size: 24px;
+  font-size: 20px;
   padding: 20px 0;
   margin: 0;
   color: var(--text-main);
 }
 
 .comment-wrapper {
-  position: relative;
-}
-
-.comment-preview {
-  position: relative;
-  z-index: 1;
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.comment-preview:hover {
-  transform: scale(1.01);
-}
-
-.comment-preview .comment-text {
-  display: block;
-  width: 100%;
-  min-width: 0;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.comment-expand {
-  max-height: 500px;
-  overflow-y: auto;
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background-color: var(--bg-main);
-  border: 2px solid var(--border-color);
-  border-radius: 15px;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
-  padding: 24px;
-  padding-bottom: 0px; /* 입력창과 겹치지 않도록 여유 공간 확보 */
-  z-index: 10;
-  opacity: 0;
-  transform: translateY(30px);
-  pointer-events: none;
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-.comment-expand.open {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.comment-expand .comment-text {
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 2px solid var(--border-color);
 }
 
 .comment-list {
@@ -305,16 +252,20 @@
   flex-direction: column;
   gap: 12px;
   margin-top: 10px;
-  padding-bottom: 90px; /* 입력창 공간 확보 */
 }
 
 .comment-card {
   background-color: var(--bg-box);
-  padding: 12px 15px;
+  padding: 14px 16px;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  transition: background-color 0.15s ease;
+}
+
+.comment-card:hover {
+  background-color: #4c4c4c;
 }
 
 .comment-header {
@@ -329,6 +280,12 @@
   font-size: clamp(12px, 4vw, 16px);
   padding: 0px;
   align-items: center;
+}
+
+.comment-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .comment-writer {
@@ -366,12 +323,13 @@
 .comment-edit-btn,
 .comment-delete-btn {
   font-size: clamp(8px, 3vw, 12px);
-  padding: 0px 5px;
+  padding: 3px 7px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   color: white;
   background-color: transparent;
+  transition: background-color 0.15s ease;
 }
 
 .comment-delete-btn {
@@ -380,37 +338,92 @@
 
 .comment-edit-btn:hover,
 .comment-delete-btn:hover {
-  opacity: 0.8;
-}
-
-.comment-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ========================================
-  댓글 하단 고정 입력창
+  대댓글 (답글)
+======================================== */
+.comment-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-replies {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 24px;
+  padding-left: 14px;
+}
+
+.comment-reply-card {
+  background-color: var(--bg-main);
+}
+
+.comment-reply-btn {
+  margin-top: 8px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-muted);
+  font-size: clamp(11px, 3vw, 13px);
+  cursor: pointer;
+  padding: 0;
+}
+
+.comment-reply-btn:hover {
+  color: var(--point-mint);
+}
+
+.comment-reply-input-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.comment-reply-input-section .comment-input {
+  height: 40px;
+}
+
+.comment-input:active {
+  
+}
+
+.comment-reply-input-section .comment-submit-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+/* ========================================
+  댓글 입력창
 ======================================== */
 .comment-input-section {
-  position: sticky;
-  bottom: 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-top: 12px;
-  padding-bottom: 10px;
-  background-color: var(--bg-main);
+  margin-top: 16px;
 }
 
 .comment-input {
   flex: 1;
   height: 48px;
   border-radius: 999px;
-  border: 2px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   background-color: var(--bg-box);
   color: var(--text-main);
-  padding: 0 16px;
+  padding: 0 18px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.comment-input::placeholder {
+  color: var(--text-muted);
+}
+
+.comment-input:focus {
+  outline: none;
 }
 
 /* 댓글 수정 입력창 디자인 */
@@ -434,11 +447,25 @@
 .comment-submit-btn {
   width: 48px;
   height: 48px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: none;
   background-color: var(--point-mint);
   color: black;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.comment-submit-btn:hover {
+  opacity: 0.85;
+}
+
+.comment-submit-btn:active {
+  transform: scale(0.94);
 }
 
 .img-viewer-overlay {

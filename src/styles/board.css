@@ -190,6 +190,12 @@ a:active {
   background-color: var(--border-color);
 }
 
+/* 말머리 (제목 앞 카테고리 텍스트 태그) */
+.board-category-tag {
+  color: var(--point-mint);
+  font-weight: 700;
+}
+
 /* 카테고리 */
 .board-category {
   width: 10%;

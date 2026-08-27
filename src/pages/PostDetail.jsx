@@ -30,12 +30,13 @@ function PostDetail() {
 
   const fetchedRef = useRef(false);
 
-  const [commentOpen, setCommentOpen] = useState(false);
   const [commentContent, setCommentContent] = useState("");
   // 댓글 관련 메시지는 댓글창 안에서
   const [commentMessage, setCommentMessage] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
+  const [replyingToId, setReplyingToId] = useState(null);
+  const [replyContent, setReplyContent] = useState("");
 
   const [viewerImages, setViewerImages] = useState([]); // 전체 이미지 목록
   const [viewerIndex, setViewerIndex] = useState(0); // 현재 이미지의 인덱스
@@ -318,6 +319,58 @@ function PostDetail() {
     }
   };
 
+  // =========================
+  // 대댓글 (답글) 작성
+  // =========================
+  const getTopLevelComments = () =>
+    (post.comments || []).filter((comment) => !comment.parent_id);
+
+  const getReplies = (commentId) =>
+    (post.comments || [])
+      .filter((comment) => comment.parent_id === commentId)
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  const handleReplyStart = (commentId) => {
+    setReplyingToId((prev) => (prev === commentId ? null : commentId));
+    setReplyContent("");
+  };
+
+  const handleReplySubmit = async (parentId) => {
+    if (!isLoggedIn()) {
+      redirectToLogin(navigate);
+      return;
+    }
+
+    if (!replyContent.trim()) {
+      setCommentMessage("답글 내용을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const result = await createComment(id, replyContent, parentId);
+
+      setPost({
+        ...post,
+        comments: [result.data, ...(post.comments || [])],
+      });
+
+      setReplyContent("");
+      setReplyingToId(null);
+      setCommentMessage("");
+    } catch (error) {
+      console.error("답글 작성 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate, error);
+        return;
+      }
+
+      setCommentMessage(
+        error.response?.data?.message || "답글 작성에 실패했습니다.",
+      );
+    }
+  };
+
   const handleCommentEditStart = (comment) => {
     setEditingCommentId(comment.id);
     setEditingCommentContent(comment.content);
@@ -388,6 +441,129 @@ function PostDetail() {
       );
     }
   };
+
+  // 댓글/답글 카드 렌더링 (isReply면 답글 UI 생략)
+  const renderCommentCard = (comment, isReply = false) => (
+    <div
+      className={`comment-card${isReply ? " comment-reply-card" : ""}`}
+      key={comment.id}
+    >
+      <div className="comment-main">
+        <div className="comment-header">
+          <h3 className="comment-writer">
+            <Link
+              className="comment-author-link"
+              to={`/mypage/${comment.author_id}`}
+            >
+              <img
+                className="comment-author-avatar"
+                src={getUserProfileImageUrl(comment.users)}
+                alt=""
+              />
+              <span className="comment-writer-name">
+                {getUserDisplayName(comment.users)}
+              </span>
+            </Link>
+            <span>·</span>
+            <span className="comment-date-info">
+              작성일{" "}
+              {isEdited(comment.created_at, comment.updated_at)
+                ? formatDate(comment.updated_at)
+                : formatDate(comment.created_at)}
+              {isEdited(comment.created_at, comment.updated_at) &&
+                " (수정됨)"}
+            </span>
+          </h3>
+          <div className="comment-actions">
+            {(() => {
+              const commentAuthorId = comment.user_id ?? comment.author_id;
+
+              const isCommentAuthor =
+                Number(commentAuthorId) === Number(loginUser?.id);
+
+              const canEditComment = isCommentAuthor;
+              const canDeleteComment = isCommentAuthor || isAdmin;
+
+              return (
+                <>
+                  {canEditComment && (
+                    <>
+                      {editingCommentId === comment.id ? (
+                        <button
+                          type="button"
+                          className="comment-edit-btn"
+                          onClick={() => handleCommentUpdate(comment.id)}
+                        >
+                          저장
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="comment-edit-btn"
+                          onClick={() => handleCommentEditStart(comment)}
+                        >
+                          수정
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {canDeleteComment && (
+                    <button
+                      type="button"
+                      className="comment-delete-btn"
+                      onClick={() => handleCommentDelete(comment.id)}
+                    >
+                      삭제
+                    </button>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+        {editingCommentId === comment.id ? (
+          <input
+            type="text"
+            className="comment-input"
+            value={editingCommentContent}
+            onChange={(e) => setEditingCommentContent(e.target.value)}
+          />
+        ) : (
+          <p className="comment-text">{comment.content}</p>
+        )}
+
+        {!isReply && (
+          <button
+            type="button"
+            className="comment-reply-btn"
+            onClick={() => handleReplyStart(comment.id)}
+          >
+            {replyingToId === comment.id ? "답글 취소" : "답글"}
+          </button>
+        )}
+
+        {!isReply && replyingToId === comment.id && (
+          <div className="comment-reply-input-section">
+            <input
+              type="text"
+              className="comment-input"
+              placeholder="답글을 입력하세요..."
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+            />
+            <button
+              type="button"
+              className="comment-submit-btn"
+              onClick={() => handleReplySubmit(comment.id)}
+            >
+              ➤
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -547,7 +723,16 @@ function PostDetail() {
               </div>
 
               <div className="detail-title-content">
-                <h1 className="detail-title">{post.title}</h1>
+                <h1 className="detail-title">
+                  {post.sub_category && (
+                    <>
+                      <span className="board-category-tag">
+                        [{post.sub_category}]
+                      </span>{" "}
+                    </>
+                  )}
+                  {post.title}
+                </h1>
                 <div className="detail-info">
                   <Link
                     className="post-author-info post-author-link"
@@ -708,180 +893,47 @@ function PostDetail() {
 
           {/* 댓글 */}
           <div className="comment-wrapper">
-            {/* 오버레이 (바깥 클릭 시 닫힘) */}
-            {commentOpen && (
-              <div
-                className="comment-overlay"
-                onClick={() => {
-                  setCommentOpen(false);
-                  setEditingCommentId(null);
-                  setEditingCommentContent("");
-                }}
-              ></div>
-            )}
+            <h2 className="comment-title">
+              댓글 {post.comments?.length ?? 0}
+            </h2>
 
-            {/* 펼쳐지는 댓글창 */}
-            <div
-              className={`comment-expand ${commentOpen ? "open" : ""}`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="comment-title">💬 댓글</h2>
+            <div className="comment-list">
+              {post.comments?.length > 0 ? (
+                getTopLevelComments().map((comment) => (
+                  <div className="comment-thread" key={comment.id}>
+                    {renderCommentCard(comment, false)}
 
-              <div className="comment-list">
-                {post.comments?.length > 0 ? (
-                  post.comments.map((comment) => (
-                    <div className="comment-card" key={comment.id}>
-                      <div className="comment-main">
-                        <div className="comment-header">
-                          <h3 className="comment-writer">
-                            <Link
-                              className="comment-author-link"
-                              to={`/mypage/${comment.author_id}`}
-                            >
-                              <img
-                                className="comment-author-avatar"
-                                src={getUserProfileImageUrl(comment.users)}
-                                alt=""
-                              />
-                              <span className="comment-writer-name">
-                                {getUserDisplayName(comment.users)}
-                              </span>
-                            </Link>
-                            <span>·</span>
-                            <span className="comment-date-info">
-                              작성일{" "}
-                              {isEdited(comment.created_at, comment.updated_at)
-                                ? formatDate(comment.updated_at)
-                                : formatDate(comment.created_at)}
-                              {isEdited(
-                                comment.created_at,
-                                comment.updated_at,
-                              ) && " (수정됨)"}
-                            </span>
-                          </h3>
-                          <div className="comment-actions">
-                            {(() => {
-                              const commentAuthorId =
-                                comment.user_id ?? comment.author_id;
-
-                              const isCommentAuthor =
-                                Number(commentAuthorId) ===
-                                Number(loginUser?.id);
-
-                              const canEditComment = isCommentAuthor;
-                              const canDeleteComment =
-                                isCommentAuthor || isAdmin;
-
-                              return (
-                                <>
-                                  {canEditComment && (
-                                    <>
-                                      {editingCommentId === comment.id ? (
-                                        <button
-                                          type="button"
-                                          className="comment-edit-btn"
-                                          onClick={() =>
-                                            handleCommentUpdate(comment.id)
-                                          }
-                                        >
-                                          저장
-                                        </button>
-                                      ) : (
-                                        <button
-                                          type="button"
-                                          className="comment-edit-btn"
-                                          onClick={() =>
-                                            handleCommentEditStart(comment)
-                                          }
-                                        >
-                                          수정
-                                        </button>
-                                      )}
-                                    </>
-                                  )}
-
-                                  {canDeleteComment && (
-                                    <button
-                                      type="button"
-                                      className="comment-delete-btn"
-                                      onClick={() =>
-                                        handleCommentDelete(comment.id)
-                                      }
-                                    >
-                                      삭제
-                                    </button>
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </div>
-                        </div>
-                        {editingCommentId === comment.id ? (
-                          <input
-                            type="text"
-                            className="comment-input"
-                            value={editingCommentContent}
-                            onChange={(e) =>
-                              setEditingCommentContent(e.target.value)
-                            }
-                          />
-                        ) : (
-                          <p className="comment-text">{comment.content}</p>
+                    {getReplies(comment.id).length > 0 && (
+                      <div className="comment-replies">
+                        {getReplies(comment.id).map((reply) =>
+                          renderCommentCard(reply, true),
                         )}
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="comment-text">아직 댓글이 없습니다.</p>
-                )}
-              </div>
-
-              <p className="reaction-message">{commentMessage}</p>
-
-              <div className="comment-input-section">
-                <input
-                  type="text"
-                  className="comment-input"
-                  placeholder="댓글을 입력하세요..."
-                  value={commentContent}
-                  onChange={(e) => setCommentContent(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="comment-submit-btn"
-                  onClick={handleCommentSubmit}
-                >
-                  {" "}
-                  ➤
-                </button>
-              </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="comment-text">아직 댓글이 없습니다.</p>
+              )}
             </div>
 
-            {/* 댓글 미리보기 */}
-            <div
-              className="comment-preview"
-              onClick={() => setCommentOpen(true)}
-            >
-              <h2 className="comment-title">
-                💬 댓글 {post.comments?.length ?? 0}개 보기
-              </h2>
+            <p className="reaction-message">{commentMessage}</p>
 
-              {post.comments?.length > 0 ? (
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <h3 className="comment-writer">
-                      {getUserDisplayName(post.comments[0].users)}
-                    </h3>
-                    <p className="comment-text">{post.comments[0].content}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="comment-card">
-                  <div className="comment-main">
-                    <p className="comment-text">댓글이 없습니다.</p>
-                  </div>
-                </div>
-              )}
+            <div className="comment-input-section">
+              <input
+                type="text"
+                className="comment-input"
+                placeholder="댓글을 입력하세요..."
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+              />
+              <button
+                type="button"
+                className="comment-submit-btn"
+                onClick={handleCommentSubmit}
+              >
+                ➤
+              </button>
             </div>
           </div>
         </div>

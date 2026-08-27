@@ -9,6 +9,7 @@ const {
     isValidCommunityCategory,
     isValidGalleryCategory,
     isValidArchiveCategory,
+    isValidMaintenanceCategory,
 } = require("../utils/validators");
 
 const {
@@ -26,6 +27,9 @@ const POST_FILE_UPLOAD_PATH = "/uploads/post-files/";
 
 // 한 게시글에 첨부할 수 있는 이미지 총 용량 50MB
 const MAX_POST_IMAGE_TOTAL_SIZE = 50 * 1024 * 1024;
+
+// 한 사용자가 보유할 수 있는 임시저장 글 최대 개수 (전체 게시판 합산)
+const MAX_DRAFT_COUNT = 10;
 
 // 게시글 목록 조회
 exports.getAllPosts = async (query, user) => {
@@ -69,7 +73,7 @@ exports.getAllPosts = async (query, user) => {
         throw error;
     }
 
-    const where = { board_type };
+    const where = { board_type, is_draft: false };
 
     if (category && category !== 'all') {
         where.category = category;
@@ -216,6 +220,13 @@ exports.getPostById = async ({ id, user }) => {
         throw error;
     }
 
+    // 임시저장 글은 작성자 본인만 조회 가능
+    if (post.is_draft && (!user || Number(user.id) !== Number(post.author_id))) {
+        const error = new Error("게시글을 찾을 수 없습니다.");
+        error.status = 404;
+        throw error;
+    }
+
     if (post.board_type === "ARCHIVE" && !user) {
         const error = new Error("자료실은 로그인 후 이용할 수 있습니다.");
         error.status = 401;
@@ -313,16 +324,65 @@ function isValidCategoryByBoardType(boardType, category) {
         return isValidArchiveCategory(category);
     }
 
+    if (boardType === "MAINTENANCE") {
+        return isValidMaintenanceCategory(category);
+    }
+
     return false;
+}
+
+// 카테고리별 세부 말머리 목록 (없는 카테고리는 세부 말머리 선택 없이 큰 카테고리명이 그대로 말머리)
+const SUB_CATEGORY_OPTIONS = {
+    free: ["소모임", "게임", "기타"],
+    recruit: ["공모전", "스터디", "소모임"],
+    notice: ["공지"],
+    study: ["초급반", "중급반", "심화반"],
+    class: [
+        "전필-수업자료/과제",
+        "전필-족보",
+        "전선-수업자료/과제",
+        "전선-족보",
+        "교양-수업자료/과제",
+        "교양-족보",
+    ],
+};
+
+function getSubCategoryOptions(category) {
+    return SUB_CATEGORY_OPTIONS[category] || null;
+}
+
+// 세부 말머리 검사 (isDraft면 필수 검증은 생략하고, 값이 있을 때 유효성만 확인)
+function validateSubCategory(category, subCategory, isDraft) {
+    const options = getSubCategoryOptions(category);
+
+    if (!options) {
+        return null;
+    }
+
+    if (!isDraft && !subCategory) {
+        const error = new Error("세부 말머리를 선택해주세요.");
+        error.status = 400;
+        throw error;
+    }
+
+    if (subCategory && !options.includes(subCategory)) {
+        const error = new Error("올바른 세부 말머리가 아닙니다.");
+        error.status = 400;
+        throw error;
+    }
+
+    return subCategory || null;
 }
 
 // 새로운 게시글 작성
 exports.createPost = async ({ body, user }) => {
-    const { board_type, category, title, content, files = [] } = body;
+    const { board_type, category, sub_category, title, content, files = [], is_draft } = body;
     const authorId = user.id;
     const userRole = user.role;
+    const isDraft = Boolean(is_draft);
 
-    if (!title || !content) {
+    // 임시저장이 아닐 때만 제목/내용 필수
+    if (!isDraft && (!title || !content)) {
         const error = new Error("제목과 내용을 입력해주세요.");
         error.status = 400;
         throw error;
@@ -332,7 +392,7 @@ exports.createPost = async ({ body, user }) => {
 
     // board_type 검사
     if (!isValidBoardType(finalBoardType)) {
-        const error = new Error("올바른 게시판 타입이 아닙니다. (COMMUNITY, GALLERY, ARCHIVE 중 하나)");
+        const error = new Error("올바른 게시판 타입이 아닙니다. (COMMUNITY, GALLERY, ARCHIVE, MAINTENANCE 중 하나)");
         error.status = 400;
         throw error;
     }
@@ -358,10 +418,36 @@ exports.createPost = async ({ body, user }) => {
         throw error;
     }
 
+    // 점검안내 게시판은 임원만 작성 가능
+    if (finalBoardType === "MAINTENANCE" && !isAdmin(userRole)) {
+        const error = new Error("점검안내는 임원만 작성할 수 있습니다.");
+        error.status = 403;
+        throw error;
+    }
+
+    // 임시저장 개수 제한 (전체 게시판 합산, 최대 10개)
+    // 새 임시글을 생성하는 경우에만 검사 (기존 임시글을 이어서 저장하는 건 updatePost가 처리)
+    if (isDraft) {
+        const draftCount = await prisma.posts.count({
+            where: { author_id: authorId, is_draft: true },
+        });
+
+        if (draftCount >= MAX_DRAFT_COUNT) {
+            const error = new Error(
+                `임시저장은 최대 ${MAX_DRAFT_COUNT}개까지 가능합니다. 임시저장 목록을 비운 후 다시 시도해주세요.`
+            );
+            error.status = 400;
+            throw error;
+        }
+    }
+
+    // 세부 말머리 검사
+    const finalSubCategory = validateSubCategory(category, sub_category, isDraft);
+
     const postImages = extractPostImages(content);
 
-    // 갤러리는 사진 1개 이상 필수
-    if (finalBoardType === "GALLERY" && postImages.length === 0) {
+    // 갤러리는 사진 1개 이상 필수 (임시저장은 예외)
+    if (!isDraft && finalBoardType === "GALLERY" && postImages.length === 0) {
         const error = new Error("갤러리 게시글은 사진을 1개 이상 첨부해야 합니다.");
         error.status = 400;
         throw error;
@@ -379,10 +465,12 @@ exports.createPost = async ({ body, user }) => {
         const createdPost = await tx.posts.create({
             data: {
                 board_type: finalBoardType,
-                category,
-                title,
-                content,
+                category: category || null,
+                sub_category: finalSubCategory,
+                title: title || "",
+                content: content || "",
                 author_id: authorId,
+                is_draft: isDraft,
             },
         });
 
@@ -422,9 +510,10 @@ exports.createPost = async ({ body, user }) => {
 
 // 게시글 수정 (본인만 가능)
 exports.updatePost = async ({ id, body, user }) => {
-    const { board_type, category, title, content, files = [] } = body;
+    const { board_type, category, sub_category, title, content, files = [], is_draft } = body;
     const userId = user.id;
     const userRole = user.role;
+    const isDraft = Boolean(is_draft);
 
     const postId = parseInt(id, 10);
 
@@ -434,7 +523,8 @@ exports.updatePost = async ({ id, body, user }) => {
         throw error;
     }
 
-    if (!title || !content) {
+    // 임시저장이 아닐 때만 제목/내용 필수
+    if (!isDraft && (!title || !content)) {
         const error = new Error("제목과 내용을 입력해주세요.");
         error.status = 400;
         throw error;
@@ -467,7 +557,7 @@ exports.updatePost = async ({ id, body, user }) => {
 
     // board_type 검사
     if (!isValidBoardType(finalBoardType)) {
-        const error = new Error("올바른 게시판 타입이 아닙니다. (COMMUNITY, GALLERY, ARCHIVE 중 하나)");
+        const error = new Error("올바른 게시판 타입이 아닙니다. (COMMUNITY, GALLERY, ARCHIVE, MAINTENANCE 중 하나)");
         error.status = 400;
         throw error;
     }
@@ -493,6 +583,16 @@ exports.updatePost = async ({ id, body, user }) => {
         throw error;
     }
 
+    // 점검안내 게시판은 임원만 가능
+    if (finalBoardType === "MAINTENANCE" && !isAdmin(userRole)) {
+        const error = new Error("점검안내는 임원만 작성할 수 있습니다.");
+        error.status = 403;
+        throw error;
+    }
+
+    // 세부 말머리 검사
+    const finalSubCategory = validateSubCategory(category, sub_category, isDraft);
+
     // 기존 content 이미지 목록
     const oldImageUrls = existingPost.post_images.flatMap((image) => [
         image.thumbnail_url,
@@ -509,8 +609,8 @@ exports.updatePost = async ({ id, body, user }) => {
         ? files.map((file) => file.fileUrl).filter(Boolean)
         : [];
 
-    // 갤러리는 수정 후에도 사진 1개 이상 필수
-    if (finalBoardType === "GALLERY" && postImages.length === 0) {
+    // 갤러리는 수정 후에도 사진 1개 이상 필수 (임시저장은 예외)
+    if (!isDraft && finalBoardType === "GALLERY" && postImages.length === 0) {
         const error = new Error("갤러리 게시글은 사진을 1개 이상 첨부해야 합니다.");
         error.status = 400;
         throw error;
@@ -539,9 +639,11 @@ exports.updatePost = async ({ id, body, user }) => {
             },
             data: {
                 board_type: finalBoardType,
-                category,
-                title,
-                content,
+                category: category || null,
+                sub_category: finalSubCategory,
+                title: title || "",
+                content: content || "",
+                is_draft: isDraft,
                 updated_at: new Date(),
             },
         });
@@ -1103,6 +1205,7 @@ exports.getMyPosts = async ({ user, query }) => {
         "project",
         "contest",
         "activity",
+        "maintenance",
         "uncategorized",
     ];
     const normalizedCategory = String(category || "all");
@@ -1128,6 +1231,7 @@ exports.getMyPosts = async ({ user, query }) => {
 
     const where = {
         author_id: userId,
+        is_draft: false,
     };
 
     if (normalizedCategory === "uncategorized") {
@@ -1172,6 +1276,35 @@ exports.getMyPosts = async ({ user, query }) => {
             totalPages: Math.ceil(totalCount / limitNumber),
         },
     };
+};
+
+// 임시저장 글 목록 조회 (본인만)
+exports.getMyDrafts = async ({ user }) => {
+    const userId = Number(user.id);
+
+    if (Number.isNaN(userId) || userId < 1) {
+        const error = new Error("잘못된 사용자 ID입니다.");
+        error.status = 400;
+        throw error;
+    }
+
+    const drafts = await prisma.posts.findMany({
+        where: {
+            author_id: userId,
+            is_draft: true,
+        },
+        orderBy: { updated_at: "desc" },
+        select: {
+            id: true,
+            board_type: true,
+            category: true,
+            title: true,
+            updated_at: true,
+            created_at: true,
+        },
+    });
+
+    return drafts;
 };
 
 exports.getMyPostCategoryStats = async ({ user }) => {

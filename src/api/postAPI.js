@@ -149,8 +149,8 @@ export async function togglePostDislike(postId) {
     return response.data;
 }
 
-// 댓글 작성, 수정, 삭제
-export async function createComment(postId, content) {
+// 댓글 작성, 수정, 삭제 (parentId가 있으면 대댓글로 작성)
+export async function createComment(postId, content, parentId) {
     const token = getToken();
 
     const response = await axios.post(
@@ -158,6 +158,7 @@ export async function createComment(postId, content) {
         {
             post_id: Number(postId),
             content,
+            ...(parentId ? { parent_id: Number(parentId) } : {}),
         },
         {
             headers: {
@@ -259,6 +260,15 @@ export async function getUserPosts(userId, { page = 1, limit = 5, category = "al
     });
     return response.data;
 };
+
+// 내 임시저장 글 목록 조회
+export async function getMyDrafts() {
+    const token = getToken();
+    const response = await axios.get(`${API_BASE_URL}/api/posts/my/drafts`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+}
 
 export async function getMyPostCategoryStats() {
     const token = getToken();
