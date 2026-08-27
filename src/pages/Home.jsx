@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import MainCalendar from "../components/calendar/MainCalendar";
@@ -121,39 +122,39 @@ function Home() {
 
           <div className="row mint-row">
             <div className="col-6 col-sm-3">
-              <a href="/gallery">
+              <Link to="/gallery">
                 <div className="shortcut-item">
                   <i className="fa-regular fa-image"></i>
                   <h4>갤러리</h4>
                 </div>
-              </a>
+              </Link>
             </div>
 
             <div className="col-6 col-sm-3">
-              <a href="/community?category=notice">
+              <Link to="/community?category=notice">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-circle-exclamation"></i>
                   <h4>공지사항</h4>
                 </div>
-              </a>
+              </Link>
             </div>
 
             <div className="col-6 col-sm-3">
-              <a href="/community">
+              <Link to="/community">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-users"></i>
                   <h4>커뮤니티</h4>
                 </div>
-              </a>
+              </Link>
             </div>
 
             <div className="col-6 col-sm-3">
-              <a href="/resources">
+              <Link to="/resources">
                 <div className="shortcut-item">
                   <i className="fa-regular fa-file-lines"></i>
                   <h4>자료실</h4>
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

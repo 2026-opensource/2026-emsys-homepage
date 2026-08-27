@@ -454,25 +454,25 @@ function MyPage() {
 
   if (loading) {
     return (
-      <>
+      <div className="mypage-page">
         <Navbar />
         <div className="mypage-container">
           <p className="mypage-loading">사용자 정보를 불러오는 중...</p>
         </div>
         <Footer />
-      </>
+      </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <>
+      <div className="mypage-page">
         <Navbar />
         <div className="mypage-container">
           <p className="mypage-error">{errorMessage}</p>
         </div>
         <Footer />
-      </>
+      </div>
     );
   }
 
@@ -535,7 +535,7 @@ function MyPage() {
   ];
 
   return (
-    <>
+    <div className="mypage-page">
       <Navbar />
       <div className="mypage-container">
         <h1 className="mypage-text">{isOwnPage ? "마이페이지" : `${user?.name || "사용자"}님의 페이지`}</h1>
@@ -934,7 +934,7 @@ function MyPage() {
           <div className="section-box">
             <div className="mypage-board-list">
               {myPosts.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#888' }}>작성한 게시글이 없습니다.</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>작성한 게시글이 없습니다.</p>
               ) : (
                 myPosts.map((post) => (
                   <a key={post.id} href={`/posts/${post.id}`} className="board-link">
@@ -965,7 +965,7 @@ function MyPage() {
         </section>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
 

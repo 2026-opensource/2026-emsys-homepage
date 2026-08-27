@@ -3,6 +3,49 @@ body {
   color: var(--text-main);
   padding-top: 70px;
   font-family: "Pretendard", sans-serif;
+  transition:
+    background-color 450ms ease,
+    color 450ms ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+}
+
+:root[data-theme="light"] body::before {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 163, 0.08),
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+:root[data-theme="dark"] body::before {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 168, 120, 0.1),
+    rgba(12, 14, 18, 0.38)
+  );
+}
+
+:root.theme-transitioning body::before {
+  animation: theme-gradient-transition 450ms ease;
+}
+
+@keyframes theme-gradient-transition {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
 }
 
 a,
@@ -25,13 +68,15 @@ a:active {
   width: 100%;
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  transition: box-shadow 0.3s;
+  transition:
+    background-color 450ms ease,
+    box-shadow 0.3s;
 }
 
 .navbar-container {
   max-width: 1500px;
   margin: 0 auto;
-  padding: 10px clamp(15px, 1vw, 120px);
+  padding: 10px clamp(30px, 1vw, 120px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -75,6 +120,46 @@ a:active {
 .nav-menu a:hover {
   color: var(--point-mint);
   transform: translateY(-1px);
+}
+
+.theme-toggle-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.theme-toggle-btn svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--point-mint);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--point-mint);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .navbar {
+    transition: none;
+  }
+
+  :root.theme-transitioning body::before {
+    animation: none;
+  }
 }
 
 /* 햄버거 버튼 */

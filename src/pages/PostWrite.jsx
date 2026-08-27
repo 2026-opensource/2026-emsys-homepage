@@ -890,7 +890,7 @@ function PostWrite() {
   return (
     <>
       <Navbar />
-      <main className="board-page">
+      <main className="board-page post-write-page">
         <div className="write-container">
           <form onSubmit={handleSubmit}>
             <div className="write-top-area">
