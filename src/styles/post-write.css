@@ -73,6 +73,129 @@ body {
   opacity: 0.8;
 }
 
+/* 임시저장 / 임시글 목록 버튼 */
+.draft-save-btn,
+.draft-list-btn {
+  width: auto;
+  padding: 0 16px;
+  height: 40px;
+  border: 2px solid var(--point-mint);
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--point-mint);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  outline: none;
+  box-shadow: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.draft-save-btn:hover,
+.draft-list-btn:hover,
+.draft-save-btn:focus,
+.draft-list-btn:focus,
+.draft-save-btn:active,
+.draft-list-btn:active,
+.draft-save-btn.active,
+.draft-list-btn.active {
+  background-color: var(--point-mint);
+  color: black;
+  border-color: var(--point-mint);
+  outline: none;
+  box-shadow: none;
+}
+
+.draft-save-btn:hover .draft-count-badge,
+.draft-list-btn:hover .draft-count-badge,
+.draft-save-btn:focus .draft-count-badge,
+.draft-list-btn:focus .draft-count-badge,
+.draft-save-btn:active .draft-count-badge,
+.draft-list-btn:active .draft-count-badge {
+  color: black;
+}
+
+.draft-save-btn:disabled,
+.draft-list-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: transparent;
+  color: var(--point-mint);
+  border-color: var(--point-mint);
+  box-shadow: none;
+}
+
+.draft-count-badge {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+/* 임시글 목록 패널 */
+.draft-list-panel {
+  margin-top: 12px;
+  padding: 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--bg-box);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.draft-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: var(--bg-main);
+  cursor: pointer;
+}
+
+.draft-list-item:hover {
+  background-color: var(--border-color);
+}
+
+.draft-list-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-main);
+}
+
+.draft-list-item-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.draft-list-item-delete {
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #ff6b6b;
+  font-size: 13px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.draft-list-item-delete:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 505px) {
+  .draft-save-btn,
+  .draft-list-btn {
+    width: 100%;
+  }
+}
+
 .form-group {
   margin-top: 20px;
 }
@@ -93,6 +216,21 @@ body {
   background-color: var(--bg-box);
   cursor: pointer;
   border: 2px solid var(--border-color);
+}
+
+.category-select:disabled {
+  color: var(--text-muted);
+  background-color: var(--bg-main);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.sub-category-select {
+  width: 170px;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .title-input-box {

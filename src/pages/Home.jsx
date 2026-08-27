@@ -15,6 +15,7 @@ function Home() {
   const [date, setDate] = useState(new Date());
   const [noticePosts, setNoticePosts] = useState([]);
   const [communityPosts, setCommunityPosts] = useState([]);
+  const [maintenancePosts, setMaintenancePosts] = useState([]);
 
   useEffect(() => {
     async function fetchPreviews() {
@@ -34,6 +35,13 @@ function Home() {
           limit: 3,
         });
         setCommunityPosts(communityResult.data || []);
+
+        const maintenanceResult = await getPosts({
+          board_type: "MAINTENANCE",
+          page: 1,
+          limit: 3,
+        });
+        setMaintenancePosts(maintenanceResult.data || []);
       } catch (error) {
         console.error("홈 게시글 로드 실패:", error);
       }
@@ -187,6 +195,35 @@ function Home() {
             <div className="col-sm-6">
               <div className="home-board-box">
                 <div className="home-board-header">
+                  <h3 className="home-board-title">점검안내</h3>
+                  <a href="/maintenance" className="plus-btn">
+                    <i className="fa-solid fa-plus"></i>
+                  </a>
+                </div>
+
+                <hr className="home-board-divider" />
+
+                <ul className="home-board-list">
+                  {maintenancePosts.length === 0 ? (
+                    <li>점검안내가 없습니다.</li>
+                  ) : (
+                    maintenancePosts.map((post) => (
+                      <li key={post.id}>
+                        <a href={`/posts/${post.id}`}>
+                          {post.title}
+                        </a>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="row home-board-row-secondary">
+            <div className="col-sm-6">
+              <div className="home-board-box">
+                <div className="home-board-header">
                   <h3 className="home-board-title">커뮤니티</h3>
                   <a href="/community" className="plus-btn">
                     <i className="fa-solid fa-plus"></i>
@@ -210,6 +247,8 @@ function Home() {
                 </ul>
               </div>
             </div>
+
+            {/* 자리 예약: 인기 게시글 미리보기가 여기에 커뮤니티와 나란히 추가될 예정 */}
           </div>
         </div>
       </section>

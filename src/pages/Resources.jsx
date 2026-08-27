@@ -167,7 +167,16 @@ function Resources() {
                           </div>
 
                           <div className="board-body">
-                            <h2 className="board-title">{post.title}</h2>
+                            <h2 className="board-title">
+                              {post.sub_category && (
+                                <>
+                                  <span className="board-category-tag">
+                                    [{post.sub_category}]
+                                  </span>{" "}
+                                </>
+                              )}
+                              {post.title}
+                            </h2>
 
                             <p className="board-info">
                               {getUserDisplayName(post.users)} · {post.created_at?.slice(0, 10)}

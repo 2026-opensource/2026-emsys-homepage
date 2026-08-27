@@ -248,6 +248,108 @@ exports.getMyPosts = async (req, res, next) => {
   }
 };
 
+// 특정 사용자 게시글 조회
+exports.getUserPosts = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPosts({
+      user: { id: req.params.userId },
+      query: req.query,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.posts,
+      pagination: result.pagination,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
+// 내 임시저장 글 목록
+exports.getMyDrafts = async (req, res, next) => {
+  try {
+    const drafts = await postService.getMyDrafts({ user: req.user });
+
+    return res.status(200).json({
+      success: true,
+      data: drafts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 마이페이지 내가 쓴 글 카테고리별 통계
+exports.getMyPostCategoryStats = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPostCategoryStats({
+      user: req.user,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
+// 특정 사용자 작성 글 카테고리별 통계
+exports.getUserPostCategoryStats = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPostCategoryStats({
+      user: { id: req.params.userId },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
+// 마이페이지 내가 쓴 글 날짜별 활동 통계
+exports.getMyPostActivityStats = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPostActivityStats({
+      user: req.user,
+      query: req.query,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.activity,
+      total: result.total,
+      year: result.year,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
+// 특정 사용자 작성 글 날짜별 활동 통계
+exports.getUserPostActivityStats = async (req, res, next) => {
+  try {
+    const result = await postService.getMyPostActivityStats({
+      user: { id: req.params.userId },
+      query: req.query,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.activity,
+      total: result.total,
+      year: result.year,
+    });
+  } catch (error) {
+      next(error);
+  }
+};
+
 exports.downloadImageProxy = async (req, res, next) => {
   try {
     const { url, filename } = req.query;

@@ -90,6 +90,21 @@ async function getMe(req, res, next) {
     }
 }
 
+// 다른 사용자 마이페이지 정보 조회
+async function getUserProfile(req, res, next) {
+    try {
+        const result = await authService.getUserProfile(req.params.id);
+
+        return res.status(200).json({
+            success: true,
+            message: "사용자 정보 조회 성공",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 // 프로필 이미지 업로드
 async function updateProfileImage(req, res, next) {
     try {
@@ -123,6 +138,24 @@ async function resetProfileImage(req, res, next) {
     }
 }
 
+// 사용자 인사말 수정
+async function updateGreetingMessage(req, res, next) {
+    try {
+        const result = await authService.updateGreetingMessage(
+            req.user.id,
+            req.body
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "사용자 인사말이 변경되었습니다.",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -130,6 +163,8 @@ module.exports = {
     verifyPasswordUser,
     changePassword,
     getMe,
+    getUserProfile,
     updateProfileImage,
     resetProfileImage,
+    updateGreetingMessage,
 };

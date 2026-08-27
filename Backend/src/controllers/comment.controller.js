@@ -18,7 +18,7 @@ exports.getCommentsByPostId = async (req, res) => {
 // 새로운 댓글 작성
 exports.createComment = async (req, res) => {
   try {
-    const { post_id, content } = req.body;
+    const { post_id, content, parent_id } = req.body;
     const author_id = req.user.id;
 
     if (!content || content.trim() === "") {
@@ -33,7 +33,7 @@ exports.createComment = async (req, res) => {
       });
     }
 
-    const newComment = await commentService.createComment(post_id, content, author_id);
+    const newComment = await commentService.createComment(post_id, content, author_id, parent_id);
 
     res.status(201).json({
       success: true,
@@ -42,6 +42,13 @@ exports.createComment = async (req, res) => {
     });
   } catch (error) {
     console.error("댓글 작성 에러:", error);
+
+    if (error.status) {
+      return res.status(error.status).json({
+        success: false,
+        message: error.message
+      });
+    }
 
     if (error.code === 'P2003') {
       return res.status(400).json({

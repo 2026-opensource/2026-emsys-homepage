@@ -65,6 +65,8 @@ router.post("/login", authController.login);
 
 router.get("/me", requireAuth, authController.getMe);
 
+router.get("/users/:id", requireAuth, authController.getUserProfile);
+
 router.patch(
     "/me/profile-image",
     requireAuth,
@@ -76,6 +78,12 @@ router.delete(
     "/me/profile-image",
     requireAuth,
     authController.resetProfileImage
+);
+
+router.patch(
+    "/me/greeting",
+    requireAuth,
+    authController.updateGreetingMessage
 );
 
 router.post("/find-email", authController.findEmail);
