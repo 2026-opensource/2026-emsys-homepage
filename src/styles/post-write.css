@@ -3,6 +3,14 @@ body {
   background-color: var(--bg-main);
 }
 
+.post-write-page {
+  min-height: calc(100svh - 70px);
+  margin: 0;
+  padding: 70px 90px;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
 .write-container {
   width: 100%;
   max-width: 1200px;
@@ -11,6 +19,10 @@ body {
   padding: 60px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
+}
+
+:root[data-theme="light"] .write-container {
+  background-color: var(--bg-main);
 }
 
 /* 목록 + 버튼 전체 */
@@ -65,7 +77,7 @@ body {
 /* 삭제 버튼 */
 .cancel-write-btn {
   background-color: var(--border-color);
-  color: white;
+  color: var(--text-main);
 }
 
 .post-write-btn:hover,
@@ -246,21 +258,20 @@ body {
 }
 
 .jodit {
-  --jd-color-panel: ;
-  --jd-color-background-default: #333333;
-  --jd-color-text: #ffffff;
-  --jd-color-border: #555555;
+  --jd-color-panel: var(--bg-box);
+  --jd-color-background-default: var(--bg-main);
+  --jd-color-text: var(--text-main);
+  --jd-color-border: var(--border-color);
   --jd-color-background-light-gray: var(--border-color);
   --jd-color-button-background-hover: var(--bg-box);
   --jd-color-button-background-hover-opacity40: var(--bg-box);
   --jd-color-button-background-hover-opacity60: var(--bg-box);
   --jd-font-default: "Pretendard", sans-serif;
-  --jd-color-text-icons: white;
-  --jd-dark-background-darknes: red;
+  --jd-color-text-icons: var(--text-main);
 }
 
 .jodit-wysiwyg ul li::marker {
-  color: #ffffff !important;
+  color: var(--text-main) !important;
 }
 
 .jodit-wysiwyg ul {
@@ -279,10 +290,20 @@ body {
   border: 2px solid var(--border-color) !important;
 }
 
+.jodit-toolbar__box,
+.jodit-status-bar {
+  background-color: var(--bg-box) !important;
+}
+
+.jodit-wysiwyg {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
 .jodit-toolbar-button svg {
   width: 20px !important;
   height: 20px !important;
-  fill: #ffffff !important;
+  fill: var(--text-main) !important;
 }
 
 .jodit-popup input,
@@ -323,6 +344,14 @@ body {
   color: #b9ddff !important;
 }
 
+:root[data-theme="light"] .jodit-wysiwyg a {
+  color: #0068b7 !important;
+}
+
+:root[data-theme="light"] .jodit-wysiwyg a:hover {
+  color: #004f8c !important;
+}
+
 /* 에디터 안 이미지 스타일 */
 .jodit-wysiwyg img {
   max-width: 480px !important;
@@ -361,15 +390,15 @@ body {
 .attached-file-list {
   margin-top: 14px;
   padding: 12px;
-  border: 1px solid #555;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #333;
+  background-color: var(--bg-main);
 }
 
 .attached-file-title {
   margin: 0 0 8px;
   font-weight: 700;
-  color: #00ffa3;
+  color: var(--point-mint);
 }
 
 .attached-file-item {
@@ -380,11 +409,11 @@ body {
   padding: 8px 10px;
   margin-top: 6px;
   border-radius: 6px;
-  background-color: #444;
+  background-color: var(--bg-box);
 }
 
 .attached-file-name {
-  color: #fff;
+  color: var(--text-main);
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -406,6 +435,10 @@ body {
 }
 
 @media (max-width: 780px) {
+  .post-write-page {
+    padding: 20px;
+  }
+
   .jodit-toolbar__box,
   .jodit-toolbar-editor-collection,
   .jodit-toolbar-editor-collection_mode_horizontal,

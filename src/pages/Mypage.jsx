@@ -934,7 +934,7 @@ function MyPage() {
           <div className="section-box">
             <div className="mypage-board-list">
               {myPosts.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#888' }}>작성한 게시글이 없습니다.</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>작성한 게시글이 없습니다.</p>
               ) : (
                 myPosts.map((post) => (
                   <a key={post.id} href={`/posts/${post.id}`} className="board-link">

@@ -24,6 +24,7 @@ em {
   /* 연한 테두리 선 색상 */
   --calendar-sunday: #ff6b6b;
   --calendar-saturday: #4da3ff;
+  --calendar-header-bg: var(--bg-main);
   --calendar-active: lightpink;
   /* 캘린더에서 일요일, 토요일, 선택된 날짜 색상 */
   --danger-red: #dc3545;
@@ -64,7 +65,7 @@ em {
   --bg-main: #ffffff;
   --bg-box: #f5f7fa;
   --text-main: #222;
-  --point-mint: #00a878;
+  --point-mint: #00ce93;
   --border-color: #dcdfe4;
   --calendar-header-bg: #edf1f5;
   --calendar-today-bg: rgba(0, 168, 120, 0.12);

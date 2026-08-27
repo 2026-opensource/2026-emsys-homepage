@@ -7,12 +7,18 @@
   background-color: var(--bg-main);
 }
 
+.post-detail-page .board-page {
+  margin-top: 0;
+}
+
 .detail-container {
   width: 100%;
   max-width: 1200px;
-  margin: 50px auto 0 auto;
+  margin: 0 auto;
+  margin-top: 100px;
   gap: 2%;
   padding: 50px;
+  padding-top: 30px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
 }
@@ -160,6 +166,13 @@
   width: 100%;
   border-collapse: collapse;
   margin: 16px 0;
+}
+
+.detail-content iframe,
+.detail-content video {
+  display: block;
+  max-width: 100%;
+  margin: 16px auto;
 }
 
 .detail-content th,
@@ -662,7 +675,7 @@
   font-size: 13px;
 }
 
-.img-viewer-download{
+.img-viewer-download {
   background-color: transparent;
   border: none;
 }

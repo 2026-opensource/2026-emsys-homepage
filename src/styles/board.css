@@ -90,6 +90,17 @@ a:active {
   background-color: #00e18e;
 }
 
+:root[data-theme="light"] .board-write-btn {
+  border: 2px solid var(--point-mint);
+  background-color: #ffffff;
+  color: var(--point-mint);
+}
+
+:root[data-theme="light"] .board-write-btn:hover {
+  background-color: #f9f9f9;
+  color: var(--point-mint);
+}
+
 /*------
 검색 영역
 ------*/

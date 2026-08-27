@@ -71,23 +71,26 @@
 
 :root[data-theme="light"] .fc .fc-button {
   background-color: #f5f7fa !important;
-  border: 2px solid var(--point-mint) !important;
+  border: none !important;
   color: var(--point-mint) !important;
+  box-shadow: inset 0 0 0 2px var(--point-mint);
 }
 
 :root[data-theme="light"] .fc .fc-button:hover:not(:disabled) {
   background-color: #ffffff !important;
-  border-color: var(--point-mint) !important;
   color: var(--point-mint) !important;
-  box-shadow: 0 4px 12px rgba(0, 168, 120, 0.16);
+  box-shadow:
+    inset 0 0 0 2px var(--point-mint),
+    0 4px 12px rgba(0, 168, 120, 0.16);
 }
 
 :root[data-theme="light"] .fc .fc-button:focus,
 :root[data-theme="light"] .fc .fc-button:active {
   background-color: #ffffff !important;
-  border-color: var(--point-mint) !important;
   color: var(--point-mint) !important;
-  box-shadow: 0 0 0 3px rgba(0, 168, 120, 0.16) !important;
+  box-shadow:
+    inset 0 0 0 2px var(--point-mint),
+    0 0 0 3px rgba(0, 168, 120, 0.16) !important;
 }
 
 .fc .fc-button:disabled {
