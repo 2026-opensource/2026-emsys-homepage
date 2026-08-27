@@ -11,15 +11,44 @@ exports.getCommentsByPostId = async (postId) => {
     });
 };
 
-// 새로운 댓글 작성
-exports.createComment = async (post_id, content, author_id) => {
+// 새로운 댓글 작성 (parent_id가 있으면 대댓글)
+exports.createComment = async (post_id, content, author_id, parent_id) => {
     const postIdInt = parseInt(post_id);
+    let parentIdInt = null;
+
+    if (parent_id !== undefined && parent_id !== null && parent_id !== "") {
+        parentIdInt = parseInt(parent_id);
+
+        if (Number.isNaN(parentIdInt)) {
+            const error = new Error("parent_id는 숫자여야 합니다.");
+            error.status = 400;
+            throw error;
+        }
+
+        const parentComment = await prisma.comments.findUnique({
+            where: { id: parentIdInt },
+        });
+
+        if (!parentComment || parentComment.post_id !== postIdInt) {
+            const error = new Error("답글을 달 댓글을 찾을 수 없습니다.");
+            error.status = 404;
+            throw error;
+        }
+
+        // 대댓글은 1단계까지만 허용 (답글에는 답글 불가)
+        if (parentComment.parent_id) {
+            const error = new Error("답글에는 답글을 달 수 없습니다.");
+            error.status = 400;
+            throw error;
+        }
+    }
 
     const newComment = await prisma.comments.create({
         data: {
             post_id: postIdInt,
             author_id: author_id,
             content: content.trim(),
+            parent_id: parentIdInt,
         },
         include: {
             users: {

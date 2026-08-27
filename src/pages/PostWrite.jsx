@@ -4,10 +4,12 @@ import {
   createPost,
   getPostById,
   updatePost,
+  deletePost,
   uploadPostImages,
   deleteUnusedPostImages,
   uploadPostFiles,
   deleteUnusedPostFiles,
+  getMyDrafts,
 } from "../api/postAPI";
 import JoditEditor from "jodit-react";
 import { Jodit } from "jodit";
@@ -35,6 +37,7 @@ function PostWrite() {
   function getBoardType(pathname) {
     if (pathname.startsWith("/resources")) return "ARCHIVE";
     if (pathname.startsWith("/gallery")) return "GALLERY";
+    if (pathname.startsWith("/maintenance")) return "MAINTENANCE";
     return "COMMUNITY";
   }
 
@@ -44,6 +47,7 @@ function PostWrite() {
   const [formData, setFormData] = useState({
     board_type: initialBoardType,
     category: "",
+    sub_category: "",
     title: "",
   });
 
@@ -62,6 +66,15 @@ function PostWrite() {
   const canNavigateRef = useRef(false);
   const board_type = formData.board_type;
   const [authChecked, setAuthChecked] = useState(false);
+
+  // 임시저장 관련 상태
+  const MAX_DRAFT_COUNT = 10;
+  const [draftPostId, setDraftPostId] = useState(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [showDraftList, setShowDraftList] = useState(false);
+  const [drafts, setDrafts] = useState([]);
+  const [totalDraftCount, setTotalDraftCount] = useState(null);
+  const [loadingDrafts, setLoadingDrafts] = useState(false);
 
   useEffect(() => {
     if (!requireLogin(navigate)) return;
@@ -334,6 +347,7 @@ function PostWrite() {
   function getListPath(board_type) {
     if (board_type === "ARCHIVE") return "/resources";
     if (board_type === "GALLERY") return "/gallery";
+    if (board_type === "MAINTENANCE") return "/maintenance";
     return "/community";
   }
 
@@ -351,7 +365,26 @@ function PostWrite() {
       { value: "class", label: "수업" },
     ],
     GALLERY: [{ value: "activity", label: "행사" }],
+    MAINTENANCE: [{ value: "maintenance", label: "점검안내" }],
   };
+
+  // 카테고리별 세부 말머리 목록 (없는 카테고리는 세부 선택 없이 큰 카테고리명이 그대로 말머리가 됨)
+  const subCategoryOptions = {
+    free: ["소모임", "게임", "기타"],
+    recruit: ["공모전", "스터디", "소모임"],
+    notice: ["공지"],
+    study: ["초급반", "중급반", "심화반"],
+    class: [
+      "전필-수업자료/과제",
+      "전필-족보",
+      "전선-수업자료/과제",
+      "전선-족보",
+      "교양-수업자료/과제",
+      "교양-족보",
+    ],
+  };
+
+  const currentSubCategoryOptions = subCategoryOptions[formData.category] || null;
 
   const [loading, setLoading] = useState(false);
 
@@ -360,6 +393,13 @@ function PostWrite() {
   function handleChange(e) {
     const { name, value } = e.target;
     setIsDirty(true);
+
+    if (name === "category") {
+      // 카테고리가 바뀌면 세부 말머리 선택도 초기화
+      setFormData((prev) => ({ ...prev, category: value, sub_category: "" }));
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
@@ -456,6 +496,11 @@ function PostWrite() {
       return;
     }
 
+    if (subCategoryOptions[postData.category] && !postData.sub_category) {
+      setErrorMessage("세부 말머리를 선택해주세요.");
+      return;
+    }
+
     try {
       setLoading(true);
       if (isEditMode) {
@@ -478,7 +523,10 @@ function PostWrite() {
         setIsDirty(false);
         navigate(`/posts/${id}`, { replace: true });
       } else {
-        const result = await createPost(postData);
+        // 임시글로 저장해뒀던 게 있으면 새로 만들지 않고 그 글을 정식 게시글로 전환
+        const result = draftPostId
+          ? await updatePost(draftPostId, { ...postData, is_draft: false })
+          : await createPost(postData);
         const unusedImages = getUnusedImages(postData.content, uploadedImages);
         if (unusedImages.length > 0) {
           await deleteUnusedPostImages(unusedImages);
@@ -495,6 +543,7 @@ function PostWrite() {
         alert("게시글이 작성되었습니다.");
         canNavigateRef.current = true;
         setIsDirty(false);
+        setDraftPostId(null);
         navigate(getListPath(board_type));
       }
     } catch (error) {
@@ -536,6 +585,152 @@ function PostWrite() {
     }
   }
 
+  // 임시저장
+  async function handleSaveDraft() {
+    if (!requireLogin(navigate)) return;
+
+    const latestContent = editor.current?.value ?? contentRef.current;
+    contentRef.current = latestContent;
+
+    const draftData = {
+      ...formData,
+      content: latestContent,
+      board_type,
+      files: uploadedFiles,
+      is_draft: true,
+    };
+
+    try {
+      setSavingDraft(true);
+
+      if (draftPostId) {
+        await updatePost(draftPostId, draftData);
+      } else {
+        const result = await createPost(draftData);
+        setDraftPostId(result.data.id);
+        setTotalDraftCount((prev) => (prev === null ? prev : prev + 1));
+      }
+
+      setIsDirty(false);
+      alert("임시저장되었습니다.");
+    } catch (error) {
+      console.error("임시저장 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate, error);
+        return;
+      }
+
+      alert(error.response?.data?.message || "임시저장에 실패했습니다.");
+    } finally {
+      setSavingDraft(false);
+    }
+  }
+
+  // 임시글 목록 펼치기/불러오기
+  async function handleToggleDraftList() {
+    if (!requireLogin(navigate)) return;
+
+    if (showDraftList) {
+      setShowDraftList(false);
+      return;
+    }
+
+    try {
+      setLoadingDrafts(true);
+      const result = await getMyDrafts();
+      const allDrafts = result.data || [];
+      setTotalDraftCount(allDrafts.length);
+      setDrafts(allDrafts.filter((draft) => draft.board_type === board_type));
+      setShowDraftList(true);
+    } catch (error) {
+      console.error("임시글 목록 조회 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate, error);
+        return;
+      }
+
+      alert(error.response?.data?.message || "임시글 목록을 불러오지 못했습니다.");
+    } finally {
+      setLoadingDrafts(false);
+    }
+  }
+
+  // 임시글 불러오기
+  async function handleLoadDraft(draftId) {
+    try {
+      setIsEditorReady(false);
+      setLoading(true);
+
+      const result = await getPostById(draftId);
+      const draft = result.data;
+
+      setDraftPostId(draft.id);
+      setUploadedFiles(
+        (draft.post_files || []).map((file) => ({
+          originalName: file.original_name,
+          fileName: file.file_name,
+          fileUrl: file.file_url,
+          downloadUrl: file.download_url,
+          size: file.size,
+        })),
+      );
+      settempFiles([]);
+
+      setFormData({
+        board_type: draft.board_type,
+        category: draft.category || "",
+        sub_category: draft.sub_category || "",
+        title: draft.title || "",
+      });
+      setInitialContent(draft.content || "");
+      contentRef.current = draft.content || "";
+
+      setIsDirty(false);
+      setShowDraftList(false);
+    } catch (error) {
+      console.error("임시글 불러오기 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate, error);
+        return;
+      }
+
+      alert(error.response?.data?.message || "임시글을 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+      setIsEditorReady(true);
+    }
+  }
+
+  // 임시글 삭제
+  async function handleDeleteDraft(draftId, event) {
+    event.stopPropagation();
+
+    const isDelete = window.confirm("이 임시글을 삭제하시겠습니까?");
+    if (!isDelete) return;
+
+    try {
+      await deletePost(draftId);
+      setDrafts((prev) => prev.filter((draft) => draft.id !== draftId));
+      setTotalDraftCount((prev) => (prev === null ? prev : Math.max(0, prev - 1)));
+
+      if (draftPostId === draftId) {
+        setDraftPostId(null);
+      }
+    } catch (error) {
+      console.error("임시글 삭제 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate, error);
+        return;
+      }
+
+      alert(error.response?.data?.message || "임시글 삭제에 실패했습니다.");
+    }
+  }
+
   // 게시글 조회
   useEffect(() => {
     if (!requireLogin(navigate)) return;
@@ -569,6 +764,7 @@ function PostWrite() {
         setFormData({
           board_type: post.board_type,
           category: post.category,
+          sub_category: post.sub_category || "",
           title: post.title,
         });
         setInitialContent(post.content || "");
@@ -672,7 +868,7 @@ function PostWrite() {
   const memoizedEditor = useMemo(() => {
     return (
       <JoditEditor
-        key={isEditMode ? `edit-${id}` : "create"}
+        key={isEditMode ? `edit-${id}` : draftPostId ? `draft-${draftPostId}` : "create"}
         ref={editor}
         value={initialContent}
         config={config}
@@ -712,6 +908,37 @@ function PostWrite() {
                     있습니다.
                   </p>
                 )}
+                {!isEditMode && (
+                  <button
+                    className="draft-list-btn btn btn-default"
+                    type="button"
+                    onClick={handleToggleDraftList}
+                    disabled={loadingDrafts}
+                  >
+                    임시글 목록
+                    {totalDraftCount !== null && (
+                      <span className="draft-count-badge">
+                        {" "}
+                        {totalDraftCount}/{MAX_DRAFT_COUNT}
+                      </span>
+                    )}
+                  </button>
+                )}
+                {!isEditMode && (
+                  <button
+                    className="draft-save-btn btn btn-default"
+                    type="button"
+                    onClick={handleSaveDraft}
+                    disabled={
+                      savingDraft ||
+                      (!draftPostId &&
+                        totalDraftCount !== null &&
+                        totalDraftCount >= MAX_DRAFT_COUNT)
+                    }
+                  >
+                    {savingDraft ? "저장 중..." : "임시저장"}
+                  </button>
+                )}
                 <button
                   className="cancel-write-btn btn btn-default"
                   type="button"
@@ -735,6 +962,38 @@ function PostWrite() {
               </div>
             </div>
 
+            {showDraftList && (
+              <div className="draft-list-panel">
+                {loadingDrafts ? (
+                  <p className="board-message">임시글을 불러오는 중...</p>
+                ) : drafts.length === 0 ? (
+                  <p className="board-message">저장된 임시글이 없습니다.</p>
+                ) : (
+                  drafts.map((draft) => (
+                    <div
+                      className="draft-list-item"
+                      key={draft.id}
+                      onClick={() => handleLoadDraft(draft.id)}
+                    >
+                      <span className="draft-list-item-title">
+                        {draft.title?.trim() ? draft.title : "(제목 없음)"}
+                      </span>
+                      <span className="draft-list-item-date">
+                        {draft.updated_at?.slice(0, 10)}
+                      </span>
+                      <button
+                        type="button"
+                        className="draft-list-item-delete"
+                        onClick={(e) => handleDeleteDraft(draft.id, e)}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
             <div className="form-group">
               <div className="title-box">
                 <select
@@ -752,6 +1011,30 @@ function PostWrite() {
                       {option.label}
                     </option>
                   ))}
+                </select>
+
+                <select
+                  className="category-select sub-category-select"
+                  name="sub_category"
+                  value={currentSubCategoryOptions ? formData.sub_category : ""}
+                  onChange={handleChange}
+                  required={Boolean(currentSubCategoryOptions)}
+                  disabled={!currentSubCategoryOptions}
+                >
+                  {currentSubCategoryOptions ? (
+                    <>
+                      <option value="" disabled hidden>
+                        세부 말머리
+                      </option>
+                      {currentSubCategoryOptions.map((label) => (
+                        <option key={label} value={label}>
+                          {label}
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <option value="">말머리 없음</option>
+                  )}
                 </select>
 
                 <input

@@ -21,7 +21,7 @@ function isValidStatus(status) {
 }
 
 function isValidBoardType(board_type) {
-    const validBoardTypes = ["COMMUNITY", "GALLERY", "ARCHIVE"];
+    const validBoardTypes = ["COMMUNITY", "GALLERY", "ARCHIVE", "MAINTENANCE"];
     return validBoardTypes.includes(board_type);
 }
 
@@ -40,6 +40,11 @@ function isValidArchiveCategory(category) {
     return validCategories.includes(category);
 }
 
+function isValidMaintenanceCategory(category) {
+    const validCategories = ["maintenance"];
+    return validCategories.includes(category);
+}
+
 module.exports = {
     isValidPassword,
     isValidEmail,
@@ -49,4 +54,5 @@ module.exports = {
     isValidCommunityCategory,
     isValidGalleryCategory,
     isValidArchiveCategory,
+    isValidMaintenanceCategory,
 };
