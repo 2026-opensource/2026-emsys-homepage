@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
 import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
@@ -9,7 +9,6 @@ import Pagination from "../components/pagination";
 
 import "../layout/common.css";
 import "../styles/board.css";
-import { Link } from "react-router-dom";
 
 const POST_SORT_OPTIONS = [
   { value: "latest", label: "최신순" },
@@ -129,6 +128,12 @@ function Resources() {
     fetchPosts();
   }, [category, subCategory, search, sort, currentPage, navigate]);
 
+  const handleWriteClick = (event) => {
+    if (!requireLogin(navigate)) {
+      event.preventDefault();
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -144,7 +149,11 @@ function Resources() {
             <div className="board-menu-area board-menu-flat">
               <div className="board-toolbar">
                 {/* 글쓰기 */}
-                <Link to="/resources/write" className="board-toolbar-write-link">
+                <Link
+                  to="/resources/write"
+                  className="board-toolbar-write-link"
+                  onClick={handleWriteClick}
+                >
                   <button type="button" className="board-write-btn btn btn-default">글쓰기</button>
                 </Link>
 
