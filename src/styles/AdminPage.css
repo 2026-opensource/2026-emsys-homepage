@@ -1,15 +1,3 @@
-:root {
-  --bg-main: #333333;
-  --bg-box: #444444;
-  --text-main: #ffffff;
-  --text-muted: #aaaaaa;
-  --point-mint: #00ffa3;
-  --border-color: #555555;
-  --danger-red: #dc3545;
-  --warning-orange: #ff9800;
-}
-
-
 .admin-main{
   padding-top: 100px !important;
 }

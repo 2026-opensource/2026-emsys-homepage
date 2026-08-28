@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
-import { isLoggedIn, redirectToLogin } from "../utils/token";
+import { getUserRole, isLoggedIn, redirectToLogin } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -10,28 +10,24 @@ import Pagination from "../components/pagination";
 import "../layout/common.css";
 import "../styles/board.css";
 
-function Community() {
+function Maintenance() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(); //short cut을 위한 카테고리 selector
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState(
-    searchParams.get("category") || "all",
-  );
+  const [category, setCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const POSTS_PER_PAGE = 10;
 
-  // 카테고리 key를 화면에 보여줄 한글로 변환
+  const role = getUserRole();
+  const isAdmin = role === "PRESIDENT" || role === "OFFICER";
+
   function getCategoryText(category) {
-    if (category === "notice") return "공지사항";
-    if (category === "free") return "자유";
-    if (category === "qna") return "질문";
-    if (category === "recruit") return "팀원 모집";
+    if (category === "maintenance") return "점검안내";
     return category;
   }
 
@@ -46,7 +42,7 @@ function Community() {
     return `${studentYear} ${user.name}`;
   }
 
-  // DB에서 커뮤니티 게시글 목록 가져오기
+  // DB에서 점검안내 게시글 목록 가져오기
   useEffect(() => {
     async function fetchPosts() {
       try {
@@ -54,14 +50,14 @@ function Community() {
         setErrorMessage("");
 
         const result = await getPosts({
-          board_type: "COMMUNITY",
+          board_type: "MAINTENANCE",
           category,
           search,
           page: currentPage,
           limit: POSTS_PER_PAGE,
         });
 
-        console.log("커뮤니티 게시글 목록 응답:", result);
+        console.log("점검안내 게시글 목록 응답:", result);
 
         setPosts(result.data);
         setTotalPages(result.pagination?.totalPages || 1);
@@ -93,18 +89,21 @@ function Community() {
         <main className="board-page">
           <div className="board-container">
             <div className="board-title-area">
-              <h1 className="board-page-title">커뮤니티</h1>
+              <h1 className="board-page-title">점검안내</h1>
               <div className="board-title-line"></div>
             </div>
 
             {/* 메뉴 영역 */}
             <div className="board-menu-area">
-              {/* 글쓰기 */}
-              <Link to="/community/write" onClick={handleWriteClick}>
-                <button className="board-write-btn btn btn-default">
-                  글쓰기
-                </button>
-              </Link>
+              {/* 글쓰기 (임원만) */}
+              {isAdmin && (
+                <Link to="/maintenance/write" onClick={handleWriteClick}>
+                  <button className="board-write-btn btn btn-default">
+                    글쓰기
+                  </button>
+                </Link>
+              )}
+
               {/* 검색 영역 */}
               <div className="board-search-area">
                 <select
@@ -116,10 +115,7 @@ function Community() {
                   }}
                 >
                   <option value="all">전체 글</option>
-                  <option value="free">자유</option>
-                  <option value="qna">질문</option>
-                  <option value="notice">공지사항</option>
-                  <option value="recruit">팀원 모집</option>
+                  <option value="maintenance">점검안내</option>
                 </select>
 
                 <div className="board-input-area">
@@ -160,16 +156,7 @@ function Community() {
                           </div>
 
                           <div className="board-body">
-                            <h2 className="board-title">
-                              {post.sub_category && (
-                                <>
-                                  <span className="board-category-tag">
-                                    [{post.sub_category}]
-                                  </span>{" "}
-                                </>
-                              )}
-                              {post.title}
-                            </h2>
+                            <h2 className="board-title">{post.title}</h2>
 
                             <p className="board-info">
                               {getUserDisplayName(post.users)} ·{" "}
@@ -188,6 +175,7 @@ function Community() {
                   )}
                 </section>
               )}
+
               {/* 페이지네이션 */}
               <Pagination
                 currentPage={currentPage}
@@ -204,4 +192,4 @@ function Community() {
   );
 }
 
-export default Community;
+export default Maintenance;

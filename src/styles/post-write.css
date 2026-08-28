@@ -1,16 +1,14 @@
 /* 커뮤니티, 자료실, 글쓰기, 글 상세 페이지 공통 스타일 */
-
-:root {
-  --bg-main: #333333;
-  --bg-box: #444444;
-  --text-main: #ffffff;
-  --text-muted: #aaaaaa;
-  --point-mint: #00ffa3;
-  --border-color: #555555;
-}
-
 body {
   background-color: var(--bg-main);
+}
+
+.post-write-page {
+  min-height: calc(100svh - 70px);
+  margin: 0;
+  padding: 70px 90px;
+  background-color: var(--bg-main);
+  color: var(--text-main);
 }
 
 .write-container {
@@ -21,6 +19,10 @@ body {
   padding: 60px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
+}
+
+:root[data-theme="light"] .write-container {
+  background-color: var(--bg-main);
 }
 
 /* 목록 + 버튼 전체 */
@@ -75,12 +77,135 @@ body {
 /* 삭제 버튼 */
 .cancel-write-btn {
   background-color: var(--border-color);
-  color: white;
+  color: var(--text-main);
 }
 
 .post-write-btn:hover,
 .cancel-write-btn:hover {
   opacity: 0.8;
+}
+
+/* 임시저장 / 임시글 목록 버튼 */
+.draft-save-btn,
+.draft-list-btn {
+  width: auto;
+  padding: 0 16px;
+  height: 40px;
+  border: 2px solid var(--point-mint);
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--point-mint);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  outline: none;
+  box-shadow: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.draft-save-btn:hover,
+.draft-list-btn:hover,
+.draft-save-btn:focus,
+.draft-list-btn:focus,
+.draft-save-btn:active,
+.draft-list-btn:active,
+.draft-save-btn.active,
+.draft-list-btn.active {
+  background-color: var(--point-mint);
+  color: black;
+  border-color: var(--point-mint);
+  outline: none;
+  box-shadow: none;
+}
+
+.draft-save-btn:hover .draft-count-badge,
+.draft-list-btn:hover .draft-count-badge,
+.draft-save-btn:focus .draft-count-badge,
+.draft-list-btn:focus .draft-count-badge,
+.draft-save-btn:active .draft-count-badge,
+.draft-list-btn:active .draft-count-badge {
+  color: black;
+}
+
+.draft-save-btn:disabled,
+.draft-list-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: transparent;
+  color: var(--point-mint);
+  border-color: var(--point-mint);
+  box-shadow: none;
+}
+
+.draft-count-badge {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+/* 임시글 목록 패널 */
+.draft-list-panel {
+  margin-top: 12px;
+  padding: 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--bg-box);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.draft-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: var(--bg-main);
+  cursor: pointer;
+}
+
+.draft-list-item:hover {
+  background-color: var(--border-color);
+}
+
+.draft-list-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-main);
+}
+
+.draft-list-item-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.draft-list-item-delete {
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #ff6b6b;
+  font-size: 13px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.draft-list-item-delete:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 505px) {
+  .draft-save-btn,
+  .draft-list-btn {
+    width: 100%;
+  }
 }
 
 .form-group {
@@ -105,6 +230,21 @@ body {
   border: 2px solid var(--border-color);
 }
 
+.category-select:disabled {
+  color: var(--text-muted);
+  background-color: var(--bg-main);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.sub-category-select {
+  width: 170px;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .title-input-box {
   background-color: var(--bg-box);
   border: 2px solid var(--border-color);
@@ -118,21 +258,20 @@ body {
 }
 
 .jodit {
-  --jd-color-panel: ;
-  --jd-color-background-default: #333333;
-  --jd-color-text: #ffffff;
-  --jd-color-border: #555555;
+  --jd-color-panel: var(--bg-box);
+  --jd-color-background-default: var(--bg-main);
+  --jd-color-text: var(--text-main);
+  --jd-color-border: var(--border-color);
   --jd-color-background-light-gray: var(--border-color);
   --jd-color-button-background-hover: var(--bg-box);
   --jd-color-button-background-hover-opacity40: var(--bg-box);
   --jd-color-button-background-hover-opacity60: var(--bg-box);
   --jd-font-default: "Pretendard", sans-serif;
-  --jd-color-text-icons: white;
-  --jd-dark-background-darknes: red;
+  --jd-color-text-icons: var(--text-main);
 }
 
 .jodit-wysiwyg ul li::marker {
-  color: #ffffff !important;
+  color: var(--text-main) !important;
 }
 
 .jodit-wysiwyg ul {
@@ -151,10 +290,20 @@ body {
   border: 2px solid var(--border-color) !important;
 }
 
+.jodit-toolbar__box,
+.jodit-status-bar {
+  background-color: var(--bg-box) !important;
+}
+
+.jodit-wysiwyg {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
 .jodit-toolbar-button svg {
   width: 20px !important;
   height: 20px !important;
-  fill: #ffffff !important;
+  fill: var(--text-main) !important;
 }
 
 .jodit-popup input,
@@ -195,6 +344,14 @@ body {
   color: #b9ddff !important;
 }
 
+:root[data-theme="light"] .jodit-wysiwyg a {
+  color: #0068b7 !important;
+}
+
+:root[data-theme="light"] .jodit-wysiwyg a:hover {
+  color: #004f8c !important;
+}
+
 /* 에디터 안 이미지 스타일 */
 .jodit-wysiwyg img {
   max-width: 480px !important;
@@ -233,15 +390,15 @@ body {
 .attached-file-list {
   margin-top: 14px;
   padding: 12px;
-  border: 1px solid #555;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #333;
+  background-color: var(--bg-main);
 }
 
 .attached-file-title {
   margin: 0 0 8px;
   font-weight: 700;
-  color: #00ffa3;
+  color: var(--point-mint);
 }
 
 .attached-file-item {
@@ -252,11 +409,11 @@ body {
   padding: 8px 10px;
   margin-top: 6px;
   border-radius: 6px;
-  background-color: #444;
+  background-color: var(--bg-box);
 }
 
 .attached-file-name {
-  color: #fff;
+  color: var(--text-main);
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -278,6 +435,10 @@ body {
 }
 
 @media (max-width: 780px) {
+  .post-write-page {
+    padding: 20px;
+  }
+
   .jodit-toolbar__box,
   .jodit-toolbar-editor-collection,
   .jodit-toolbar-editor-collection_mode_horizontal,

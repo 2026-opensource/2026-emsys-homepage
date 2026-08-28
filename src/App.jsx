@@ -16,6 +16,8 @@ import AdminPage from "./pages/AdminPage";
 import PostDetail from "./pages/PostDetail";
 import PostWrite from "./pages/PostWrite";
 import Gallery from "./pages/Gallery";
+import Maintenance from "./pages/Maintenance";
+import ServiceMaintenance from "./pages/ServiceMaintenance";
 
 import AdminFloatingButton from "./components/admin/adminFloatingButton";
 import MemberInfo from "./pages/MemberInfo";
@@ -74,12 +76,14 @@ function AppContent() {
   const isLandingVisible =
     location.pathname === "/introduce" ||
     (location.pathname === "/" && !showHomeFromLanding && !shouldHideIntroduceLanding());
+  const isServiceMaintenancePage = location.pathname === "/service-maintenance";
 
   return (
     <>
-      {!isLandingVisible && <AdminFloatingButton />}
+      {!isLandingVisible && !isServiceMaintenancePage && <AdminFloatingButton />}
       <Routes>
         <Route path="/introduce" element={<Introduce />} />
+        <Route path="/service-maintenance" element={<ServiceMaintenance />} />
         <Route path="/" element={<RootRoute />} />
         <Route path="/community" element={<Community />} />
         <Route path="/resources" element={<AuthRoute><Resources /></AuthRoute>} />
@@ -93,6 +97,7 @@ function AppContent() {
         <Route path="/community/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/resources/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/gallery/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
+        <Route path="/maintenance/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/posts/:id/edit" element={<AuthRoute><PostWrite /></AuthRoute>} />
 
@@ -101,12 +106,20 @@ function AppContent() {
         <Route path="/post-detail" element={<PostDetail />} />
         <Route path="/post-write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/maintenance" element={<Maintenance />} />
       </Routes>
     </>
   );
 }
 
 function App() {
+  const isMaintenanceMode =
+    import.meta.env.VITE_MAINTENANCE_MODE === "true";
+
+  if (isMaintenanceMode) {
+    return <ServiceMaintenance />;
+  }
+
   return (
     <BrowserRouter>
       <AppContent />

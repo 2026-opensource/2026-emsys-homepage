@@ -26,6 +26,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.CORS_ORIGIN,
   "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "https://26-emsys-homepage.vercel.app",
 ].filter(Boolean);
 

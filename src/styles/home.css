@@ -1,18 +1,6 @@
 /* =========================
   메인페이지 공통 변수 및 레이아웃
 ========================= */
-:root {
-  --bg-main: #333333;
-  --bg-box: #444444;
-  --text-main: #ffffff;
-  --text-muted: #aaaaaa;
-  --point-mint: #00ffa3;
-  --border-color: #555555;
-  --calendar-sunday: #ff6b6b;
-  --calendar-saturday: #4da3ff;
-  --calendar-active: lightpink;
-}
-
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -184,6 +172,23 @@
   color: #ffffff;
 }
 
+:root[data-theme="light"] .shortcut-item {
+  border: 2px solid var(--point-mint);
+  background-color: #ffffff;
+  color: var(--point-mint);
+}
+
+:root[data-theme="light"] .shortcut-item:hover {
+  background-color: #ffffff;
+  color: var(--point-mint);
+  box-shadow: 0 6px 16px rgba(0, 168, 120, 0.16);
+}
+
+:root[data-theme="light"] .shortcut-item:hover i,
+:root[data-theme="light"] .shortcut-item:hover h4 {
+  color: var(--point-mint);
+}
+
 /* =========================
    게시판 미리보기
 ========================= */
@@ -197,6 +202,10 @@
   border: 2px solid var(--point-mint);
   border-radius: 10px;
   background-color: var(--bg-box);
+}
+
+.home-board-row-secondary {
+  margin-top: 20px;
 }
 
 .home-board-box a {
@@ -222,8 +231,14 @@
   font-size: clamp(16px, 5vw, 20px);
 }
 
-.plus-btn {
+.plus-btn,
+.plus-btn:link,
+.plus-btn:visited,
+.plus-btn:hover,
+.plus-btn:focus,
+.plus-btn:active {
   cursor: pointer;
+  color: var(--point-mint);
   transition: color 0.3s;
 }
 
@@ -236,6 +251,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  min-height: 141px; /* 최대 3개(limit=3) 기준 높이로 고정, 게시글 수와 상관없이 박스 크기 유지 */
 }
 
 .home-board-list li {
@@ -244,7 +260,10 @@
   color: var(--text-main);
 }
 
-.home-board-list li:last-child {
+/* 최대 개수(3개)가 꽉 찼을 때만 마지막 항목의 구분선/여백 제거
+   → 리스트 구분선과 박스 테두리가 겹쳐 보이지 않도록 함
+   (1~2개일 때는 위의 기본 구분선을 유지해 빈 공간과 자연스럽게 분리) */
+.home-board-list li:nth-child(3):last-child {
   padding-bottom: 0;
   border-bottom: none;
 }

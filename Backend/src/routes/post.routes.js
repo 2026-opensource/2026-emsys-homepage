@@ -52,6 +52,8 @@ router.get('/my/category-stats', requireAuth, postController.getMyPostCategorySt
 
 router.get('/my/activity', requireAuth, postController.getMyPostActivityStats);
 
+router.get('/my/drafts', requireAuth, postController.getMyDrafts);
+
 router.get('/my', requireAuth, postController.getMyPosts);
 
 router.get('/users/:userId/category-stats', requireAuth, postController.getUserPostCategoryStats);
