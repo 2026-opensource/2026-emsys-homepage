@@ -62,18 +62,19 @@ export async function deletePost(id) {
 }
 
 // 게시글 목록 조회
-export async function getPosts({ board_type = "COMMUNITY", category = "all", exclude_category, search = "", page = 1, limit = 5 }) {
+export async function getPosts({ board_type = "COMMUNITY", category = "all", sub_category = "all", exclude_category, search = "", page = 1, limit = 5, sort = "latest" }) {
     const params = {
         board_type,
+        category,
         search,
         page,
         limit,
+        sort,
+        sub_category,
     };
 
     if (exclude_category) {
         params.exclude_category = exclude_category;
-    } else {
-        params.category = category;
     }
 
     const response = await axios.get(`${API_BASE_URL}/api/posts`, {
@@ -243,19 +244,65 @@ export async function deleteUnusedPostImages(images) {
 
     return response.data;
 }
-export async function getMyPosts({ page = 1, limit = 5, category = "all", sort = "latest" }) {
+export async function getMyPosts({
+    page = 1,
+    limit = 5,
+    board_type = "all",
+    category = "all",
+    sub_category = "all",
+    exclude_category,
+    search = "",
+    sort = "latest",
+}) {
     const token = getToken();
+    const params = {
+        page,
+        limit,
+        board_type,
+        category,
+        sub_category,
+        search,
+        sort,
+    };
+
+    if (exclude_category) {
+        params.exclude_category = exclude_category;
+    }
+
     const response = await axios.get(`${API_BASE_URL}/api/posts/my`, {
-        params: { page, limit, category, sort },
+        params,
         headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
 };
 
-export async function getUserPosts(userId, { page = 1, limit = 5, category = "all", sort = "latest" }) {
+export async function getUserPosts(userId, {
+    page = 1,
+    limit = 5,
+    board_type = "all",
+    category = "all",
+    sub_category = "all",
+    exclude_category,
+    search = "",
+    sort = "latest",
+}) {
     const token = getToken();
+    const params = {
+        page,
+        limit,
+        board_type,
+        category,
+        sub_category,
+        search,
+        sort,
+    };
+
+    if (exclude_category) {
+        params.exclude_category = exclude_category;
+    }
+
     const response = await axios.get(`${API_BASE_URL}/api/posts/users/${userId}`, {
-        params: { page, limit, category, sort },
+        params,
         headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;

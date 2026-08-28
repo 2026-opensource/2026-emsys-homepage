@@ -31,14 +31,19 @@ const MAX_POST_IMAGE_TOTAL_SIZE = 50 * 1024 * 1024;
 // 한 사용자가 보유할 수 있는 임시저장 글 최대 개수 (전체 게시판 합산)
 const MAX_DRAFT_COUNT = 10;
 
+// 게시글 목록에서 한 페이지에 허용하는 최대 개수
+const MAX_POSTS_PER_PAGE = 15;
+
 // 게시글 목록 조회
 exports.getAllPosts = async (query, user) => {
     const {
         category,
+        sub_category,
         exclude_category,
         search,
         page = 1,
         limit = 10,
+        sort = "latest",
         board_type = 'COMMUNITY' // 타입 없음 일단 커뮤니티
     } = query;
 
@@ -51,8 +56,22 @@ exports.getAllPosts = async (query, user) => {
         pageNumber = 1;
     }
     // limitNumber 값 예외처리
-    if (Number.isNaN(limitNumber) || limitNumber < 1 || limitNumber > 10) {
+    if (Number.isNaN(limitNumber) || limitNumber < 1 || limitNumber > MAX_POSTS_PER_PAGE) {
         limitNumber = 10;
+    }
+
+    const normalizedSort = String(sort || "latest");
+    const orderByMap = {
+        latest: [{ created_at: "desc" }, { id: "desc" }],
+        views: [{ view_count: "desc" }, { created_at: "desc" }, { id: "desc" }],
+        likes: [{ post_likes: { _count: "desc" } }, { created_at: "desc" }, { id: "desc" }],
+        comments: [{ comments: { _count: "desc" } }, { created_at: "desc" }, { id: "desc" }],
+    };
+
+    if (!orderByMap[normalizedSort]) {
+        const error = new Error("올바른 정렬 기준이 아닙니다.");
+        error.status = 400;
+        throw error;
     }
 
     if (!isValidBoardType(board_type)) {
@@ -77,11 +96,13 @@ exports.getAllPosts = async (query, user) => {
 
     if (category && category !== 'all') {
         where.category = category;
+    } else if (exclude_category) {
+        where.category = { not: exclude_category };
     }
 
-    if (exclude_category) {
-    where.category = { not: exclude_category };
-    }   
+    if (sub_category && sub_category !== 'all') {
+        where.sub_category = sub_category;
+    }
 
     // 검색에 공백 조건 제거
     const trimmedSearch = search?.trim();
@@ -98,7 +119,7 @@ exports.getAllPosts = async (query, user) => {
         where,
         skip: (pageNumber - 1) * limitNumber,
         take: limitNumber,
-        orderBy: { created_at: 'desc' },
+        orderBy: orderByMap[normalizedSort],
         include: {
             users: {
                 select: {
@@ -1177,7 +1198,16 @@ exports.deleteUnusedPostFiles = async (files) => {
 
 exports.getMyPosts = async ({ user, query }) => {
     const userId = Number(user.id);
-    const { page = 1, limit = 5, category = "all", sort = "latest" } = query;
+    const {
+        page = 1,
+        limit = 5,
+        board_type = "all",
+        category = "all",
+        sub_category = "all",
+        exclude_category,
+        search = "",
+        sort = "latest",
+    } = query;
 
     let pageNumber = parseInt(page, 10);
     let limitNumber = parseInt(limit, 10);
@@ -1209,7 +1239,9 @@ exports.getMyPosts = async ({ user, query }) => {
         "maintenance",
         "uncategorized",
     ];
+    const normalizedBoardType = String(board_type || "all");
     const normalizedCategory = String(category || "all");
+    const normalizedSubCategory = String(sub_category || "all");
     const normalizedSort = String(sort || "latest");
     const orderByMap = {
         latest: [{ created_at: "desc" }, { id: "desc" }],
@@ -1220,6 +1252,12 @@ exports.getMyPosts = async ({ user, query }) => {
 
     if (normalizedCategory !== "all" && !validMyPostCategories.includes(normalizedCategory)) {
         const error = new Error("올바른 카테고리가 아닙니다.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (normalizedBoardType !== "all" && !isValidBoardType(normalizedBoardType)) {
+        const error = new Error("올바른 게시판 타입이 아닙니다.");
         error.statusCode = 400;
         throw error;
     }
@@ -1235,10 +1273,28 @@ exports.getMyPosts = async ({ user, query }) => {
         is_draft: false,
     };
 
+    if (normalizedBoardType !== "all") {
+        where.board_type = normalizedBoardType;
+    }
+
     if (normalizedCategory === "uncategorized") {
         where.category = null;
     } else if (normalizedCategory !== "all") {
         where.category = normalizedCategory;
+    } else if (exclude_category) {
+        where.category = { not: exclude_category };
+    }
+
+    if (normalizedSubCategory !== "all") {
+        where.sub_category = normalizedSubCategory;
+    }
+
+    const trimmedSearch = search?.trim();
+    if (trimmedSearch) {
+        where.OR = [
+            { title: { contains: trimmedSearch } },
+            { content: { contains: trimmedSearch } },
+        ];
     }
 
     const totalCount = await prisma.posts.count({

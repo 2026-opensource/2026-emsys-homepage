@@ -10,6 +10,22 @@ import Pagination from "../components/pagination";
 import "../layout/common.css";
 import "../styles/board.css";
 
+const COMMUNITY_POST_SORT_OPTIONS = [
+  { value: "latest", label: "최신순" },
+  { value: "views", label: "조회수 순" },
+  { value: "likes", label: "좋아요 순" },
+  { value: "comments", label: "댓글 순" },
+];
+
+const SUB_CATEGORY_OPTIONS = {
+  all: ["소모임", "게임", "기타", "공모전", "스터디"],
+  free: ["소모임", "게임", "기타"],
+  qna: [],
+  recruit: ["공모전", "스터디", "소모임"],
+};
+
+const COMMUNITY_CATEGORY_VALUES = ["all", "free", "qna", "recruit"];
+
 function Community() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); //short cut을 위한 카테고리 selector
@@ -18,22 +34,32 @@ function Community() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
+  const initialCategory = searchParams.get("category") || "all";
   const [category, setCategory] = useState(
-    searchParams.get("category") || "all",
+    COMMUNITY_CATEGORY_VALUES.includes(initialCategory) ? initialCategory : "all",
   );
+  const [subCategory, setSubCategory] = useState("all");
+  const [sort, setSort] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const POSTS_PER_PAGE = 10;
+  const POSTS_PER_PAGE = 15;
 
   // 카테고리 key를 화면에 보여줄 한글로 변환
   function getCategoryText(category) {
-    if (category === "notice") return "공지사항";
     if (category === "free") return "자유";
     if (category === "qna") return "질문";
     if (category === "recruit") return "팀원 모집";
     return category;
   }
+
+  function getPostTitlePrefix(post) {
+    if (post.sub_category) return post.sub_category;
+    return "";
+  }
+
+  const subCategoryOptions = SUB_CATEGORY_OPTIONS[category] || [];
+  const hasSubCategoryOptions = subCategoryOptions.length > 0;
 
   // 게시판 목록에서는 학번 이름
   function getUserDisplayName(user) {
@@ -56,9 +82,12 @@ function Community() {
         const result = await getPosts({
           board_type: "COMMUNITY",
           category,
+          sub_category: subCategory,
+          exclude_category: "notice",
           search,
           page: currentPage,
           limit: POSTS_PER_PAGE,
+          sort,
         });
 
         console.log("커뮤니티 게시글 목록 응답:", result);
@@ -77,7 +106,7 @@ function Community() {
     }
 
     fetchPosts();
-  }, [category, search, currentPage]);
+  }, [category, subCategory, search, sort, currentPage]);
 
   const handleWriteClick = (event) => {
     if (!isLoggedIn()) {
@@ -92,47 +121,88 @@ function Community() {
       <div className="board-page-wrapper">
         <main className="board-page">
           <div className="board-container">
-            <div className="board-title-area">
+            <div className="board-title-area board-title-compact">
               <h1 className="board-page-title">커뮤니티</h1>
               <div className="board-title-line"></div>
             </div>
 
             {/* 메뉴 영역 */}
-            <div className="board-menu-area">
-              {/* 글쓰기 */}
-              <Link to="/community/write" onClick={handleWriteClick}>
-                <button className="board-write-btn btn btn-default">
-                  글쓰기
-                </button>
-              </Link>
-              {/* 검색 영역 */}
-              <div className="board-search-area">
-                <select
-                  className="form-control board-category-select"
-                  value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">전체 글</option>
-                  <option value="free">자유</option>
-                  <option value="qna">질문</option>
-                  <option value="notice">공지사항</option>
-                  <option value="recruit">팀원 모집</option>
-                </select>
+            <div className="board-menu-area board-menu-flat">
+              <div className="board-toolbar">
+                {/* 글쓰기 */}
+                <Link to="/community/write" onClick={handleWriteClick}>
+                  <button className="board-write-btn btn btn-default">
+                    글쓰기
+                  </button>
+                </Link>
 
-                <div className="board-input-area">
-                  <input
-                    type="text"
-                    className="form-control search-input"
-                    placeholder="제목 또는 내용을 입력하세요"
-                    value={search}
+                {/* 검색 영역 */}
+                <div className="board-search-area board-filter-area">
+                  <select
+                    className="form-control board-category-select board-select board-select-category"
+                    value={category}
                     onChange={(e) => {
-                      setSearch(e.target.value);
+                      setCategory(e.target.value);
+                      setSubCategory("all");
                       setCurrentPage(1);
                     }}
-                  />
+                  >
+                    <option value="all">게시판 선택</option>
+                    <option value="free">자유</option>
+                    <option value="qna">질문</option>
+                    <option value="recruit">팀원 모집</option>
+                  </select>
+
+                  <select
+                    className="form-control board-category-select board-select board-select-sub"
+                    value={hasSubCategoryOptions ? subCategory : ""}
+                    onChange={(e) => {
+                      setSubCategory(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    disabled={!hasSubCategoryOptions}
+                  >
+                    {hasSubCategoryOptions ? (
+                      <>
+                        <option value="all">세부 말머리</option>
+                        {subCategoryOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </>
+                    ) : (
+                      <option value="">말머리 없음</option>
+                    )}
+                  </select>
+
+                  <select
+                    className="form-control board-category-select board-select"
+                    value={sort}
+                    onChange={(e) => {
+                      setSort(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    {COMMUNITY_POST_SORT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="board-input-area board-search-box">
+                    <input
+                      type="text"
+                      className="form-control search-input"
+                      placeholder="제목 또는 내용을 입력하세요"
+                      value={search}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -144,48 +214,69 @@ function Community() {
 
               {/* 게시글 리스트 */}
               {!loading && !errorMessage && (
-                <section className="board-list">
-                  {posts.length === 0 ? (
-                    <p className="board-message">작성된 게시글이 없습니다.</p>
-                  ) : (
-                    posts.map((post) => (
-                      <Link
-                        to={`/posts/${post.id}`}
-                        className="board-link"
-                        key={post.id}
-                      >
-                        <article className="board-card">
-                          <div className="board-category">
-                            {getCategoryText(post.category)}
-                          </div>
+                <section className="board-list-section">
+                  <div className="board-list-scroll">
+                    <div className="board-list-header" aria-hidden="true">
+                      <span>카테고리</span>
+                      <span>제목</span>
+                      <span>작성자</span>
+                      <span>작성일</span>
+                      <span>조회수</span>
+                      <span>좋아요</span>
+                      <span>댓글</span>
+                    </div>
 
-                          <div className="board-body">
-                            <h2 className="board-title">
-                              {post.sub_category && (
-                                <>
-                                  <span className="board-category-tag">
-                                    [{post.sub_category}]
-                                  </span>{" "}
-                                </>
-                              )}
-                              {post.title}
-                            </h2>
+                    <div className="board-list">
+                      {posts.length === 0 ? (
+                        <p className="board-message">작성된 게시글이 없습니다.</p>
+                      ) : (
+                        posts.map((post) => {
+                          const titlePrefix = getPostTitlePrefix(post);
 
-                            <p className="board-info">
-                              {getUserDisplayName(post.users)} ·{" "}
-                              {post.created_at?.slice(0, 10)}
-                            </p>
-                          </div>
+                          return (
+                            <Link
+                              to={`/posts/${post.id}`}
+                              className="board-link"
+                              key={post.id}
+                            >
+                              <article className="board-card">
+                                <span className="board-list-category">
+                                  {getCategoryText(post.category)}
+                                </span>
+                                <h2 className="board-title">
+                                  {titlePrefix && (
+                                    <span className="board-title-prefix">
+                                      [{titlePrefix}]
+                                    </span>
+                                  )}{" "}
+                                  {post.title}
+                                </h2>
 
-                          <div className="board-stats">
-                            <p>조회수 {post.view_count ?? 0}</p>
-                            <p>좋아요 {post._count?.post_likes ?? 0}</p>
-                            <p>댓글 {post._count?.comments ?? 0}</p>
-                          </div>
-                        </article>
-                      </Link>
-                    ))
-                  )}
+                                <span className="board-author">
+                                  {getUserDisplayName(post.users)}
+                                </span>
+                                <time
+                                  className="board-date"
+                                  dateTime={post.created_at}
+                                >
+                                  {post.created_at?.slice(0, 10)}
+                                </time>
+                                <span className="board-stat">
+                                  {post.view_count ?? 0}
+                                </span>
+                                <span className="board-stat">
+                                  {post._count?.post_likes ?? 0}
+                                </span>
+                                <span className="board-stat">
+                                  {post._count?.comments ?? 0}
+                                </span>
+                              </article>
+                            </Link>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
                 </section>
               )}
               {/* 페이지네이션 */}

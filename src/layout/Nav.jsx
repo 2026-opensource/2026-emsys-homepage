@@ -86,6 +86,10 @@ function Navbar() {
         {/* 메뉴 */}
         <ul className={`nav-menu ${menuOpen ? "active" : ""}`}>
           <li>
+            <Link to="/notice">공지사항</Link>
+          </li>
+
+          <li>
             <Link to="/community">커뮤니티</Link>
           </li>
 
