@@ -60,7 +60,8 @@ function PostDetail() {
     return category;
   }
 
-  function getListPath(board_type) {
+  function getListPath(board_type, category) {
+    if (board_type === "COMMUNITY" && category === "notice") return "/notice";
     if (board_type === "ARCHIVE") return "/resources";
     if (board_type === "GALLERY") return "/gallery";
     if (board_type === "MAINTENANCE") return "/maintenance";
@@ -178,7 +179,7 @@ function PostDetail() {
       await deletePost(id);
 
       alert("게시글이 삭제되었습니다.");
-      navigate(getListPath(post.board_type));
+      navigate(getListPath(post.board_type, post.category));
     } catch (error) {
       console.error("게시글 삭제 실패:", error);
 
@@ -689,7 +690,7 @@ function PostDetail() {
           {/* 상단 (목록으로, 수정/삭제 버튼) */}
           <div className="detail-top-area">
             {/* 자료실은 자료실, 커뮤니티는 커뮤니티로 돌아가게 */}
-            <a href={getListPath(post.board_type)} className="back-link">
+            <a href={getListPath(post.board_type, post.category)} className="back-link">
               &lt; 목록으로
             </a>
 

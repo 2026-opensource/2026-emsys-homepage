@@ -5,6 +5,7 @@ import { getUserRole, isLoggedIn, redirectToLogin } from "./utils/token";
 import Introduce from "./pages/Introduce";
 import Home from "./pages/Home";
 import Community from "./pages/Community";
+import Notice from "./pages/Notice";
 import Resources from "./pages/Resources";
 import Mypage from "./pages/Mypage";
 import Login from "./pages/Login";
@@ -85,6 +86,7 @@ function AppContent() {
         <Route path="/introduce" element={<Introduce />} />
         <Route path="/service-maintenance" element={<ServiceMaintenance />} />
         <Route path="/" element={<RootRoute />} />
+        <Route path="/notice" element={<Notice />} />
         <Route path="/community" element={<Community />} />
         <Route path="/resources" element={<AuthRoute><Resources /></AuthRoute>} />
         <Route path="/mypage" element={<AuthRoute><Mypage /></AuthRoute>} />
@@ -94,6 +96,7 @@ function AppContent() {
         <Route path="/find-account" element={<FindAccount />} />
         <Route path="/change-password" element={<ChangePassword />} />
 
+        <Route path="/notice/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/community/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/resources/write" element={<AuthRoute><PostWrite /></AuthRoute>} />
         <Route path="/gallery/write" element={<AuthRoute><PostWrite /></AuthRoute>} />

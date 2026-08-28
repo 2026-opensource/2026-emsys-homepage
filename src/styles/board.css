@@ -68,8 +68,79 @@ a:active {
   flex-wrap: wrap;
   gap: 2%;
   padding: 3%;
+  margin-top: 50px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
+}
+
+.board-menu-flat {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  margin-top: 0;
+}
+
+.board-title-compact .board-title-line {
+  height: 2px;
+  min-height: 2px;
+}
+
+.board-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+}
+
+.board-filter-area {
+  width: auto;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  margin-left: 0;
+  margin-bottom: 0;
+}
+
+.board-select {
+  width: 118px;
+  max-width: none;
+  flex: 0 0 118px;
+  box-sizing: border-box;
+  font-size: 13px;
+  text-overflow: clip;
+}
+
+.board-select-category {
+  width: 136px;
+  flex-basis: 136px;
+}
+
+.board-select-sub {
+  width: 180px;
+  flex-basis: 180px;
+}
+
+.board-select:disabled {
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  cursor: not-allowed;
+  opacity: 1;
+  -webkit-text-fill-color: var(--text-main);
+}
+
+.board-search-box {
+  width: auto;
+  min-width: 220px;
+  flex: 1 1 auto;
+}
+
+.board-toolbar .board-write-btn {
+  width: auto;
+  min-width: 80px;
+  padding: 0 18px;
+  margin-right: 0;
 }
 
 /* 글쓰기 버튼 */
@@ -161,36 +232,86 @@ a:active {
 /*------
 본문 요소
 ------*/
-.board-list {
+.board-list-section {
   width: 100%;
   margin-top: 3%;
+}
+
+.board-list-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding: 0 0 4px;
+}
+
+.board-list-header {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 110px 92px 78px 78px 68px;
+  align-items: center;
+  column-gap: 14px;
+  min-width: 820px;
+  padding: 0 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.board-list-header span {
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.board-list-header span:first-child,
+.board-list-header span:nth-child(2) {
+  text-align: left;
+}
+
+.board-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
+}
+
+.board-link {
+  display: block;
+  width: 100%;
+  color: var(--text-main);
+  text-decoration: none;
+}
+
+.board-link:hover {
+  color: var(--point-mint);
+  text-decoration: none;
 }
 
 /* 게시글 */
 .board-card {
-  display: flex;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 110px 92px 78px 78px 68px;
   align-items: center;
-  gap: 3%;
-  padding: 12px 22px;
-  border-radius: 18px;
-  background-color: var(--bg-box);
-  transition: all 0.2s ease;
+  column-gap: 14px;
+  min-width: 820px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
 }
 
 .board-link:hover .board-card {
-  background-color: var(--border-color);
+  background-color: #4a4a4a;
 }
 
-/* 말머리 (제목 앞 카테고리 텍스트 태그) */
-.board-category-tag {
+/* 말머리 */
+.board-title-prefix {
   color: var(--point-mint);
   font-weight: 700;
 }
 
-/* 카테고리 */
+/* 상세 페이지 카테고리 */
 .board-category {
   width: 10%;
   min-width: 60px;
@@ -205,52 +326,63 @@ a:active {
   font-weight: 700;
   white-space: nowrap;
 }
-/* 메인 영역 */
-.board-body {
-  flex: 1;
+
+/* 상세 페이지 제목 앞 말머리 */
+.board-category-tag {
+  color: var(--point-mint);
+  font-weight: 700;
+}
+
+.board-list-category {
   min-width: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 글 제목 */
 .board-title {
-  margin: 10px 0;
-  font-size: clamp(18px, 2vw, 22px);
-  font-weight: 700;
+  min-width: 0;
+  margin: 0;
   color: var(--text-main);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  word-break: break-word;
-}
-
-/* 작성자 */
-.board-info {
-  color: var(--text-muted);
-  font-size: clamp(12px, 4vw, 14px);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 오른쪽 통계 */
-.board-stats {
-  display: flex;
-  width: 15%;
-  min-width: 120px;
-  flex-direction: column;
+.board-link:hover .board-title {
+  color: var(--point-mint);
 }
 
-.board-stats p {
-  text-align: right;
+.board-author {
+  min-width: 0;
   color: var(--text-main);
-  font-size: clamp(12px, 4vw, 14px);
-  margin: 3px 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: right;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.board-stats p:last-child {
-  margin-bottom: 0;
+.board-date,
+.board-stat {
+  margin: 0;
+  color: #bdbdbd;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .pagination {
@@ -276,6 +408,10 @@ a:active {
 }
 
 @media (max-width: 768px) {
+  .board-page {
+    margin: 70px 15px;
+  }
+
   .board-page-title {
     margin: 30px 0 20px 0;
   }
@@ -290,29 +426,7 @@ a:active {
     flex: 2;
   }
 
-  /* 게시글 카드 레이아웃 수직 변경 */
-  .board-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .board-category {
-    height: 30px;
-  }
-
-  .board-stats {
-    width: 100%;
-    flex-direction: row; /* 모바일에서는 가로로 배치 */
-    justify-content: flex-start;
-    gap: 12px;
-    margin-top: 5px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 10px;
-  }
-
-  .board-stats p {
-    margin: 0;
+  .board-list-scroll {
+    padding: 8px 0;
   }
 }

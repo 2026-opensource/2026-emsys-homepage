@@ -11,6 +11,38 @@ import "../layout/common.css";
 import "../styles/board.css";
 import { Link } from "react-router-dom";
 
+const POST_SORT_OPTIONS = [
+  { value: "latest", label: "최신순" },
+  { value: "views", label: "조회수 순" },
+  { value: "likes", label: "좋아요 순" },
+  { value: "comments", label: "댓글 순" },
+];
+
+const SUB_CATEGORY_OPTIONS = {
+  all: [
+    "초급반",
+    "중급반",
+    "심화반",
+    "전필-수업자료/과제",
+    "전필-족보",
+    "전선-수업자료/과제",
+    "전선-족보",
+    "교양-수업자료/과제",
+    "교양-족보",
+  ],
+  study: ["초급반", "중급반", "심화반"],
+  project: [],
+  contest: [],
+  class: [
+    "전필-수업자료/과제",
+    "전필-족보",
+    "전선-수업자료/과제",
+    "전선-족보",
+    "교양-수업자료/과제",
+    "교양-족보",
+  ],
+};
+
 function Resources() {
   const navigate = useNavigate();
 
@@ -19,11 +51,12 @@ function Resources() {
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [subCategory, setSubCategory] = useState("all");
+  const [sort, setSort] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const POSTS_PER_PAGE = 10;
-  const PAGE_GROUP_SIZE = 5;
+  const POSTS_PER_PAGE = 15;
 
   function getCategoryText(category) {
     if (category === "class") return "수업";
@@ -32,6 +65,15 @@ function Resources() {
     if (category === "contest") return "대회/공모전";
     return category;
   }
+
+  function getPostTitlePrefix(post) {
+    if (post.sub_category) return post.sub_category;
+
+    return "";
+  }
+
+  const subCategoryOptions = SUB_CATEGORY_OPTIONS[category] || [];
+  const hasSubCategoryOptions = subCategoryOptions.length > 0;
 
   // 게시판 목록에서는 학번 이름
   function getUserDisplayName(user) {
@@ -56,9 +98,11 @@ function Resources() {
         const result = await getPosts({
           board_type: "ARCHIVE",
           category,
+          sub_category: subCategory,
           search,
           page: currentPage,
           limit: POSTS_PER_PAGE,
+          sort,
         });
 
         console.log("자료실 게시글 목록 응답:", result);
@@ -83,13 +127,7 @@ function Resources() {
     }
 
     fetchPosts();
-  }, [category, search, currentPage, navigate]);
-
-  // 현재 보여줄 페이지 번호 그룹
-  const startPage =
-    Math.floor((currentPage - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
-
-  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
+  }, [category, subCategory, search, sort, currentPage, navigate]);
 
   return (
     <>
@@ -97,51 +135,87 @@ function Resources() {
       <div className="board-page-wrapper">
         <main className="board-page">
           <div className="board-container">
-            <div className="board-title-area">
+            <div className="board-title-area board-title-compact">
               <h1 className="board-page-title">자료실</h1>
               <div className="board-title-line"></div>
             </div>
 
             {/* 메뉴 영역 */}
-            <div className="board-menu-area">
-              {/* 글쓰기 */}
-              <Link to="/resources/write">
-                {/*링크 안에 버튼 넣는거 별로 안 좋다고 하는데 어떻게 생각함?*/}
-                <button type="button" className="board-write-btn btn btn-default">글쓰기</button>
-              </Link>
-              {/* 이거 추천한데
-              <Link to="/resource/write" className="write-btn">
-                글쓰기
-              </Link>
-              */}
-              {/* 검색 영역 */}
-              <div className="board-search-area">
-                <select
-                  className="form-control board-category-select"
-                  value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">전체 글</option>
-                  <option value="class">수업</option>
-                  <option value="study">스터디</option>
-                  <option value="project">과제/프로젝트</option>
-                  <option value="contest">대회/공모전</option>
-                </select>
+            <div className="board-menu-area board-menu-flat">
+              <div className="board-toolbar">
+                {/* 글쓰기 */}
+                <Link to="/resources/write">
+                  <button type="button" className="board-write-btn btn btn-default">글쓰기</button>
+                </Link>
 
-                <div className="board-input-area">
-                  <input
-                    type="text"
-                    className="form-control search-input"
-                    placeholder="제목 또는 내용을 입력하세요"
-                    value={search}
+                {/* 검색 영역 */}
+                <div className="board-search-area board-filter-area">
+                  <select
+                    className="form-control board-category-select board-select board-select-category"
+                    value={category}
                     onChange={(e) => {
-                      setSearch(e.target.value);
+                      setCategory(e.target.value);
+                      setSubCategory("all");
                       setCurrentPage(1);
                     }}
-                  />
+                  >
+                    <option value="all">게시판 선택</option>
+                    <option value="class">수업</option>
+                    <option value="study">스터디</option>
+                    <option value="project">과제/프로젝트</option>
+                    <option value="contest">대회/공모전</option>
+                  </select>
+
+                  <select
+                    className="form-control board-category-select board-select board-select-sub"
+                    value={hasSubCategoryOptions ? subCategory : ""}
+                    onChange={(e) => {
+                      setSubCategory(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    disabled={!hasSubCategoryOptions}
+                  >
+                    {hasSubCategoryOptions ? (
+                      <>
+                        <option value="all">세부 말머리</option>
+                        {subCategoryOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </>
+                    ) : (
+                      <option value="">말머리 없음</option>
+                    )}
+                  </select>
+
+                  <select
+                    className="form-control board-category-select board-select"
+                    value={sort}
+                    onChange={(e) => {
+                      setSort(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    {POST_SORT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="board-input-area board-search-box">
+                    <input
+                      type="text"
+                      className="form-control search-input"
+                      placeholder="제목 또는 내용을 입력하세요"
+                      value={search}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -151,47 +225,69 @@ function Resources() {
 
               {/* 게시글 리스트 */}
               {!loading && !errorMessage && (
-                <section className="board-list">
-                  {posts.length === 0 ? (
-                    <p className="board-message">작성된 게시글이 없습니다.</p>
-                  ) : (
-                    posts.map((post) => (
-                      <Link
-                        to={`/posts/${post.id}`}
-                        className="board-link"
-                        key={post.id}
-                      >
-                        <article className="board-card">
-                          <div className="board-category">
-                            {getCategoryText(post.category)}
-                          </div>
+                <section className="board-list-section">
+                  <div className="board-list-scroll">
+                    <div className="board-list-header" aria-hidden="true">
+                      <span>카테고리</span>
+                      <span>제목</span>
+                      <span>작성자</span>
+                      <span>작성일</span>
+                      <span>조회수</span>
+                      <span>좋아요</span>
+                      <span>댓글</span>
+                    </div>
 
-                          <div className="board-body">
-                            <h2 className="board-title">
-                              {post.sub_category && (
-                                <>
-                                  <span className="board-category-tag">
-                                    [{post.sub_category}]
-                                  </span>{" "}
-                                </>
-                              )}
-                              {post.title}
-                            </h2>
+                    <div className="board-list">
+                      {posts.length === 0 ? (
+                        <p className="board-message">작성된 게시글이 없습니다.</p>
+                      ) : (
+                        posts.map((post) => {
+                          const titlePrefix = getPostTitlePrefix(post);
 
-                            <p className="board-info">
-                              {getUserDisplayName(post.users)} · {post.created_at?.slice(0, 10)}
-                            </p>
-                          </div>
+                          return (
+                            <Link
+                              to={`/posts/${post.id}`}
+                              className="board-link"
+                              key={post.id}
+                            >
+                              <article className="board-card">
+                                <span className="board-list-category">
+                                  {getCategoryText(post.category)}
+                                </span>
+                                <h2 className="board-title">
+                                  {titlePrefix && (
+                                    <span className="board-title-prefix">
+                                      [{titlePrefix}]
+                                    </span>
+                                  )}{" "}
+                                  {post.title}
+                                </h2>
 
-                          <div className="board-stats">
-                            <p>조회수 {post.view_count ?? 0}</p>
-                            <p>좋아요 {post._count?.post_likes ?? 0}</p>
-                            <p>댓글 {post._count?.comments ?? 0}</p>
-                          </div>
-                        </article>
-                      </Link>
-                    ))
-                  )}
+                                <span className="board-author">
+                                  {getUserDisplayName(post.users)}
+                                </span>
+                                <time
+                                  className="board-date"
+                                  dateTime={post.created_at}
+                                >
+                                  {post.created_at?.slice(0, 10)}
+                                </time>
+                                <span className="board-stat">
+                                  {post.view_count ?? 0}
+                                </span>
+                                <span className="board-stat">
+                                  {post._count?.post_likes ?? 0}
+                                </span>
+                                <span className="board-stat">
+                                  {post._count?.comments ?? 0}
+                                </span>
+                              </article>
+                            </Link>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
                 </section>
               )}
 

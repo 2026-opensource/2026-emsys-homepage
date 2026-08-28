@@ -123,7 +123,7 @@ function Home() {
             </div>
 
             <div className="col-6 col-sm-3">
-              <a href="/community?category=notice">
+              <Link to="/notice">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-circle-exclamation"></i>
                   <h4>공지사항</h4>
@@ -161,7 +161,7 @@ function Home() {
               <div className="home-board-box">
                 <div className="home-board-header">
                   <h3 className="home-board-title">공지사항</h3>
-                  <a href="/community?category=notice" className="plus-btn">
+                  <a href="/notice" className="plus-btn">
                     <i className="fa-solid fa-plus"></i>
                   </a>
                 </div>

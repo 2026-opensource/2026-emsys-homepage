@@ -21,7 +21,6 @@ import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 import "../layout/common.css";
 import "../styles/post-write.css";
 import "../styles/board.css";
-import Maintenance from "./Maintenance";
 
 function PostWrite() {
   const navigate = useNavigate();
@@ -36,6 +35,7 @@ function PostWrite() {
 
   // 게시판 종류 확인
   function getBoardType(pathname) {
+    if (pathname.startsWith("/notice")) return "COMMUNITY";
     if (pathname.startsWith("/resources")) return "ARCHIVE";
     if (pathname.startsWith("/gallery")) return "GALLERY";
     if (pathname.startsWith("/maintenance")) return "MAINTENANCE";
@@ -43,12 +43,13 @@ function PostWrite() {
   }
 
   const initialBoardType = getBoardType(location.pathname);
+  const isNoticeWritePage = location.pathname.startsWith("/notice");
 
   // 글 작성하는게 계속 업데이트 되면 안되므로 content는 따로 관리하는 것
   const [formData, setFormData] = useState({
     board_type: initialBoardType,
-    category: "",
-    sub_category: "",
+    category: isNoticeWritePage ? "notice" : "",
+    sub_category: isNoticeWritePage ? "공지" : "",
     title: "",
   });
 
@@ -345,7 +346,8 @@ function PostWrite() {
     [isEditMode, navigate],
   );
 
-  function getListPath(board_type) {
+  function getListPath(board_type, category) {
+    if (board_type === "COMMUNITY" && category === "notice") return "/notice";
     if (board_type === "ARCHIVE") return "/resources";
     if (board_type === "GALLERY") return "/gallery";
     if (board_type === "MAINTENANCE") return "/maintenance";
@@ -354,7 +356,6 @@ function PostWrite() {
 
   const categoryOptions = {
     COMMUNITY: [
-      { value: "notice", label: "공지사항" },
       { value: "free", label: "자유" },
       { value: "qna", label: "질문" },
       { value: "recruit", label: "팀원 모집" },
@@ -387,6 +388,12 @@ function PostWrite() {
   };
 
   const currentSubCategoryOptions = subCategoryOptions[formData.category] || null;
+  const isNoticeContext =
+    isNoticeWritePage ||
+    (formData.board_type === "COMMUNITY" && formData.category === "notice");
+  const currentCategoryOptions = isNoticeContext
+    ? [{ value: "notice", label: "공지사항" }]
+    : categoryOptions[board_type];
 
   const [loading, setLoading] = useState(false);
 
@@ -546,7 +553,7 @@ function PostWrite() {
         canNavigateRef.current = true;
         setIsDirty(false);
         setDraftPostId(null);
-        navigate(getListPath(board_type));
+        navigate(getListPath(board_type, postData.category));
       }
     } catch (error) {
       console.error(isEditMode ? "글 수정 실패:" : "글 작성 실패:", error);
@@ -583,7 +590,7 @@ function PostWrite() {
     if (isEditMode) {
       navigate(`/posts/${id}`, { replace: true });
     } else {
-      navigate(getListPath(board_type));
+      navigate(getListPath(board_type, formData.category));
     }
   }
 
@@ -643,7 +650,16 @@ function PostWrite() {
       const result = await getMyDrafts();
       const allDrafts = result.data || [];
       setTotalDraftCount(allDrafts.length);
-      setDrafts(allDrafts.filter((draft) => draft.board_type === board_type));
+      setDrafts(
+        allDrafts.filter((draft) => {
+          if (draft.board_type !== board_type) return false;
+          if (board_type !== "COMMUNITY") return true;
+
+          return isNoticeWritePage
+            ? draft.category === "notice"
+            : draft.category !== "notice";
+        }),
+      );
       setShowDraftList(true);
     } catch (error) {
       console.error("임시글 목록 조회 실패:", error);
@@ -1004,11 +1020,12 @@ function PostWrite() {
                   value={formData.category}
                   onChange={handleChange}
                   required
+                  disabled={isNoticeContext}
                 >
                   <option value="" disabled hidden>
                     게시판 선택
                   </option>
-                  {categoryOptions[board_type].map((option) => (
+                  {currentCategoryOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

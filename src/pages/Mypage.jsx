@@ -18,17 +18,13 @@ const ACTIVITY_YEARS = [ACTIVITY_YEAR, ACTIVITY_YEAR - 1, ACTIVITY_YEAR - 2];
 const ACTIVITY_WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const ACTIVITY_MONTHS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const DEFAULT_GREETING_MESSAGE = "안녕하세요!";
-const MY_POST_CATEGORY_OPTIONS = [
-  { value: "all", label: "전체" },
+const MY_POST_BOARD_OPTIONS = [
+  { value: "all", label: "게시판 선택" },
   { value: "notice", label: "공지사항" },
-  { value: "free", label: "자유" },
-  { value: "qna", label: "질문" },
-  { value: "recruit", label: "팀원 모집" },
-  { value: "study", label: "스터디" },
-  { value: "class", label: "수업" },
-  { value: "project", label: "과제/프로젝트" },
-  { value: "contest", label: "대회/공모전" },
-  { value: "activity", label: "행사" },
+  { value: "community", label: "커뮤니티" },
+  { value: "resources", label: "자료실" },
+  { value: "gallery", label: "갤러리" },
+  { value: "maintenance", label: "점검안내" },
 ];
 const MY_POST_SORT_OPTIONS = [
   { value: "latest", label: "최신순" },
@@ -36,6 +32,42 @@ const MY_POST_SORT_OPTIONS = [
   { value: "likes", label: "좋아요 순" },
   { value: "comments", label: "댓글 순" },
 ];
+const MY_POST_SUB_CATEGORY_OPTIONS = {
+  all: [
+    "공지",
+    "소모임",
+    "게임",
+    "기타",
+    "공모전",
+    "스터디",
+    "초급반",
+    "중급반",
+    "심화반",
+    "전필-수업자료/과제",
+    "전필-족보",
+    "전선-수업자료/과제",
+    "전선-족보",
+    "교양-수업자료/과제",
+    "교양-족보",
+    "점검일시",
+    "점검내용",
+  ],
+  notice: ["공지"],
+  community: ["소모임", "게임", "기타", "공모전", "스터디"],
+  resources: [
+    "초급반",
+    "중급반",
+    "심화반",
+    "전필-수업자료/과제",
+    "전필-족보",
+    "전선-수업자료/과제",
+    "전선-족보",
+    "교양-수업자료/과제",
+    "교양-족보",
+  ],
+  gallery: [],
+  maintenance: ["점검일시", "점검내용"],
+};
 const CATEGORY_CHART_COLORS = [
   "#00ffa3",
   "#4fc3f7",
@@ -145,8 +177,10 @@ function MyPage() {
   const [activityStats, setActivityStats] = useState([]);
   const [myPostsPage, setMyPostsPage] = useState(1);
   const [myPostsTotalPages, setMyPostsTotalPages] = useState(1);
-  const [myPostsCategory, setMyPostsCategory] = useState("all");
+  const [myPostsBoard, setMyPostsBoard] = useState("all");
+  const [myPostsSubCategory, setMyPostsSubCategory] = useState("all");
   const [myPostsSort, setMyPostsSort] = useState("latest");
+  const [myPostsSearch, setMyPostsSearch] = useState("");
   const [selectedActivityYear, setSelectedActivityYear] = useState(ACTIVITY_YEAR);
   const [profileSettingsOpen, setProfileSettingsOpen] = useState(false);
   const [greetingEditOpen, setGreetingEditOpen] = useState(false);
@@ -173,8 +207,10 @@ function MyPage() {
     setGreetingEditOpen(false);
     setGreetingDraft("");
     setMyPostsPage(1);
-    setMyPostsCategory("all");
+    setMyPostsBoard("all");
+    setMyPostsSubCategory("all");
     setMyPostsSort("latest");
+    setMyPostsSearch("");
   }, [profileUserId]);
 
   function handleOpenProfileUpload() {
@@ -354,17 +390,22 @@ function MyPage() {
       if (isInvalidRequestedUserId) return;
 
       try {
+        const postFilters = getMyPostFilters();
         const result = profileUserId
           ? await getUserPosts(profileUserId, {
             page: myPostsPage,
             limit: MY_POSTS_PER_PAGE,
-            category: myPostsCategory,
+            ...postFilters,
+            sub_category: myPostsSubCategory,
+            search: myPostsSearch,
             sort: myPostsSort,
           })
           : await getMyPosts({
             page: myPostsPage,
             limit: MY_POSTS_PER_PAGE,
-            category: myPostsCategory,
+            ...postFilters,
+            sub_category: myPostsSubCategory,
+            search: myPostsSearch,
             sort: myPostsSort,
           });
         setMyPosts(result.data);
@@ -378,7 +419,16 @@ function MyPage() {
       }
     }
     fetchMyPosts();
-  }, [isInvalidRequestedUserId, myPostsCategory, myPostsPage, myPostsSort, navigate, profileUserId]);
+  }, [
+    isInvalidRequestedUserId,
+    myPostsBoard,
+    myPostsPage,
+    myPostsSearch,
+    myPostsSort,
+    myPostsSubCategory,
+    navigate,
+    profileUserId,
+  ]);
 
   useEffect(() => {
     async function fetchMyPostCategoryStats() {
@@ -494,6 +544,41 @@ function MyPage() {
     return category;
   }
 
+  function getMyPostFilters() {
+    if (myPostsBoard === "notice") {
+      return { board_type: "COMMUNITY", category: "notice" };
+    }
+
+    if (myPostsBoard === "community") {
+      return {
+        board_type: "COMMUNITY",
+        category: "all",
+        exclude_category: "notice",
+      };
+    }
+
+    if (myPostsBoard === "resources") {
+      return { board_type: "ARCHIVE", category: "all" };
+    }
+
+    if (myPostsBoard === "gallery") {
+      return { board_type: "GALLERY", category: "all" };
+    }
+
+    if (myPostsBoard === "maintenance") {
+      return { board_type: "MAINTENANCE", category: "all" };
+    }
+
+    return { board_type: "all", category: "all" };
+  }
+
+  function getPostTitlePrefix(post) {
+    if (post.sub_category) return post.sub_category;
+    if (post.category === "notice") return "공지";
+
+    return "";
+  }
+
   function formatDateOnly(date) {
     return date ? String(date).slice(0, 10) : "";
   }
@@ -523,16 +608,8 @@ function MyPage() {
       ? Math.round((item.count / categoryTotalCount) * 100)
       : 0,
   }));
-  const dynamicMyPostCategoryOptions = categoryStats
-    .filter((item) => item.category && !MY_POST_CATEGORY_OPTIONS.some((option) => option.value === item.category))
-    .map((item) => ({
-      value: item.category,
-      label: getCategoryText(item.category),
-    }));
-  const myPostCategoryOptions = [
-    ...MY_POST_CATEGORY_OPTIONS,
-    ...dynamicMyPostCategoryOptions,
-  ];
+  const myPostSubCategoryOptions = MY_POST_SUB_CATEGORY_OPTIONS[myPostsBoard] || [];
+  const hasMyPostSubCategoryOptions = myPostSubCategoryOptions.length > 0;
 
   return (
     <div className="mypage-page">
@@ -897,40 +974,76 @@ function MyPage() {
             <h2 className="mypage-post-section-title">
               {isOwnPage ? "내가 작성한 글" : `${user?.name || "사용자"}님이 작성한 글`}
             </h2>
-            <div className="mypage-post-controls" aria-label="작성 글 필터 및 정렬">
-              <select
-                className="form-control mypage-post-select mypage-post-select-category"
-                value={myPostsCategory}
-                onChange={(event) => {
-                  setMyPostsCategory(event.target.value);
-                  setMyPostsPage(1);
-                }}
-              >
-                {myPostCategoryOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="form-control mypage-post-select mypage-post-select-sort"
-                value={myPostsSort}
-                onChange={(event) => {
-                  setMyPostsSort(event.target.value);
-                  setMyPostsPage(1);
-                }}
-              >
-                {MY_POST_SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           <hr className="mypage-post-divider" />
+
+          <div className="mypage-post-controls" aria-label="작성 글 필터 및 정렬">
+            <select
+              className="form-control mypage-post-select mypage-post-select-board"
+              value={myPostsBoard}
+              onChange={(event) => {
+                setMyPostsBoard(event.target.value);
+                setMyPostsSubCategory("all");
+                setMyPostsPage(1);
+              }}
+            >
+              {MY_POST_BOARD_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-control mypage-post-select mypage-post-select-sub"
+              value={hasMyPostSubCategoryOptions ? myPostsSubCategory : ""}
+              onChange={(event) => {
+                setMyPostsSubCategory(event.target.value);
+                setMyPostsPage(1);
+              }}
+              disabled={!hasMyPostSubCategoryOptions}
+            >
+              {hasMyPostSubCategoryOptions ? (
+                <>
+                  <option value="all">세부 말머리</option>
+                  {myPostSubCategoryOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </>
+              ) : (
+                <option value="">말머리 없음</option>
+              )}
+            </select>
+
+            <select
+              className="form-control mypage-post-select mypage-post-select-sort"
+              value={myPostsSort}
+              onChange={(event) => {
+                setMyPostsSort(event.target.value);
+                setMyPostsPage(1);
+              }}
+            >
+              {MY_POST_SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <input
+              className="form-control mypage-post-search"
+              type="text"
+              value={myPostsSearch}
+              placeholder="제목 또는 내용을 입력하세요"
+              onChange={(event) => {
+                setMyPostsSearch(event.target.value);
+                setMyPostsPage(1);
+              }}
+            />
+          </div>
 
           <div className="mypage-post-section-box">
             <div className="mypage-board-header" aria-hidden="true">
@@ -951,7 +1064,14 @@ function MyPage() {
                     <article className="mypage-board-card">
                       <div className="mypage-board-row">
                         <div className="mypage-board-category">{getCategoryText(post.category)}</div>
-                        <h2 className="mypage-board-title">{post.title}</h2>
+                        <h2 className="mypage-board-title">
+                          {getPostTitlePrefix(post) && (
+                            <span className="mypage-board-title-prefix">
+                              [{getPostTitlePrefix(post)}]
+                            </span>
+                          )}{" "}
+                          {post.title}
+                        </h2>
                         <time className="mypage-board-date" dateTime={post.created_at}>
                           {post.created_at?.slice(0, 10)}
                         </time>

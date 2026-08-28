@@ -728,8 +728,7 @@ body {
 .mypage-posts-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
   margin: 0;
 }
 
@@ -743,9 +742,11 @@ body {
 .mypage-post-controls {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   flex-wrap: wrap;
+  width: 100%;
   gap: 10px;
+  margin-bottom: 18px;
 }
 
 .mypage-post-select {
@@ -764,12 +765,38 @@ body {
   color-scheme: light;
 }
 
-.mypage-post-select-category {
-  width: 130px;
+.mypage-post-select:disabled {
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  cursor: not-allowed;
+  opacity: 1;
+  -webkit-text-fill-color: var(--text-main);
+}
+
+.mypage-post-select-board {
+  width: 136px;
+}
+
+.mypage-post-select-sub {
+  width: 180px;
 }
 
 .mypage-post-select-sort {
   width: 105px;
+}
+
+.mypage-post-search {
+  flex: 1 1 240px;
+  min-width: 220px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+  box-sizing: border-box;
 }
 
 .mypage-post-select:focus {
@@ -778,9 +805,15 @@ body {
   outline: none;
 }
 
+.mypage-post-search:focus {
+  border-color: var(--point-mint);
+  box-shadow: none;
+  outline: none;
+}
+
 .mypage-post-divider {
   border: 1px solid var(--point-mint);
-  margin: 0px 0px 20px 0px;
+  margin: 0px 0px 18px 0px;
 }
 
 /* 게시글 목록 영역 */
@@ -878,6 +911,10 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.mypage-board-title-prefix {
+  color: var(--point-mint);
 }
 
 .mypage-board-date,
@@ -1119,6 +1156,12 @@ body {
   .mypage-post-select {
     flex: 1 1 145px;
     min-width: 0;
+  }
+
+  .mypage-post-search {
+    flex: 1 1 100%;
+    min-width: 0;
+    width: 100%;
   }
 
   .mypage-post-section-box {

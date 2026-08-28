@@ -17,44 +17,24 @@ const POST_SORT_OPTIONS = [
   { value: "comments", label: "댓글 순" },
 ];
 
-const SUB_CATEGORY_OPTIONS = {
-  all: ["점검일시", "점검내용"],
-  maintenance: ["점검일시", "점검내용"],
-};
+const SUB_CATEGORY_OPTIONS = ["공지"];
 
-function Maintenance() {
+function Notice() {
   const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
   const [subCategory, setSubCategory] = useState("all");
   const [sort, setSort] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const POSTS_PER_PAGE = 15;
-
   const role = getUserRole();
   const isAdmin = role === "PRESIDENT" || role === "OFFICER";
 
-  function getCategoryText(category) {
-    if (category === "maintenance") return "점검안내";
-    return category;
-  }
-
-  function getPostTitlePrefix(post) {
-    if (post.sub_category) return post.sub_category;
-
-    return "";
-  }
-
-  const subCategoryOptions = SUB_CATEGORY_OPTIONS[category] || [];
-  const hasSubCategoryOptions = subCategoryOptions.length > 0;
-
-  // 게시판 목록에서는 학번 이름
   function getUserDisplayName(user) {
     if (!user || user.is_active === false || user.is_active === 0) {
       return "존재하지 않는 사용자입니다";
@@ -65,7 +45,6 @@ function Maintenance() {
     return `${studentYear} ${user.name}`;
   }
 
-  // DB에서 점검안내 게시글 목록 가져오기
   useEffect(() => {
     async function fetchPosts() {
       try {
@@ -73,8 +52,8 @@ function Maintenance() {
         setErrorMessage("");
 
         const result = await getPosts({
-          board_type: "MAINTENANCE",
-          category,
+          board_type: "COMMUNITY",
+          category: "notice",
           sub_category: subCategory,
           search,
           page: currentPage,
@@ -82,12 +61,10 @@ function Maintenance() {
           sort,
         });
 
-        console.log("점검안내 게시글 목록 응답:", result);
-
         setPosts(result.data);
         setTotalPages(result.pagination?.totalPages || 1);
       } catch (error) {
-        console.error("게시글 목록 조회 실패:", error);
+        console.error("공지사항 게시글 목록 조회 실패:", error);
 
         setErrorMessage(
           error.response?.data?.message || "게시글 목록을 불러오지 못했습니다.",
@@ -98,7 +75,7 @@ function Maintenance() {
     }
 
     fetchPosts();
-  }, [category, subCategory, search, sort, currentPage]);
+  }, [subCategory, search, sort, currentPage]);
 
   const handleWriteClick = (event) => {
     if (!isLoggedIn()) {
@@ -114,58 +91,43 @@ function Maintenance() {
         <main className="board-page">
           <div className="board-container">
             <div className="board-title-area board-title-compact">
-              <h1 className="board-page-title">점검안내</h1>
+              <h1 className="board-page-title">공지사항</h1>
               <div className="board-title-line"></div>
             </div>
 
-            {/* 메뉴 영역 */}
             <div className="board-menu-area board-menu-flat">
               <div className="board-toolbar">
-                {/* 글쓰기 (임원만) */}
                 {isAdmin && (
-                  <Link to="/maintenance/write" onClick={handleWriteClick}>
+                  <Link to="/notice/write" onClick={handleWriteClick}>
                     <button className="board-write-btn btn btn-default">
                       글쓰기
                     </button>
                   </Link>
                 )}
 
-                {/* 검색 영역 */}
                 <div className="board-search-area board-filter-area">
                   <select
                     className="form-control board-category-select board-select board-select-category"
-                    value={category}
-                    onChange={(e) => {
-                      setCategory(e.target.value);
-                      setSubCategory("all");
-                      setCurrentPage(1);
-                    }}
+                    value="notice"
+                    disabled
                   >
-                    <option value="all">게시판 선택</option>
-                    <option value="maintenance">점검안내</option>
+                    <option value="notice">공지사항</option>
                   </select>
 
                   <select
                     className="form-control board-category-select board-select board-select-sub"
-                    value={hasSubCategoryOptions ? subCategory : ""}
+                    value={subCategory}
                     onChange={(e) => {
                       setSubCategory(e.target.value);
                       setCurrentPage(1);
                     }}
-                    disabled={!hasSubCategoryOptions}
                   >
-                    {hasSubCategoryOptions ? (
-                      <>
-                        <option value="all">세부 말머리</option>
-                        {subCategoryOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </>
-                    ) : (
-                      <option value="">말머리 없음</option>
-                    )}
+                    <option value="all">세부 말머리</option>
+                    {SUB_CATEGORY_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
 
                   <select
@@ -187,7 +149,7 @@ function Maintenance() {
                     <input
                       type="text"
                       className="form-control search-input"
-                      placeholder="제목 또는 내용을 입력하세요."
+                      placeholder="제목 또는 내용을 입력하세요"
                       value={search}
                       onChange={(e) => {
                         setSearch(e.target.value);
@@ -204,7 +166,6 @@ function Maintenance() {
 
               {errorMessage && <p className="board-error">{errorMessage}</p>}
 
-              {/* 게시글 리스트 */}
               {!loading && !errorMessage && (
                 <section className="board-list-section">
                   <div className="board-list-scroll">
@@ -222,57 +183,52 @@ function Maintenance() {
                       {posts.length === 0 ? (
                         <p className="board-message">작성된 게시글이 없습니다.</p>
                       ) : (
-                        posts.map((post) => {
-                          const titlePrefix = getPostTitlePrefix(post);
+                        posts.map((post) => (
+                          <Link
+                            to={`/posts/${post.id}`}
+                            className="board-link"
+                            key={post.id}
+                          >
+                            <article className="board-card">
+                              <span className="board-list-category">
+                                공지사항
+                              </span>
+                              <h2 className="board-title">
+                                {post.sub_category && (
+                                  <span className="board-title-prefix">
+                                    [{post.sub_category}]
+                                  </span>
+                                )}{" "}
+                                {post.title}
+                              </h2>
 
-                          return (
-                            <Link
-                              to={`/posts/${post.id}`}
-                              className="board-link"
-                              key={post.id}
-                            >
-                              <article className="board-card">
-                                <span className="board-list-category">
-                                  {getCategoryText(post.category)}
-                                </span>
-                                <h2 className="board-title">
-                                  {titlePrefix && (
-                                    <span className="board-title-prefix">
-                                      [{titlePrefix}]
-                                    </span>
-                                  )}{" "}
-                                  {post.title}
-                                </h2>
-
-                                <span className="board-author">
-                                  {getUserDisplayName(post.users)}
-                                </span>
-                                <time
-                                  className="board-date"
-                                  dateTime={post.created_at}
-                                >
-                                  {post.created_at?.slice(0, 10)}
-                                </time>
-                                <span className="board-stat">
-                                  {post.view_count ?? 0}
-                                </span>
-                                <span className="board-stat">
-                                  {post._count?.post_likes ?? 0}
-                                </span>
-                                <span className="board-stat">
-                                  {post._count?.comments ?? 0}
-                                </span>
-                              </article>
-                            </Link>
-                          );
-                        })
+                              <span className="board-author">
+                                {getUserDisplayName(post.users)}
+                              </span>
+                              <time
+                                className="board-date"
+                                dateTime={post.created_at}
+                              >
+                                {post.created_at?.slice(0, 10)}
+                              </time>
+                              <span className="board-stat">
+                                {post.view_count ?? 0}
+                              </span>
+                              <span className="board-stat">
+                                {post._count?.post_likes ?? 0}
+                              </span>
+                              <span className="board-stat">
+                                {post._count?.comments ?? 0}
+                              </span>
+                            </article>
+                          </Link>
+                        ))
                       )}
                     </div>
                   </div>
                 </section>
               )}
 
-              {/* 페이지네이션 */}
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -288,4 +244,4 @@ function Maintenance() {
   );
 }
 
-export default Maintenance;
+export default Notice;
