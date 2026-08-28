@@ -28,23 +28,57 @@
   text-align: center;
 }
 
+:root[data-theme="light"] .service-maintenance-card {
+  box-shadow: none;
+}
+
 .service-maintenance-logo {
+  display: block;
   width: 150px;
   height: auto;
-  margin-bottom: 38px;
+  margin: 0 auto 20px;
+}
+
+.service-maintenance-logo-light {
+  display: none !important;
+}
+
+:root[data-theme="light"] .service-maintenance-logo-dark {
+  display: none !important;
+}
+
+:root[data-theme="light"] .service-maintenance-logo-light {
+  display: block !important;
+}
+
+:root[data-theme="dark"] .service-maintenance-logo-dark,
+:root:not([data-theme]) .service-maintenance-logo-dark {
+  display: block !important;
+}
+
+:root[data-theme="dark"] .service-maintenance-logo-light,
+:root:not([data-theme]) .service-maintenance-logo-light {
+  display: none !important;
 }
 
 .service-maintenance-icon {
-  width: 72px;
-  height: 72px;
-  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  margin-bottom: 22px;
   border: 2px solid var(--point-mint);
   border-radius: 50%;
   background-color: rgba(0, 255, 163, 0.08);
   color: var(--point-mint);
+}
+
+.service-maintenance-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
 }
 
 .service-maintenance-label {
@@ -65,82 +99,51 @@
 }
 
 .service-maintenance-description {
-  margin: 22px 0 0;
+  margin: 26px 0 0;
   color: var(--text-muted);
   font-size: 16px;
   line-height: 1.8;
   word-break: keep-all;
 }
 
-.service-maintenance-status {
+.service-maintenance-time {
   width: fit-content;
+  max-width: 100%;
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin: 30px auto 0;
-  padding: 10px 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  color: var(--text-main);
+  gap: 11px;
+  margin: 18px auto 0;
+  padding: 15px 22px;
+  border: 1px solid rgba(0, 255, 163, 0.35);
+  border-radius: 12px;
+  background-color: rgba(0, 255, 163, 0.06);
+  color: var(--point-mint);
+  text-align: left;
+}
+
+.service-maintenance-time div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.service-maintenance-time-label {
+  color: var(--text-muted);
   font-size: 14px;
   font-weight: 600;
 }
 
-.service-maintenance-status-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background-color: var(--warning-orange);
-  box-shadow: 0 0 0 5px rgba(255, 152, 0, 0.12);
-  animation: service-maintenance-pulse 1.8s ease-in-out infinite;
-}
-
-.service-maintenance-refresh-btn {
-  min-width: 150px;
-  height: 46px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 28px;
-  padding: 0 22px;
-  border: 2px solid var(--point-mint);
-  border-radius: 10px;
-  background-color: var(--point-mint);
-  color: #1f1f1f;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.service-maintenance-refresh-btn:hover {
-  transform: translateY(-2px);
-  background-color: #00e18e;
-}
-
-.service-maintenance-refresh-btn:focus-visible {
-  outline: 3px solid rgba(0, 255, 163, 0.25);
-  outline-offset: 3px;
+.service-maintenance-time strong {
+  color: var(--text-main);
+  font-size: 19px;
+  line-height: 1.4;
+  word-break: keep-all;
 }
 
 .service-maintenance-notice {
   margin: 20px 0 0;
   color: var(--text-muted);
   font-size: 13px;
-}
-
-@keyframes service-maintenance-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.4;
-  }
 }
 
 @media (max-width: 600px) {
@@ -155,20 +158,23 @@
 
   .service-maintenance-logo {
     width: 125px;
-    margin-bottom: 30px;
+    margin-bottom: 18px;
   }
 
   .service-maintenance-description {
     font-size: 14px;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .service-maintenance-status-dot {
-    animation: none;
+  .service-maintenance-title-row {
+    gap: 10px;
   }
 
-  .service-maintenance-refresh-btn {
-    transition: none;
+  .service-maintenance-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .service-maintenance-time strong {
+    font-size: 17px;
   }
 }
