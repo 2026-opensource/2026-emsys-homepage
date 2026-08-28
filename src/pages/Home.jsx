@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom"
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import MainCalendar from "../components/calendar/MainCalendar";
@@ -128,7 +129,7 @@ function Home() {
                   <i className="fa-solid fa-circle-exclamation"></i>
                   <h4>공지사항</h4>
                 </div>
-              </a>
+              </Link>
             </div>
 
             <div className="col-6 col-sm-3">

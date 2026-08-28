@@ -89,6 +89,7 @@ a:active {
   width: 100%;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 0;
 }
@@ -98,7 +99,7 @@ a:active {
   flex: 1;
   align-items: center;
   justify-content: flex-start;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   margin-left: 0;
   margin-bottom: 0;
 }
@@ -106,7 +107,8 @@ a:active {
 .board-select {
   width: 118px;
   max-width: none;
-  flex: 0 0 118px;
+  min-width: 118px;
+  flex: 1 1 118px;
   box-sizing: border-box;
   font-size: 13px;
   text-overflow: clip;
@@ -114,11 +116,13 @@ a:active {
 
 .board-select-category {
   width: 136px;
+  min-width: 136px;
   flex-basis: 136px;
 }
 
 .board-select-sub {
   width: 180px;
+  min-width: 180px;
   flex-basis: 180px;
 }
 
@@ -133,7 +137,15 @@ a:active {
 .board-search-box {
   width: auto;
   min-width: 220px;
-  flex: 1 1 auto;
+  flex: 999 1 240px;
+}
+
+.board-search-area.board-filter-area {
+  width: auto;
+  flex: 1 1 560px;
+  justify-content: flex-start;
+  margin-left: 0;
+  padding-top: 0;
 }
 
 .board-toolbar .board-write-btn {
@@ -141,6 +153,10 @@ a:active {
   min-width: 80px;
   padding: 0 18px;
   margin-right: 0;
+}
+
+.board-mobile-write-link {
+  display: none;
 }
 
 /* 글쓰기 버튼 */
@@ -198,11 +214,22 @@ a:active {
   align-items: center;
 }
 
+.board-category-select.board-select {
+  width: auto;
+  max-width: none;
+}
+
 /* 검색창 */
 .board-input-area {
   width: 50%;
   min-width: 250px;
   border-radius: 10px;
+}
+
+.board-input-area.board-search-box {
+  width: auto;
+  min-width: 220px;
+  flex: 999 1 240px;
 }
 
 .search-input {
@@ -303,6 +330,10 @@ a:active {
 
 .board-link:hover .board-card {
   background-color: #4a4a4a;
+}
+
+.board-meta {
+  display: contents;
 }
 
 /* 말머리 */
@@ -407,6 +438,27 @@ a:active {
   border-bottom: 2px solid var(--point-mint);
 }
 
+@media (max-width: 1024px) {
+  .board-toolbar-write-link {
+    display: none;
+  }
+
+  .board-mobile-write-link {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 14px;
+    text-decoration: none;
+  }
+
+  .board-mobile-write-link .board-write-btn {
+    width: auto;
+    min-width: 80px;
+    margin-right: 0;
+    padding: 0 18px;
+  }
+}
+
 @media (max-width: 768px) {
   .board-page {
     margin: 70px 15px;
@@ -422,11 +474,108 @@ a:active {
     padding-top: 10px;
   }
 
+  .board-search-area.board-filter-area {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+
+  .board-select,
+  .board-select-category,
+  .board-select-sub {
+    width: auto;
+    flex: 1 1 145px;
+    min-width: 0;
+  }
+
+  .board-search-box {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
   .board-search-input {
     flex: 2;
   }
 
   .board-list-scroll {
+    overflow-x: visible;
     padding: 8px 0;
+  }
+
+  .board-list-header {
+    display: none;
+  }
+
+  .board-card {
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-areas:
+      "category title"
+      "meta meta";
+    min-width: 0;
+    padding: 13px 0;
+    column-gap: 6px;
+    row-gap: 4px;
+    align-items: center;
+  }
+
+  .board-list-category {
+    grid-area: category;
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .board-list-category::before {
+    content: "[";
+  }
+
+  .board-list-category::after {
+    content: "]";
+  }
+
+  .board-title {
+    grid-area: title;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .board-meta {
+    grid-area: meta;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    min-width: 0;
+  }
+
+  .board-author {
+    max-width: 90px;
+    color: #9fa7ad;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .board-date {
+    color: #9fa7ad;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .board-stat {
+    color: #9fa7ad;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .board-stat-view::before {
+    content: "조회 ";
+  }
+
+  .board-stat-like::before {
+    content: "좋아요 ";
+  }
+
+  .board-stat-comment::before {
+    content: "댓글 ";
   }
 }

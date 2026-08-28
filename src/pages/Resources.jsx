@@ -144,7 +144,7 @@ function Resources() {
             <div className="board-menu-area board-menu-flat">
               <div className="board-toolbar">
                 {/* 글쓰기 */}
-                <Link to="/resources/write">
+                <Link to="/resources/write" className="board-toolbar-write-link">
                   <button type="button" className="board-write-btn btn btn-default">글쓰기</button>
                 </Link>
 
@@ -263,24 +263,26 @@ function Resources() {
                                   {post.title}
                                 </h2>
 
-                                <span className="board-author">
-                                  {getUserDisplayName(post.users)}
-                                </span>
-                                <time
-                                  className="board-date"
-                                  dateTime={post.created_at}
-                                >
-                                  {post.created_at?.slice(0, 10)}
-                                </time>
-                                <span className="board-stat">
-                                  {post.view_count ?? 0}
-                                </span>
-                                <span className="board-stat">
-                                  {post._count?.post_likes ?? 0}
-                                </span>
-                                <span className="board-stat">
-                                  {post._count?.comments ?? 0}
-                                </span>
+                                <div className="board-meta">
+                                  <span className="board-author">
+                                    {getUserDisplayName(post.users)}
+                                  </span>
+                                  <time
+                                    className="board-date"
+                                    dateTime={post.created_at}
+                                  >
+                                    {post.created_at?.slice(0, 10)}
+                                  </time>
+                                  <span className="board-stat board-stat-view">
+                                    {post.view_count ?? 0}
+                                  </span>
+                                  <span className="board-stat board-stat-like">
+                                    {post._count?.post_likes ?? 0}
+                                  </span>
+                                  <span className="board-stat board-stat-comment">
+                                    {post._count?.comments ?? 0}
+                                  </span>
+                                </div>
                               </article>
                             </Link>
                           );
@@ -290,6 +292,15 @@ function Resources() {
                   </div>
                 </section>
               )}
+              <Link
+                to="/resources/write"
+                className="board-mobile-write-link"
+                onClick={handleWriteClick}
+              >
+                <button className="board-write-btn btn btn-default">
+                  글쓰기
+                </button>
+              </Link>
 
               {/* 페이지네이션 */}
               <Pagination

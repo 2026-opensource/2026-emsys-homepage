@@ -123,7 +123,11 @@ function Maintenance() {
               <div className="board-toolbar">
                 {/* 글쓰기 (임원만) */}
                 {isAdmin && (
-                  <Link to="/maintenance/write" onClick={handleWriteClick}>
+                  <Link
+                    to="/maintenance/write"
+                    className="board-toolbar-write-link"
+                    onClick={handleWriteClick}
+                  >
                     <button className="board-write-btn btn btn-default">
                       글쓰기
                     </button>
@@ -244,24 +248,26 @@ function Maintenance() {
                                   {post.title}
                                 </h2>
 
-                                <span className="board-author">
-                                  {getUserDisplayName(post.users)}
-                                </span>
-                                <time
-                                  className="board-date"
-                                  dateTime={post.created_at}
-                                >
-                                  {post.created_at?.slice(0, 10)}
-                                </time>
-                                <span className="board-stat">
-                                  {post.view_count ?? 0}
-                                </span>
-                                <span className="board-stat">
-                                  {post._count?.post_likes ?? 0}
-                                </span>
-                                <span className="board-stat">
-                                  {post._count?.comments ?? 0}
-                                </span>
+                                <div className="board-meta">
+                                  <span className="board-author">
+                                    {getUserDisplayName(post.users)}
+                                  </span>
+                                  <time
+                                    className="board-date"
+                                    dateTime={post.created_at}
+                                  >
+                                    {post.created_at?.slice(0, 10)}
+                                  </time>
+                                  <span className="board-stat board-stat-view">
+                                    {post.view_count ?? 0}
+                                  </span>
+                                  <span className="board-stat board-stat-like">
+                                    {post._count?.post_likes ?? 0}
+                                  </span>
+                                  <span className="board-stat board-stat-comment">
+                                    {post._count?.comments ?? 0}
+                                  </span>
+                                </div>
                               </article>
                             </Link>
                           );
@@ -270,6 +276,17 @@ function Maintenance() {
                     </div>
                   </div>
                 </section>
+              )}
+              {isAdmin && (
+                <Link
+                  to="/maintenance/write"
+                  className="board-mobile-write-link"
+                  onClick={handleWriteClick}
+                >
+                  <button className="board-write-btn btn btn-default">
+                    글쓰기
+                  </button>
+                </Link>
               )}
 
               {/* 페이지네이션 */}

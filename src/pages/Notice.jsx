@@ -98,7 +98,11 @@ function Notice() {
             <div className="board-menu-area board-menu-flat">
               <div className="board-toolbar">
                 {isAdmin && (
-                  <Link to="/notice/write" onClick={handleWriteClick}>
+                  <Link
+                    to="/notice/write"
+                    className="board-toolbar-write-link"
+                    onClick={handleWriteClick}
+                  >
                     <button className="board-write-btn btn btn-default">
                       글쓰기
                     </button>
@@ -202,24 +206,26 @@ function Notice() {
                                 {post.title}
                               </h2>
 
-                              <span className="board-author">
-                                {getUserDisplayName(post.users)}
-                              </span>
-                              <time
-                                className="board-date"
-                                dateTime={post.created_at}
-                              >
-                                {post.created_at?.slice(0, 10)}
-                              </time>
-                              <span className="board-stat">
-                                {post.view_count ?? 0}
-                              </span>
-                              <span className="board-stat">
-                                {post._count?.post_likes ?? 0}
-                              </span>
-                              <span className="board-stat">
-                                {post._count?.comments ?? 0}
-                              </span>
+                              <div className="board-meta">
+                                <span className="board-author">
+                                  {getUserDisplayName(post.users)}
+                                </span>
+                                <time
+                                  className="board-date"
+                                  dateTime={post.created_at}
+                                >
+                                  {post.created_at?.slice(0, 10)}
+                                </time>
+                                <span className="board-stat board-stat-view">
+                                  {post.view_count ?? 0}
+                                </span>
+                                <span className="board-stat board-stat-like">
+                                  {post._count?.post_likes ?? 0}
+                                </span>
+                                <span className="board-stat board-stat-comment">
+                                  {post._count?.comments ?? 0}
+                                </span>
+                              </div>
                             </article>
                           </Link>
                         ))
@@ -227,6 +233,17 @@ function Notice() {
                     </div>
                   </div>
                 </section>
+              )}
+              {isAdmin && (
+                <Link
+                  to="/notice/write"
+                  className="board-mobile-write-link"
+                  onClick={handleWriteClick}
+                >
+                  <button className="board-write-btn btn btn-default">
+                    글쓰기
+                  </button>
+                </Link>
               )}
 
               <Pagination
