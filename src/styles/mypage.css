@@ -496,7 +496,7 @@ body {
     내가 작성한 글
 ======================================== */
 
-.my-posts-box {
+.mypage-posts-box {
   min-height: 300px;
   border: 3px solid var(--border-color);
   border-radius: 10px;
@@ -725,16 +725,19 @@ body {
   flex-shrink: 0;
 }
 
-/* 제목 + 플러스 버튼 */
-.posts-header {
+.mypage-posts-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  margin: 0;
 }
 
-.posts-header {
-  margin: 0;
+.mypage-post-section-title {
+  font-size: 32px;
+  color: var(--point-mint);
+  text-align: left;
+  margin: 20px 0px;
 }
 
 .mypage-post-controls {
@@ -775,31 +778,55 @@ body {
   outline: none;
 }
 
-/* 초록 구분선 */
-.header-divider {
-  border: 2px solid var(--point-mint);
-  margin: 15px 0px;
+.mypage-post-divider {
+  border: 1px solid var(--point-mint);
+  margin: 0px 0px 20px 0px;
 }
 
 /* 게시글 목록 영역 */
-.section-box {
+.mypage-post-section-box {
   width: 100%;
+}
+
+.mypage-board-header {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 92px 78px 78px 68px;
+  align-items: center;
+  column-gap: 14px;
+  min-width: 700px;
+  padding: 0 8px 10px 8px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.mypage-board-header span {
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mypage-board-header span:first-child,
+.mypage-board-header span:nth-child(2) {
+  text-align: left;
 }
 
 .mypage-board-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 0;
 }
 
-.mypage-board-list .board-link {
+.mypage-board-list .mypage-post-link {
   display: block;
   width: 100%;
   color: var(--text-main);
   text-decoration: none;
 }
 
-.mypage-board-list .board-link:hover {
+.mypage-board-list .mypage-post-link:hover {
   color: var(--point-mint);
   text-decoration: none;
 }
@@ -807,53 +834,45 @@ body {
 /* 게시글 카드 */
 .mypage-board-card {
   width: 100%;
-  padding: 28px 30px;
-  border-radius: 18px;
-  background-color: var(--bg-box);
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  background-color: transparent;
   transition:
-    transform 0.2s ease,
     background-color 0.2s ease;
 }
 
-.mypage-board-list .board-link:hover .mypage-board-card {
-  transform: translateY(-2px);
-  background-color: var(--border-color);
+.mypage-board-list .mypage-post-link:hover .mypage-board-card {
+  background-color: #4a4a4a;
 }
 
 /* 카드 내부 배치 */
 .mypage-board-row {
   width: 100%;
   display: grid;
-  grid-template-columns: 90px 1fr 110px;
+  grid-template-columns: 88px minmax(0, 1fr) 92px 78px 78px 68px;
   align-items: center;
-  column-gap: 35px;
+  column-gap: 14px;
+  min-width: 700px;
 }
 
-/* 카테고리 버튼 */
+/* 카테고리 */
 .mypage-board-category {
-  width: 80px;
-  min-width: 60px;
-  text-align: center;
-  border-radius: 10px;
-  background-color: var(--text-muted);
-  color: black;
-  font-size: clamp(14px, 3vw, 16px);
-  font-weight: 700;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 제목 + 작성자 */
-.mypage-board-main {
   min-width: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mypage-board-title {
-  margin: 0 0 10px 0;
+  min-width: 0;
+  margin: 0;
   color: var(--text-main);
-  font-size: 24px;
+  font-size: 15px;
   font-weight: 700;
   text-align: left;
   white-space: nowrap;
@@ -861,23 +880,19 @@ body {
   text-overflow: ellipsis;
 }
 
-.mypage-board-info {
+.mypage-board-date,
+.mypage-board-stat {
   margin: 0;
-  text-align: left;
-  color: var(--text-muted);
-  font-size: 16px;
-}
-
-/* 조회수 / 좋아요 / 댓글 */
-.mypage-board-stats {
-  text-align: right;
-}
-
-.mypage-board-stats p {
-  margin: 0 0 4px 0;
-  color: var(--text-main);
-  font-size: 16px;
+  color: #bdbdbd;
+  font-size: 13px;
   font-weight: 600;
+  line-height: 1.4;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mypage-board-reaction-box {
+  display: contents;
 }
 
 /* ========================================
@@ -908,6 +923,11 @@ body {
   }
 
   .section-title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .mypage-post-section-title {
     font-size: 24px;
     text-align: center;
   }
@@ -1068,7 +1088,7 @@ body {
     flex-shrink: 0;
   }
 
-  .my-posts-box {
+  .mypage-posts-box {
     width: 100%;
     padding: 15px;
     box-sizing: border-box;
@@ -1086,7 +1106,7 @@ body {
     width: max-content;
   }
 
-  .posts-header {
+  .mypage-posts-header {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -1101,34 +1121,105 @@ body {
     min-width: 0;
   }
 
+  .mypage-post-section-box {
+    overflow-x: visible;
+  }
+
+  .mypage-board-header {
+    display: none;
+  }
+
   .mypage-board-card {
-    padding: 18px;
+    padding: 13px 0;
   }
 
   .mypage-board-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    row-gap: 12px;
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-areas:
+      "category title"
+      "date date";
+    min-width: 0;
+    column-gap: 6px;
+    row-gap: 4px;
+    align-items: center;
+  }
+
+  .mypage-board-category {
+    grid-area: category;
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .mypage-board-category::before {
+    content: "[";
+  }
+
+  .mypage-board-category::after {
+    content: "]";
   }
 
   .mypage-board-title {
-    font-size: 18px;
-    white-space: normal;
-    line-height: 1.4;
-    color: var(--text-main);
+    grid-area: title;
+    font-size: 14px;
+    line-height: 1.35;
   }
 
-  .mypage-board-info {
-    font-size: 13px;
-  }
-
-  .mypage-board-stats {
+  .mypage-board-date {
+    grid-area: date;
+    justify-self: start;
+    color: #9fa7ad;
     text-align: left;
   }
 
-  .mypage-board-stats p {
-    display: inline-block;
-    margin-right: 10px;
-    font-size: 13px;
+  .mypage-board-view {
+    grid-area: date;
+    justify-self: start;
+    margin-left: 86px;
+    color: #9fa7ad;
+    text-align: left;
+  }
+
+  .mypage-board-view::before {
+    content: "조회 ";
+  }
+
+  .mypage-board-reaction-box {
+    grid-area: date;
+    display: flex;
+    align-items: center;
+    justify-self: start;
+    gap: 8px;
+    margin-left: 135px;
+  }
+
+  .mypage-board-date,
+  .mypage-board-stat {
+    font-size: 12px;
+  }
+
+  .mypage-board-like,
+  .mypage-board-comment {
+    color: #9fa7ad;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .mypage-board-like::before {
+    content: "좋아요 ";
+  }
+
+  .mypage-board-like::after {
+    content: "";
+  }
+
+  .mypage-board-comment::before {
+    content: "댓글 ";
+  }
+
+  .mypage-board-comment::after {
+    content: "";
   }
 }

@@ -154,7 +154,7 @@ function MyPage() {
   const [greetingSaving, setGreetingSaving] = useState(false);
   const profileFileInputRef = useRef(null);
   const activityScrollRef = useRef(null);
-  const MY_POSTS_PER_PAGE = 5;
+  const MY_POSTS_PER_PAGE = 10;
   const activityCountByDate = activityStats.reduce((stats, item) => {
     stats[item.date] = item.count;
     return stats;
@@ -543,7 +543,6 @@ function MyPage() {
         {/* 사용자 정보 */}
         <div className="user-info-box">
           <h2 className="section-title">사용자 정보</h2>
-          {/*<hr className="header-divider" />*/}
 
           <div className="user-info-body">
             <div className="user-info-left-panel">
@@ -893,9 +892,11 @@ function MyPage() {
             </div>
           </section>
 
-        <section className="my-posts-box">
-          <div className="posts-header">
-            <h2 className="section-title">{isOwnPage ? "내가 작성한 글" : "작성한 글"}</h2>
+        <section className="mypage-posts-box">
+          <div className="mypage-posts-header">
+            <h2 className="mypage-post-section-title">
+              {isOwnPage ? "내가 작성한 글" : `${user?.name || "사용자"}님이 작성한 글`}
+            </h2>
             <div className="mypage-post-controls" aria-label="작성 글 필터 및 정렬">
               <select
                 className="form-control mypage-post-select mypage-post-select-category"
@@ -929,26 +930,35 @@ function MyPage() {
             </div>
           </div>
 
-          <hr className="header-divider" />
+          <hr className="mypage-post-divider" />
 
-          <div className="section-box">
+          <div className="mypage-post-section-box">
+            <div className="mypage-board-header" aria-hidden="true">
+              <span>카테고리</span>
+              <span>제목</span>
+              <span>작성일</span>
+              <span>조회</span>
+              <span>좋아요</span>
+              <span>댓글</span>
+            </div>
+
             <div className="mypage-board-list">
               {myPosts.length === 0 ? (
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>작성한 게시글이 없습니다.</p>
               ) : (
                 myPosts.map((post) => (
-                  <a key={post.id} href={`/posts/${post.id}`} className="board-link">
+                  <a key={post.id} href={`/posts/${post.id}`} className="mypage-post-link">
                     <article className="mypage-board-card">
                       <div className="mypage-board-row">
                         <div className="mypage-board-category">{getCategoryText(post.category)}</div>
-                        <div className="mypage-board-main">
-                          <h2 className="mypage-board-title">{post.title}</h2>
-                          <p className="mypage-board-info">{post.users?.name} · {post.created_at?.slice(0, 10)}</p>
-                        </div>
-                        <div className="mypage-board-stats">
-                          <p>조회수 {post.view_count ?? 0}</p>
-                          <p>좋아요 {post._count?.post_likes ?? 0}</p>
-                          <p>댓글 {post._count?.comments ?? 0}</p>
+                        <h2 className="mypage-board-title">{post.title}</h2>
+                        <time className="mypage-board-date" dateTime={post.created_at}>
+                          {post.created_at?.slice(0, 10)}
+                        </time>
+                        <span className="mypage-board-stat mypage-board-view">{post.view_count ?? 0}</span>
+                        <div className="mypage-board-reaction-box">
+                          <span className="mypage-board-stat mypage-board-like">{post._count?.post_likes ?? 0}</span>
+                          <span className="mypage-board-stat mypage-board-comment">{post._count?.comments ?? 0}</span>
                         </div>
                       </div>
                     </article>
