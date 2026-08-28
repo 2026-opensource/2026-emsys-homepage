@@ -21,6 +21,7 @@ import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 import "../layout/common.css";
 import "../styles/post-write.css";
 import "../styles/board.css";
+import Maintenance from "./Maintenance";
 
 function PostWrite() {
   const navigate = useNavigate();
@@ -382,6 +383,7 @@ function PostWrite() {
       "교양-수업자료/과제",
       "교양-족보",
     ],
+    maintenance: ["점검일시", "점검내용"],
   };
 
   const currentSubCategoryOptions = subCategoryOptions[formData.category] || null;

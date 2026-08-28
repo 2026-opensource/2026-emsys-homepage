@@ -345,6 +345,7 @@ const SUB_CATEGORY_OPTIONS = {
         "교양-수업자료/과제",
         "교양-족보",
     ],
+    maintenance: ["점검일시", "점검내용"],
 };
 
 function getSubCategoryOptions(category) {
@@ -434,7 +435,7 @@ exports.createPost = async ({ body, user }) => {
 
         if (draftCount >= MAX_DRAFT_COUNT) {
             const error = new Error(
-                `임시저장은 최대 ${MAX_DRAFT_COUNT}개까지 가능합니다. 임시저장 목록을 비운 후 다시 시도해주세요.`
+                `임시저장은 최대 ${MAX_DRAFT_COUNT}개까지 가능합니다. 기존 임시글을 삭제한 후 다시 시도해주세요.`
             );
             error.status = 400;
             throw error;
