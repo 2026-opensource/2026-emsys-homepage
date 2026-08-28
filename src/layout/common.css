@@ -96,6 +96,28 @@ a:active {
   width: auto;
 }
 
+.navbar-logo-light {
+  display: none !important;
+}
+
+:root[data-theme="light"] .navbar-logo-dark {
+  display: none !important;
+}
+
+:root[data-theme="light"] .navbar-logo-light {
+  display: block !important;
+}
+
+:root[data-theme="dark"] .navbar-logo-dark,
+:root:not([data-theme]) .navbar-logo-dark {
+  display: block !important;
+}
+
+:root[data-theme="dark"] .navbar-logo-light,
+:root:not([data-theme]) .navbar-logo-light {
+  display: none !important;
+}
+
 /* 메뉴 */
 
 .nav-menu {
