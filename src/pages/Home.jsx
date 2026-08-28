@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import MainCalendar from "../components/calendar/MainCalendar";
@@ -49,13 +48,6 @@ function Home() {
     fetchPreviews();
   }, []);
 
-  function getCategoryText(category) {
-    if (category === "notice") return "공지사항";
-    if (category === "free") return "자유";
-    if (category === "qna") return "질문";
-    if (category === "recruit") return "팀원 모집";
-    return category;
-}
   return (
     <>
       <Navbar />
@@ -122,39 +114,39 @@ function Home() {
 
           <div className="row mint-row">
             <div className="col-6 col-sm-3">
-              <Link to="/gallery">
+              <a href="/gallery">
                 <div className="shortcut-item">
                   <i className="fa-regular fa-image"></i>
                   <h4>갤러리</h4>
                 </div>
-              </Link>
+              </a>
             </div>
 
             <div className="col-6 col-sm-3">
-              <Link to="/community?category=notice">
+              <a href="/community?category=notice">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-circle-exclamation"></i>
                   <h4>공지사항</h4>
                 </div>
-              </Link>
+              </a>
             </div>
 
             <div className="col-6 col-sm-3">
-              <Link to="/community">
+              <a href="/community">
                 <div className="shortcut-item">
                   <i className="fa-solid fa-users"></i>
                   <h4>커뮤니티</h4>
                 </div>
-              </Link>
+              </a>
             </div>
 
             <div className="col-6 col-sm-3">
-              <Link to="/resources">
+              <a href="/resources">
                 <div className="shortcut-item">
                   <i className="fa-regular fa-file-lines"></i>
                   <h4>자료실</h4>
                 </div>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -183,6 +175,7 @@ function Home() {
                     noticePosts.map((post) => (
                       <li key={post.id}>
                         <a href={`/posts/${post.id}`}>
+                          {post.sub_category && `[${post.sub_category}] `}
                           {post.title}
                         </a>
                       </li>
@@ -210,6 +203,7 @@ function Home() {
                     maintenancePosts.map((post) => (
                       <li key={post.id}>
                         <a href={`/posts/${post.id}`}>
+                          {post.sub_category && `[${post.sub_category}] `}
                           {post.title}
                         </a>
                       </li>
@@ -239,7 +233,8 @@ function Home() {
                     communityPosts.map((post) => (
                       <li key={post.id}>
                         <a href={`/posts/${post.id}`}>
-                          [{getCategoryText(post.category)}] {post.title}
+                          {post.sub_category && `[${post.sub_category}] `}
+                          {post.title}
                         </a>
                       </li>
                     ))

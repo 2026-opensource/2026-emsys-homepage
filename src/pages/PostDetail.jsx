@@ -14,12 +14,7 @@ import DOMPurify from "dompurify";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import {
-  getToken,
-  isAuthError,
-  isLoggedIn,
-  redirectToLogin,
-} from "../utils/token";
+import { getToken, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 import "../styles/post-detail.css";
@@ -61,12 +56,14 @@ function PostDetail() {
     if (category === "contest") return "대회/공모전";
     if (category === "class") return "수업";
     if (category === "activity") return "행사";
+    if (category === "maintenance") return "점검안내";
     return category;
   }
 
   function getListPath(board_type) {
     if (board_type === "ARCHIVE") return "/resources";
     if (board_type === "GALLERY") return "/gallery";
+    if (board_type === "MAINTENANCE") return "/maintenance";
     return "/community";
   }
 
@@ -394,10 +391,10 @@ function PostDetail() {
         comments: post.comments.map((comment) =>
           comment.id === commentId
             ? {
-                ...comment,
-                content: result.data.content,
-                updated_at: result.data.updated_at,
-              }
+              ...comment,
+              content: result.data.content,
+              updated_at: result.data.updated_at,
+            }
             : comment,
         ),
       });
@@ -572,7 +569,7 @@ function PostDetail() {
 
   if (loading) {
     return (
-      <div className="post-detail-page">
+      <>
         <Navbar />
         <main className="board-page">
           <div className="detail-container">
@@ -580,13 +577,13 @@ function PostDetail() {
           </div>
         </main>
         <Footer />
-      </div>
+      </>
     );
   }
 
   if (errorMessage) {
     return (
-      <div className="post-detail-page">
+      <>
         <Navbar />
         <main className="board-page">
           <div className="detail-container">
@@ -597,13 +594,13 @@ function PostDetail() {
           </div>
         </main>
         <Footer />
-      </div>
+      </>
     );
   }
 
   if (!post) {
     return (
-      <div className="post-detail-page">
+      <>
         <Navbar />
         <main className="board-page">
           <div className="detail-container">
@@ -611,7 +608,7 @@ function PostDetail() {
           </div>
         </main>
         <Footer />
-      </div>
+      </>
     );
   }
 
@@ -684,7 +681,7 @@ function PostDetail() {
   };
 
   return (
-    <div className="post-detail-page">
+    <>
       <Navbar />
 
       <main className="board-page">
@@ -767,17 +764,7 @@ function PostDetail() {
             onClick={handleImageClick}
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(post.content, {
-                ADD_TAGS: ["iframe"],
-                ADD_ATTR: [
-                  "target",
-                  "rel",
-                  "src",
-                  "width",
-                  "height",
-                  "frameborder",
-                  "allow",
-                  "allowfullscreen",
-                ],
+                ADD_ATTR: ["target", "rel"],
               }),
             }}
           />
@@ -797,8 +784,7 @@ function PostDetail() {
                     onClick={handleFileDownloadClick}
                   >
                     <span className="detail-file-name">
-                      <span style={{ fontSize: "16px" }}>🗎</span>{" "}
-                      {file.original_name}
+                      <span style={{ fontSize: "16px" }}>🗎</span> {file.original_name}
                     </span>
 
                     <span className="detail-file-size">
@@ -910,7 +896,7 @@ function PostDetail() {
           {/* 댓글 */}
           <div className="comment-wrapper">
             <h2 className="comment-title">
-              댓글 {post.comments?.length ?? 0}
+              💬 댓글 {post.comments?.length ?? 0}개
             </h2>
 
             <div className="comment-list">
@@ -956,7 +942,7 @@ function PostDetail() {
       </main>
 
       <Footer />
-    </div>
+    </>
   );
 }
 
