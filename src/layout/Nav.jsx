@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Moon, Sun } from "lucide-react";
 import logoGreen from "../assets/images/logo-green-removebg.png";
+import logoBlack from "../assets/images/logo-black-removebg.png";
 
 import { isLoggedIn, removeToken, removeUserInfo } from "../utils/token";
 
@@ -75,7 +76,17 @@ function Navbar() {
       <div className="navbar-container">
         {/* 로고 */}
         <Link className="navbar-brand" to="/">
-          <img src={logoGreen} alt="EMSYS 로고" className="navbar-logo" />
+          <img
+            src={logoGreen}
+            alt="EMSYS 로고"
+            className="navbar-logo navbar-logo-dark"
+          />
+          <img
+            src={logoBlack}
+            alt=""
+            aria-hidden="true"
+            className="navbar-logo navbar-logo-light"
+          />
         </Link>
 
         {/* 햄버거 버튼 */}
