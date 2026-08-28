@@ -5,6 +5,7 @@
   display: flow-root;
   min-height: 100svh;
   background-color: var(--bg-main);
+  color: var(--text-main);
 }
 
 .post-detail-page .board-page {
@@ -153,6 +154,7 @@
   line-height: 1.8;
   font-size: clamp(14px, 4vw, 18px);
   word-break: break-word;
+  color: var(--text-main);
 }
 
 .detail-content img {
@@ -192,13 +194,13 @@
 }
 
 .detail-content a {
-  color: #9fd0ff;
+  color: var(--point-mint);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .detail-content a:hover {
-  color: #b9ddff;
+  opacity: 0.8;
 }
 
 /* ========================================
@@ -275,7 +277,7 @@
 }
 
 .comment-card:hover {
-  background-color: #4c4c4c;
+  background-color: var(--border-color);
 }
 
 .comment-header {
@@ -349,6 +351,16 @@
 .comment-edit-btn:hover,
 .comment-delete-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="light"] .comment-edit-btn,
+:root[data-theme="light"] .comment-delete-btn {
+  color: #222222;
+}
+
+:root[data-theme="light"] .comment-edit-btn:hover,
+:root[data-theme="light"] .comment-delete-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 /* ========================================
@@ -628,16 +640,16 @@
 .detail-file-section {
   margin-top: 24px;
   padding: 16px;
-  border: 1px solid #555;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #333;
+  background-color: var(--bg-box);
 }
 
 .detail-file-title {
   margin: 0 0 12px;
   font-size: 16px;
   font-weight: 700;
-  color: #00ffa3;
+  color: var(--point-mint);
 }
 
 .detail-file-list {
@@ -653,13 +665,13 @@
   gap: 12px;
   padding: 10px 12px;
   border-radius: 6px;
-  background-color: #444;
-  color: #fff;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   text-decoration: none;
 }
 
 .detail-file-item:hover {
-  background-color: #4f4f4f;
+  background-color: var(--border-color);
   text-decoration: none;
 }
 
@@ -671,7 +683,7 @@
 
 .detail-file-size {
   flex-shrink: 0;
-  color: #ccc;
+  color: var(--text-muted);
   font-size: 13px;
 }
 

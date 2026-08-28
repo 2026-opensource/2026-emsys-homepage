@@ -84,6 +84,15 @@ export async function getPosts({ board_type = "COMMUNITY", category = "all", sub
     return response.data;
 }
 
+// 커뮤니티 인기글 목록 조회
+export async function getPopularPosts({ category = "all", search = "", page = 1, limit = 15 }) {
+    const response = await axios.get(`${API_BASE_URL}/api/posts/popular`, {
+        params: { category, search, page, limit },
+        headers: authHeaders(),
+    });
+    return response.data;
+}
+
 // 게시글 상세 내용 조회
 export async function getPostById(id) {
     const token = getToken();
