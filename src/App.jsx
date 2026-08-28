@@ -5,6 +5,7 @@ import { getUserRole, isLoggedIn, redirectToLogin } from "./utils/token";
 import Introduce from "./pages/Introduce";
 import Home from "./pages/Home";
 import Community from "./pages/Community";
+import Popular from "./pages/Popular";
 import Notice from "./pages/Notice";
 import Resources from "./pages/Resources";
 import Mypage from "./pages/Mypage";
@@ -88,6 +89,7 @@ function AppContent() {
         <Route path="/" element={<RootRoute />} />
         <Route path="/notice" element={<Notice />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/popular" element={<Popular />} />
         <Route path="/resources" element={<AuthRoute><Resources /></AuthRoute>} />
         <Route path="/mypage" element={<AuthRoute><Mypage /></AuthRoute>} />
         <Route path="/mypage/:userId" element={<AuthRoute><Mypage /></AuthRoute>} />

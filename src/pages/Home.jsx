@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import MainCalendar from "../components/calendar/MainCalendar";
 import ImageSlider from "../components/ImageSlider";
-import { getPosts } from "../api/postAPI";
+import { getPopularPosts, getPosts } from "../api/postAPI";
 
 import "../layout/common.css";
 import "../styles/home.css";
@@ -12,10 +12,10 @@ import "../styles/home.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function Home() {
-  const [date, setDate] = useState(new Date());
   const [noticePosts, setNoticePosts] = useState([]);
   const [communityPosts, setCommunityPosts] = useState([]);
   const [maintenancePosts, setMaintenancePosts] = useState([]);
+  const [popularPosts, setPopularPosts] = useState([]);
 
   useEffect(() => {
     async function fetchPreviews() {
@@ -42,6 +42,12 @@ function Home() {
           limit: 3,
         });
         setMaintenancePosts(maintenanceResult.data || []);
+
+        const popularResult = await getPopularPosts({
+          page: 1,
+          limit: 3,
+        });
+        setPopularPosts(popularResult.data || []);
       } catch (error) {
         console.error("홈 게시글 로드 실패:", error);
       }
@@ -161,24 +167,24 @@ function Home() {
             <div className="col-sm-6">
               <div className="home-board-box">
                 <div className="home-board-header">
-                  <h3 className="home-board-title">공지사항</h3>
-                  <a href="/notice" className="plus-btn">
+                  <h3 className="home-board-title">인기글</h3>
+                  <Link to="/popular" className="plus-btn">
                     <i className="fa-solid fa-plus"></i>
-                  </a>
+                  </Link>
                 </div>
 
                 <hr className="home-board-divider" />
 
                 <ul className="home-board-list">
-                  {noticePosts.length === 0 ? (
-                    <li>공지사항이 없습니다.</li>
+                  {popularPosts.length === 0 ? (
+                    <li>인기글이 없습니다.</li>
                   ) : (
-                    noticePosts.map((post) => (
+                    popularPosts.map((post) => (
                       <li key={post.id}>
-                        <a href={`/posts/${post.id}`}>
+                        <Link to={`/posts/${post.id}`}>
                           {post.sub_category && `[${post.sub_category}] `}
                           {post.title}
-                        </a>
+                        </Link>
                       </li>
                     ))
                   )}
@@ -189,24 +195,24 @@ function Home() {
             <div className="col-sm-6">
               <div className="home-board-box">
                 <div className="home-board-header">
-                  <h3 className="home-board-title">점검안내</h3>
-                  <a href="/maintenance" className="plus-btn">
+                  <h3 className="home-board-title">커뮤니티</h3>
+                  <Link to="/community" className="plus-btn">
                     <i className="fa-solid fa-plus"></i>
-                  </a>
+                  </Link>
                 </div>
 
                 <hr className="home-board-divider" />
 
                 <ul className="home-board-list">
-                  {maintenancePosts.length === 0 ? (
-                    <li>점검안내가 없습니다.</li>
+                  {communityPosts.length === 0 ? (
+                    <li>게시글이 없습니다.</li>
                   ) : (
-                    maintenancePosts.map((post) => (
+                    communityPosts.map((post) => (
                       <li key={post.id}>
-                        <a href={`/posts/${post.id}`}>
+                        <Link to={`/posts/${post.id}`}>
                           {post.sub_category && `[${post.sub_category}] `}
                           {post.title}
-                        </a>
+                        </Link>
                       </li>
                     ))
                   )}
@@ -219,24 +225,24 @@ function Home() {
             <div className="col-sm-6">
               <div className="home-board-box">
                 <div className="home-board-header">
-                  <h3 className="home-board-title">커뮤니티</h3>
-                  <a href="/community" className="plus-btn">
+                  <h3 className="home-board-title">공지사항</h3>
+                  <Link to="/notice" className="plus-btn">
                     <i className="fa-solid fa-plus"></i>
-                  </a>
+                  </Link>
                 </div>
 
                 <hr className="home-board-divider" />
 
                 <ul className="home-board-list">
-                  {communityPosts.length === 0 ? (
-                    <li>게시글이 없습니다.</li>
+                  {noticePosts.length === 0 ? (
+                    <li>공지사항이 없습니다.</li>
                   ) : (
-                    communityPosts.map((post) => (
+                    noticePosts.map((post) => (
                       <li key={post.id}>
-                        <a href={`/posts/${post.id}`}>
+                        <Link to={`/posts/${post.id}`}>
                           {post.sub_category && `[${post.sub_category}] `}
                           {post.title}
-                        </a>
+                        </Link>
                       </li>
                     ))
                   )}
@@ -244,7 +250,33 @@ function Home() {
               </div>
             </div>
 
-            {/* 자리 예약: 인기 게시글 미리보기가 여기에 커뮤니티와 나란히 추가될 예정 */}
+            <div className="col-sm-6">
+              <div className="home-board-box">
+                <div className="home-board-header">
+                  <h3 className="home-board-title">점검안내</h3>
+                  <Link to="/maintenance" className="plus-btn">
+                    <i className="fa-solid fa-plus"></i>
+                  </Link>
+                </div>
+
+                <hr className="home-board-divider" />
+
+                <ul className="home-board-list">
+                  {maintenancePosts.length === 0 ? (
+                    <li>점검안내가 없습니다.</li>
+                  ) : (
+                    maintenancePosts.map((post) => (
+                      <li key={post.id}>
+                        <Link to={`/posts/${post.id}`}>
+                          {post.sub_category && `[${post.sub_category}] `}
+                          {post.title}
+                        </Link>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -336,6 +336,10 @@ a:active {
   display: contents;
 }
 
+:root[data-theme="light"] .board-link:hover .board-card {
+  background-color: #eef1f4;
+}
+
 /* 말머리 */
 .board-title-prefix {
   color: var(--point-mint);
