@@ -49,6 +49,12 @@ export async function loginUser(formData) {
     return response.data;
 }
 
+export async function verifyToken() {
+    const response = await api.get("/api/auth/me");
+
+    return response.data;
+}
+
 export async function findEmail(formData) {
     const response = await axios.post(
         `${API_BASE_URL}/api/auth/find-email`,

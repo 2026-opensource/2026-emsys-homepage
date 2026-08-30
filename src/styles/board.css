@@ -276,8 +276,9 @@ a:active {
   align-items: center;
   column-gap: 14px;
   min-width: 820px;
-  padding: 0 8px 10px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-radius: 6px 6px 0 0;
+  background-color: #3d3d3d;
   color: var(--text-main);
   font-size: 13px;
   font-weight: 800;
@@ -293,6 +294,10 @@ a:active {
 .board-list-header span:first-child,
 .board-list-header span:nth-child(2) {
   text-align: left;
+}
+
+:root[data-theme="light"] .board-list-header {
+  background-color: #f1f4f6;
 }
 
 .board-list {
