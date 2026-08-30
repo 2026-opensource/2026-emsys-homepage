@@ -17,6 +17,7 @@ const financeRoutes = require("./routes/finance.routes");
 //const uploadRoutes = require("./routes/upload.routes");
 const publicRoutes = require("./routes/introduce.routes");
 const invitationRoutes = require("./routes/invitation.routes");
+const sliderRoutes = require("./routes/slider.routes");
 
 const uploadRoutes = require("./routes/upload.routes.js");
 
@@ -72,6 +73,7 @@ app.use("/api/posts", postRoutes);
 
 app.use("/api/introduce", publicRoutes);
 app.use("/api/invitation", invitationRoutes);
+app.use("/api/sliders", sliderRoutes);
 
 app.use("/api/upload", uploadRoutes);
 
