@@ -271,8 +271,21 @@ body {
     text-align: left;
 }
 
-@media(max-width:1000px) {
+/* Feature 카드 반응형: 데스크톱 4열 → 태블릿 2열 → 모바일 1열 */
+@media (max-width: 991px) and (min-width: 576px) {
+    .features-row .col-sm-3 {
+        width: 50%;
+        float: left;
+    }
+}
+
+@media (max-width: 575px) {
+    .features-row .col-sm-3 {
+        width: 100%;
+        float: none;
+    }
+
     .features-item {
-        min-width: 1000px;
+        padding: 20px;
     }
 }
