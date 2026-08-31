@@ -932,6 +932,13 @@ body {
   color: var(--point-mint);
 }
 
+.maintenance-period-text {
+  color: inherit;
+  font-weight: inherit;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
 .mypage-board-date,
 .mypage-board-stat {
   min-width: 0;

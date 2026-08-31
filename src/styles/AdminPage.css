@@ -309,6 +309,13 @@
   margin-right: 4px;
 }
 
+.admin-post-title-cell .maintenance-period-text {
+  color: inherit;
+  font-weight: inherit;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
 .admin-post-meta {
   display: contents;
 }

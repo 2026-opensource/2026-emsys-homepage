@@ -285,6 +285,13 @@
   color: var(--point-mint);
 }
 
+.home-board-list .maintenance-period-text {
+  color: inherit;
+  font-weight: inherit;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
 /* =========================
    반응형 (Media Queries)
 ========================= */

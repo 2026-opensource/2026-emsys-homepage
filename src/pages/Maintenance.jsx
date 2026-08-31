@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
 import { getUserRole, isLoggedIn, redirectToLogin } from "../utils/token";
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -228,6 +229,7 @@ function Maintenance() {
                       ) : (
                         posts.map((post) => {
                           const titlePrefix = getPostTitlePrefix(post);
+                          const maintenancePeriod = formatMaintenancePeriod(post);
 
                           return (
                             <Link
@@ -246,6 +248,11 @@ function Maintenance() {
                                     </span>
                                   )}{" "}
                                   {post.title}
+                                  {maintenancePeriod && (
+                                    <span className="maintenance-period-text">
+                                      {maintenancePeriod}
+                                    </span>
+                                  )}
                                 </h2>
 
                                 <div className="board-meta">

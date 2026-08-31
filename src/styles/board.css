@@ -367,6 +367,13 @@ a:active {
   font-weight: 700;
 }
 
+.maintenance-period-text {
+  color: inherit;
+  font-weight: inherit;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
 /* 상세 페이지 카테고리 */
 .board-category {
   width: 10%;

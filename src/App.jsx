@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { useEffect, useState } from "react";
 import { getUserRole, isLoggedIn, redirectToLogin, saveUserInfo } from "./utils/token";
 import { verifyToken } from "./api/authAPI";
+import { getActiveMaintenancePost } from "./api/postAPI";
 
 import Introduce from "./pages/Introduce";
 import Home from "./pages/Home";
@@ -193,11 +194,52 @@ function AppContent() {
 }
 
 function App() {
+  const ENABLE_SCHEDULED_MAINTENANCE = true;
   const isMaintenanceMode =
     import.meta.env.VITE_MAINTENANCE_MODE === "true";
+  const [maintenanceChecked, setMaintenanceChecked] = useState(
+    isMaintenanceMode || !ENABLE_SCHEDULED_MAINTENANCE,
+  );
+  const [activeMaintenance, setActiveMaintenance] = useState(null);
+
+  useEffect(() => {
+    if (isMaintenanceMode || !ENABLE_SCHEDULED_MAINTENANCE) return;
+
+    let isActive = true;
+
+    async function checkMaintenance() {
+      try {
+        const result = await getActiveMaintenancePost();
+        if (!isActive) return;
+        setActiveMaintenance(result.data || null);
+      } catch (error) {
+        console.error("점검 상태 조회 실패:", error);
+      } finally {
+        if (isActive) {
+          setMaintenanceChecked(true);
+        }
+      }
+    }
+
+    checkMaintenance();
+    const intervalId = window.setInterval(checkMaintenance, 60 * 1000);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(intervalId);
+    };
+  }, [isMaintenanceMode, ENABLE_SCHEDULED_MAINTENANCE]);
 
   if (isMaintenanceMode) {
     return <ServiceMaintenance />;
+  }
+
+  if (!maintenanceChecked) {
+    return null;
+  }
+
+  if (ENABLE_SCHEDULED_MAINTENANCE && activeMaintenance) {
+    return <ServiceMaintenance maintenance={activeMaintenance} />;
   }
 
   return (

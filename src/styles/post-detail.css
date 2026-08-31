@@ -186,9 +186,33 @@
   text-align: center;
 }
 
+.maintenance-message-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: min(720px, 100%);
+  margin: 20px auto 0;
+  padding: 6px 16px;
+  border-radius: 8px;
+  background-color: var(--bg-box);
+  border: 1.5px solid var(--point-mint);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  word-break: break-word;
+}
+
 .gallery-map{
   font-size: 15px;
   margin: 0 2px 0 0;
+}
+
+.maintenance-message-icon {
+  flex-shrink: 0;
+  color: var(--point-mint);
+  font-size: 14px;
 }
 
 .detail-content {
@@ -203,7 +227,8 @@
 }
 
 /* 장소 뱃지가 있으면 본문 내용이 한 줄 더 아래에서 시작하도록 여백 확보 */
-.gallery-location-badge + .detail-content {
+.gallery-location-badge + .detail-content,
+.maintenance-message-badge + .detail-content {
   padding-top: 46px;
 }
 

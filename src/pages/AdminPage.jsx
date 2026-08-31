@@ -10,6 +10,7 @@ import Pagination from '../components/pagination.jsx';
 import DangerZone from '../components/admin/danger_zone.jsx';
 import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat.js";
 
 const ADMIN_POST_SORT_OPTIONS = [
     { value: "latest", label: "최신순" },
@@ -433,6 +434,7 @@ const AdminPage = () => {
                                                     const authorLabel = authorPrefix ? `${authorPrefix}${authorName}` : authorName;
                                                     const createdDate = post.created_at?.split('T')[0] || "-";
                                                     const titlePrefix = getPostTitlePrefix(post);
+                                                    const maintenancePeriod = formatMaintenancePeriod(post);
 
                                                     return (
                                                         <div
@@ -455,6 +457,9 @@ const AdminPage = () => {
                                                                         <span className="admin-post-title-prefix">[{titlePrefix}]</span>
                                                                     )}
                                                                     {post.title || "-"}
+                                                                    {maintenancePeriod && (
+                                                                        <span className="maintenance-period-text">{maintenancePeriod}</span>
+                                                                    )}
                                                                 </h3>
                                                             </div>
                                                             <div className="admin-post-meta">

@@ -99,11 +99,34 @@
 }
 
 .service-maintenance-description {
-  margin: 26px 0 0;
+  margin: 10px 0 0;
   color: var(--text-muted);
   font-size: 16px;
   line-height: 1.8;
   word-break: keep-all;
+}
+
+.service-maintenance-message {
+  width: fit-content;
+  max-width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+  margin: 2px auto 0;
+  color: var(--text-main);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: left;
+  word-break: break-word;
+}
+
+.service-maintenance-message strong {
+  color: var(--text-main);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.5;
 }
 
 .service-maintenance-time {
@@ -111,33 +134,35 @@
   max-width: 100%;
   display: flex;
   align-items: center;
-  gap: 11px;
+  justify-content: center;
   margin: 18px auto 0;
-  padding: 15px 22px;
-  border: 1px solid rgba(0, 255, 163, 0.35);
-  border-radius: 12px;
-  background-color: rgba(0, 255, 163, 0.06);
+  padding: 12px 0;
   color: var(--point-mint);
   text-align: left;
+  white-space: nowrap;
 }
 
 .service-maintenance-time div {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: baseline;
+  gap: 14px;
+  min-width: 0;
 }
 
 .service-maintenance-time-label {
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--point-mint);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .service-maintenance-time strong {
   color: var(--text-main);
-  font-size: 19px;
+  font-size: 28px;
+  font-weight: 800;
   line-height: 1.4;
   word-break: keep-all;
+  text-shadow: 0 0 18px rgba(0, 255, 163, 0.16);
 }
 
 .service-maintenance-notice {
@@ -152,7 +177,7 @@
   }
 
   .service-maintenance-card {
-    padding: 38px 22px 34px;
+    padding: 38px 18px 34px;
     border-radius: 18px;
   }
 
@@ -165,6 +190,15 @@
     font-size: 14px;
   }
 
+  .service-maintenance-message {
+    font-size: 16px;
+    gap: 10px;
+  }
+
+  .service-maintenance-message strong {
+    font-size: clamp(16px, 4.6vw, 19px);
+  }
+
   .service-maintenance-title-row {
     gap: 10px;
   }
@@ -175,6 +209,10 @@
   }
 
   .service-maintenance-time strong {
-    font-size: 17px;
+    font-size: clamp(17px, 5.2vw, 23px);
+  }
+
+  .service-maintenance-time-label {
+    font-size: clamp(16px, 4.6vw, 19px);
   }
 }

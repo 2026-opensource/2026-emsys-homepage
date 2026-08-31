@@ -31,6 +31,21 @@ function getTodayDateStr() {
   return `${year}-${month}-${day}`;
 }
 
+function formatDateTimeLocalValue(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 function PostWrite() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,6 +77,9 @@ function PostWrite() {
     title: "",
     event_start_date: "",
     event_end_date: "",
+    maintenance_start_at: "",
+    maintenance_end_at: "",
+    maintenance_message: "",
     location: "",
   });
 
@@ -407,6 +425,14 @@ function PostWrite() {
   const currentCategoryOptions = isNoticeContext
     ? [{ value: "notice", label: "공지사항" }]
     : categoryOptions[board_type];
+  const isMaintenanceScheduleSubCategory =
+    board_type === "MAINTENANCE" && formData.sub_category === "점검일시";
+  const isMaintenanceMessageSubCategory =
+    board_type === "MAINTENANCE" && formData.sub_category === "점검내용";
+  const shouldShowMaintenanceInfoBox =
+    isMaintenanceScheduleSubCategory || isMaintenanceMessageSubCategory;
+  const shouldShowMaintenanceMessageInput =
+    isMaintenanceScheduleSubCategory || isMaintenanceMessageSubCategory;
 
   const [loading, setLoading] = useState(false);
 
@@ -419,6 +445,16 @@ function PostWrite() {
     if (name === "category") {
       // 카테고리가 바뀌면 세부 말머리 선택도 초기화
       setFormData((prev) => ({ ...prev, category: value, sub_category: "" }));
+      return;
+    }
+
+    if (name === "sub_category" && board_type === "MAINTENANCE") {
+      setFormData((prev) => ({
+        ...prev,
+        sub_category: value,
+        maintenance_start_at: value === "점검일시" ? prev.maintenance_start_at : "",
+        maintenance_end_at: value === "점검일시" ? prev.maintenance_end_at : "",
+      }));
       return;
     }
 
@@ -445,6 +481,16 @@ function PostWrite() {
       }
 
       setFormData((prev) => ({ ...prev, event_end_date: value }));
+      return;
+    }
+
+    if (name === "maintenance_start_at") {
+      setFormData((prev) => ({ ...prev, maintenance_start_at: value }));
+      return;
+    }
+
+    if (name === "maintenance_end_at") {
+      setFormData((prev) => ({ ...prev, maintenance_end_at: value }));
       return;
     }
 
@@ -529,6 +575,13 @@ function PostWrite() {
       files: uploadedFiles,
     };
 
+    if (postData.board_type === "MAINTENANCE") {
+      if (postData.sub_category !== "점검일시") {
+        postData.maintenance_start_at = "";
+        postData.maintenance_end_at = "";
+      }
+    }
+
     if (!postData.title.trim()) {
       setErrorMessage("제목을 입력해주세요.");
       return;
@@ -546,6 +599,33 @@ function PostWrite() {
 
     if (subCategoryOptions[postData.category] && !postData.sub_category) {
       setErrorMessage("세부 말머리를 선택해주세요.");
+      return;
+    }
+
+    if (
+      postData.board_type === "MAINTENANCE" &&
+      postData.sub_category === "점검일시" &&
+      (!postData.maintenance_start_at || !postData.maintenance_end_at)
+    ) {
+      setErrorMessage("점검 시작 시간과 종료 시간을 입력해주세요.");
+      return;
+    }
+
+    if (
+      postData.board_type === "MAINTENANCE" &&
+      postData.sub_category === "점검일시" &&
+      postData.maintenance_start_at >= postData.maintenance_end_at
+    ) {
+      setErrorMessage("점검 종료 시간은 시작 시간보다 늦어야 합니다.");
+      return;
+    }
+
+    if (
+      postData.board_type === "MAINTENANCE" &&
+      ["점검일시", "점검내용"].includes(postData.sub_category) &&
+      !postData.maintenance_message.trim()
+    ) {
+      setErrorMessage("점검 내용을 입력해주세요.");
       return;
     }
 
@@ -780,6 +860,9 @@ function PostWrite() {
         event_end_date: draft.event_end_date
           ? draft.event_end_date.slice(0, 10)
           : "",
+        maintenance_start_at: formatDateTimeLocalValue(draft.maintenance_start_at),
+        maintenance_end_at: formatDateTimeLocalValue(draft.maintenance_end_at),
+        maintenance_message: draft.maintenance_message || "",
         location: draft.location || "",
       });
       setInitialContent(draft.content || "");
@@ -870,6 +953,9 @@ function PostWrite() {
           event_end_date: post.event_end_date
             ? post.event_end_date.slice(0, 10)
             : "",
+          maintenance_start_at: formatDateTimeLocalValue(post.maintenance_start_at),
+          maintenance_end_at: formatDateTimeLocalValue(post.maintenance_end_at),
+          maintenance_message: post.maintenance_message || "",
           location: post.location || "",
         });
         setInitialContent(post.content || "");
@@ -1188,6 +1274,48 @@ function PostWrite() {
                       onChange={handleChange}
                       placeholder="장소를 입력해주세요."
                     />
+                  </div>
+                )}
+
+                {shouldShowMaintenanceInfoBox && (
+                  <div className="event-info-box maintenance-time-box">
+                    {isMaintenanceScheduleSubCategory && (
+                      <div className="event-date-range">
+                        <input
+                          className="event-date-input form-control"
+                          type="datetime-local"
+                          name="maintenance_start_at"
+                          value={formData.maintenance_start_at}
+                          onChange={handleChange}
+                          aria-label="점검 시작 일시"
+                          required
+                        />
+
+                        <span className="event-date-separator">~</span>
+
+                        <input
+                          className="event-date-input form-control"
+                          type="datetime-local"
+                          name="maintenance_end_at"
+                          value={formData.maintenance_end_at}
+                          onChange={handleChange}
+                          aria-label="점검 종료 일시"
+                          required
+                        />
+                      </div>
+                    )}
+
+                    {shouldShowMaintenanceMessageInput && (
+                      <input
+                        className="event-location-input maintenance-message-input form-control"
+                        type="text"
+                        name="maintenance_message"
+                        value={formData.maintenance_message}
+                        onChange={handleChange}
+                        placeholder="점검 내용을 입력해주세요."
+                        maxLength={120}
+                      />
+                    )}
                   </div>
                 )}
               </div>
