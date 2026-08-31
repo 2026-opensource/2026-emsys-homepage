@@ -1,0 +1,3 @@
+ALTER TABLE `events`
+  ADD COLUMN `is_all_day` BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN `color` VARCHAR(20) NULL DEFAULT '#00ffa3';
