@@ -261,21 +261,30 @@ a:active {
 ------*/
 .board-list-section {
   width: 100%;
+  min-width: 0;
   margin-top: 3%;
 }
 
 .board-list-scroll {
   width: 100%;
+  min-width: 0;
   overflow-x: auto;
   padding: 0 0 4px;
 }
 
 .board-list-header {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 110px 92px 78px 78px 68px;
+  grid-template-columns:
+    minmax(68px, 88px)
+    minmax(0, 1fr)
+    minmax(72px, 110px)
+    minmax(68px, 92px)
+    minmax(48px, 78px)
+    minmax(54px, 78px)
+    minmax(48px, 68px);
   align-items: center;
-  column-gap: 14px;
-  min-width: 820px;
+  column-gap: clamp(6px, 1.3vw, 14px);
+  min-width: 0;
   padding: 10px 12px;
   border-radius: 6px 6px 0 0;
   background-color: #3d3d3d;
@@ -322,10 +331,17 @@ a:active {
 .board-card {
   width: 100%;
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 110px 92px 78px 78px 68px;
+  grid-template-columns:
+    minmax(68px, 88px)
+    minmax(0, 1fr)
+    minmax(72px, 110px)
+    minmax(68px, 92px)
+    minmax(48px, 78px)
+    minmax(54px, 78px)
+    minmax(48px, 68px);
   align-items: center;
-  column-gap: 14px;
-  min-width: 820px;
+  column-gap: clamp(6px, 1.3vw, 14px);
+  min-width: 0;
   padding: 12px 8px;
   border-bottom: 1px solid var(--border-color);
   border-radius: 0;
@@ -416,6 +432,7 @@ a:active {
 
 .board-date,
 .board-stat {
+  min-width: 0;
   margin: 0;
   color: #bdbdbd;
   font-size: 13px;
@@ -423,6 +440,40 @@ a:active {
   line-height: 1.4;
   text-align: right;
   white-space: nowrap;
+}
+
+@media (max-width: 900px) and (min-width: 769px) {
+  .board-list-header,
+  .board-card {
+    grid-template-columns:
+      minmax(58px, 0.75fr)
+      minmax(0, 1.75fr)
+      minmax(64px, 0.85fr)
+      minmax(58px, 0.75fr)
+      minmax(42px, 0.55fr)
+      minmax(50px, 0.65fr)
+      minmax(42px, 0.55fr);
+    column-gap: 8px;
+  }
+
+  .board-list-header {
+    padding-inline: 8px;
+  }
+
+  .board-card {
+    padding-inline: 6px;
+  }
+
+  .board-list-category,
+  .board-author,
+  .board-date,
+  .board-stat {
+    font-size: 12px;
+  }
+
+  .board-title {
+    font-size: 14px;
+  }
 }
 
 .pagination {

@@ -126,7 +126,35 @@ async function delegatePresident(req, res, next) {
 // 모든 게시글(모든 게시판의 게시글) 불러오기
 async function getAllPosts(req, res) {
     try {
-        const { category, search, page = 1, limit = 5 } = req.query;
+        const {
+            category,
+            sub_category,
+            search,
+            sort = "latest",
+            page = 1,
+            limit = 5,
+        } = req.query;
+        const orderByMap = {
+            latest: [{ created_at: "desc" }, { id: "desc" }],
+            views: [{ view_count: "desc" }, { created_at: "desc" }, { id: "desc" }],
+            likes: [
+                { post_likes: { _count: "desc" } },
+                { created_at: "desc" },
+                { id: "desc" },
+            ],
+            comments: [
+                { comments: { _count: "desc" } },
+                { created_at: "desc" },
+                { id: "desc" },
+            ],
+        };
+
+        if (!orderByMap[sort]) {
+            return res.status(400).json({
+                success: false,
+                message: "올바른 정렬 기준이 아닙니다.",
+            });
+        }
 
         const where = {
             board_type: { not: 'GALLERY' }
@@ -134,6 +162,10 @@ async function getAllPosts(req, res) {
 
         if (category && category !== '') {
             where.category = category;
+        }
+
+        if (sub_category && sub_category !== 'all') {
+            where.sub_category = sub_category;
         }
 
         if (search) {
@@ -149,7 +181,7 @@ async function getAllPosts(req, res) {
             where,
             skip: (parseInt(page) - 1) * parseInt(limit),
             take: parseInt(limit),
-            orderBy: { created_at: 'desc' },
+            orderBy: orderByMap[sort],
             include: {
                 users: {
                     select: { name: true, student_id: true, status: true, is_active: true, }

@@ -26,11 +26,28 @@ export const fetchMembers = async () => {
 };
 
 // 전체 게시글 목록 가져오기
-export const fetchPosts = async (page = 1, limit = 5, category = '', search = '') => {
+export const fetchPosts = async (
+    page = 1,
+    limit = 5,
+    category = '',
+    search = '',
+    subCategory = 'all',
+    sort = 'latest'
+) => {
     try {
         const response = await axios.get(
-            `${BASE_URL}/admin/posts?page=${page}&limit=${limit}&category=${category}&search=${search}`,
-            authHeaders()
+            `${BASE_URL}/admin/posts`,
+            {
+                ...authHeaders(),
+                params: {
+                    page,
+                    limit,
+                    category,
+                    search,
+                    sub_category: subCategory,
+                    sort,
+                },
+            }
         );
         return response.data;
     } catch (error) {
