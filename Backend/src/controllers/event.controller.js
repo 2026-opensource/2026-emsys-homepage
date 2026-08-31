@@ -14,11 +14,11 @@ exports.getAllEvents = async (req, res) => {
 // 관리자 일정 추가
 exports.createEvent = async (req, res) => {
   try {
-    const { title, start_time, end_time } = req.body;
+    const { title, start_time, end_time, is_all_day, color } = req.body;
     if (!title || !start_time) {
       return res.status(400).json({ success: false, message: "제목과 시작 시간은 필수입니다." });
     }
-    const newEvent = await eventService.createEvent({ title, start_time, end_time });
+    const newEvent = await eventService.createEvent({ title, start_time, end_time, is_all_day, color });
     res.status(201).json({ success: true, message: "일정이 등록되었습니다.", data: newEvent });
   } catch (error) {
     console.error("일정 등록 에러:", error);
@@ -30,11 +30,11 @@ exports.createEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, start_time, end_time } = req.body;
+    const { title, start_time, end_time, is_all_day, color } = req.body;
     if (!title || !start_time) {
       return res.status(400).json({ success: false, message: "제목과 시작 시간은 필수입니다." });
     }
-    const updatedEvent = await eventService.updateEvent(id, { title, start_time, end_time });
+    const updatedEvent = await eventService.updateEvent(id, { title, start_time, end_time, is_all_day, color });
     res.status(200).json({ success: true, message: "일정이 수정되었습니다.", data: updatedEvent });
   } catch (error) {
     console.error("일정 수정 에러:", error);

@@ -32,6 +32,8 @@ model events {
   title      String?   @db.VarChar(255)
   start_time DateTime? @db.Timestamp(0)
   end_time   DateTime? @db.Timestamp(0)
+  is_all_day Boolean   @default(false)
+  color      String?   @default("#00ffa3") @db.VarChar(20)
   created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
 }
 

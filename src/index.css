@@ -25,6 +25,8 @@ em {
   --calendar-sunday: #ff6b6b;
   --calendar-saturday: #4da3ff;
   --calendar-header-bg: var(--bg-main);
+  --calendar-today-bg: rgba(0, 255, 163, 0.12);
+  --calendar-day-hover-bg: rgba(255, 255, 255, 0.04);
   --calendar-active: lightpink;
   /* 캘린더에서 일요일, 토요일, 선택된 날짜 색상 */
   --danger-red: #dc3545;
