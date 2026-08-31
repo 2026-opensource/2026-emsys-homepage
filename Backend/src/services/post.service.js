@@ -464,19 +464,20 @@ function isValidCategoryByBoardType(boardType, category) {
 
 // 카테고리별 세부 말머리 목록 (없는 카테고리는 세부 말머리 선택 없이 큰 카테고리명이 그대로 말머리)
 const SUB_CATEGORY_OPTIONS = {
-  free: ["소모임", "게임", "기타"],
-  recruit: ["공모전", "스터디", "소모임"],
-  notice: ["공지"],
-  study: ["초급반", "중급반", "심화반"],
-  class: [
-    "전필-수업자료/과제",
-    "전필-족보",
-    "전선-수업자료/과제",
-    "전선-족보",
-    "교양-수업자료/과제",
-    "교양-족보",
-  ],
-  maintenance: ["점검일시", "점검내용"],
+    free: ["소모임", "게임", "기타"],
+    recruit: ["공모전", "스터디", "소모임"],
+    notice: ["공지"],
+    study: ["초급반", "중급반", "심화반"],
+    class: [
+        "전필-수업자료/과제",
+        "전필-족보",
+        "전선-수업자료/과제",
+        "전선-족보",
+        "교양-수업자료/과제",
+        "교양-족보",
+    ],
+    maintenance: ["점검일시", "점검내용"],
+    activity: ["개강총회", "종강총회", "MT", "행사"],
 };
 
 function getSubCategoryOptions(category) {
@@ -508,25 +509,17 @@ function validateSubCategory(category, subCategory, isDraft) {
 
 // 새로운 게시글 작성
 exports.createPost = async ({ body, user }) => {
-  const {
-    board_type,
-    category,
-    sub_category,
-    title,
-    content,
-    files = [],
-    is_draft,
-  } = body;
-  const authorId = user.id;
-  const userRole = user.role;
-  const isDraft = Boolean(is_draft);
+    const { board_type, category, sub_category, title, content, files = [], is_draft, event_start_date, event_end_date, location } = body;
+    const authorId = user.id;
+    const userRole = user.role;
+    const isDraft = Boolean(is_draft);
 
-  // 임시저장이 아닐 때만 제목/내용 필수
-  if (!isDraft && (!title || !content)) {
-    const error = new Error("제목과 내용을 입력해주세요.");
-    error.status = 400;
-    throw error;
-  }
+    // 임시저장이 아닐 때만 제목/내용 필수
+    if (!isDraft && (!title || !content)) {
+        const error = new Error("제목과 내용을 입력해주세요.");
+        error.status = 400;
+        throw error;
+    }
 
   const finalBoardType = board_type || "COMMUNITY";
 
@@ -603,25 +596,61 @@ exports.createPost = async ({ body, user }) => {
     throw error;
   }
 
-  // 한 게시글당 이미지 총 용량 제한
-  // if (getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE) {
-  //     const error = new Error("게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.");
-  //     error.status = 400;
-  //     throw error;
-  // } 로컬 파일 시스템 기준이라 R2에선 그대로 작동 X
+    // 한 게시글당 이미지 총 용량 제한
+    // if (getPostImageTotalSize(content) > MAX_POST_IMAGE_TOTAL_SIZE) {
+    //     const error = new Error("게시글 하나에 첨부할 수 있는 이미지의 총 용량은 50MB까지입니다.");
+    //     error.status = 400;
+    //     throw error;
+    // } 로컬 파일 시스템 기준이라 R2에선 그대로 작동 X
 
-  // transaction 사용해서 게시글 생성 + 이미지 저장 (둘 중 하나 실패하면 db에 둘 다 저장안됨)
-  const newPost = await prisma.$transaction(async (tx) => {
-    const createdPost = await tx.posts.create({
-      data: {
-        board_type: finalBoardType,
-        category: category || null,
-        sub_category: finalSubCategory,
-        title: title || "",
-        content: content || "",
-        author_id: authorId,
-        is_draft: isDraft,
-      },
+    // transaction 사용해서 게시글 생성 + 이미지 저장 (둘 중 하나 실패하면 db에 둘 다 저장안됨)
+    const newPost = await prisma.$transaction(async (tx) => {
+        const createdPost = await tx.posts.create({
+            data: {
+                board_type: finalBoardType,
+                category: category || null,
+                sub_category: finalSubCategory,
+                title: title || "",
+                content: content || "",
+                author_id: authorId,
+                is_draft: isDraft,
+                // updated_at을 생성 시점에도 채워둬야 새로 만든 글이 updated_at desc 정렬에서
+                // (NULL은 MySQL DESC 정렬에서 맨 뒤로 밀리므로) 최신 글로 맨 위에 온다.
+                updated_at: new Date(),
+                event_start_date: event_start_date ? new Date(event_start_date) : null,
+                event_end_date: event_end_date ? new Date(event_end_date) : null,
+                location: location || null,
+            },
+        });
+
+        if (postImages.length > 0) {
+            await tx.post_images.createMany({
+                data: postImages.map((image) => ({
+                    post_id: createdPost.id,
+                    thumbnail_url: image.thumbnail_url,
+                    display_url: image.display_url,
+                    original_name: image.original_name,
+                    caption: image.caption,
+                    sort_order: image.sort_order,
+                })),
+            });
+        }
+
+        if (Array.isArray(files) && files.length > 0) {
+            await tx.post_files.createMany({
+                data: files.map((file, index) => ({
+                    post_id: createdPost.id,
+                    original_name: file.originalName,
+                    file_name: file.fileName,
+                    file_url: file.fileUrl,
+                    download_url: file.downloadUrl,
+                    size: file.size,
+                    sort_order: index,
+                })),
+            });
+        }
+
+        return createdPost;
     });
 
     if (postImages.length > 0) {
@@ -658,26 +687,12 @@ exports.createPost = async ({ body, user }) => {
 
 // 게시글 수정 (본인만 가능)
 exports.updatePost = async ({ id, body, user }) => {
-  const {
-    board_type,
-    category,
-    sub_category,
-    title,
-    content,
-    files = [],
-    is_draft,
-  } = body;
-  const userId = user.id;
-  const userRole = user.role;
-  const isDraft = Boolean(is_draft);
+    const { board_type, category, sub_category, title, content, files = [], is_draft, event_start_date, event_end_date, location } = body;
+    const userId = user.id;
+    const userRole = user.role;
+    const isDraft = Boolean(is_draft);
 
-  const postId = parseInt(id, 10);
-
-  if (Number.isNaN(postId) || postId < 1) {
-    const error = new Error("잘못된 게시글 ID입니다.");
-    error.status = 400;
-    throw error;
-  }
+    const postId = parseInt(id, 10);
 
   // 임시저장이 아닐 때만 제목/내용 필수
   if (!isDraft && (!title || !content)) {
@@ -821,24 +836,24 @@ exports.updatePost = async ({ id, body, user }) => {
       },
     });
 
-    if (postImages.length > 0) {
-      await tx.post_images.createMany({
-        data: postImages.map((image) => ({
-          post_id: postId,
-          thumbnail_url: image.thumbnail_url,
-          display_url: image.display_url,
-          original_name: image.original_name,
-          caption: image.caption,
-          sort_order: image.sort_order,
-        })),
-      });
-    }
-
-    await tx.post_files.deleteMany({
-      where: {
-        post_id: postId,
-      },
-    });
+    const updatedPost = await prisma.$transaction(async (tx) => {
+        await tx.posts.update({
+            where: {
+                id: postId,
+            },
+            data: {
+                board_type: finalBoardType,
+                category: category || null,
+                sub_category: finalSubCategory,
+                title: title || "",
+                content: content || "",
+                is_draft: isDraft,
+                updated_at: new Date(),
+                event_start_date: event_start_date ? new Date(event_start_date) : null,
+                event_end_date: event_end_date ? new Date(event_end_date) : null,
+                location: location || null,
+            },
+        });
 
     if (Array.isArray(files) && files.length > 0) {
       await tx.post_files.createMany({
