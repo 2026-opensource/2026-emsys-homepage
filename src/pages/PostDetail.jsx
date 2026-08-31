@@ -14,7 +14,7 @@ import DOMPurify from "dompurify";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import { getToken, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
+import { getToken, getUserInfo, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 import "../layout/common.css";
@@ -614,7 +614,7 @@ function PostDetail() {
     );
   }
 
-  const loginUser = JSON.parse(localStorage.getItem("userInfo"));
+  const loginUser = getUserInfo();
 
   const isAuthor = Number(post?.author_id) === Number(loginUser?.id);
   const isAdmin =

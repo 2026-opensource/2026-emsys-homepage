@@ -652,36 +652,6 @@ exports.createPost = async ({ body, user }) => {
 
         return createdPost;
     });
-
-    if (postImages.length > 0) {
-      await tx.post_images.createMany({
-        data: postImages.map((image) => ({
-          post_id: createdPost.id,
-          thumbnail_url: image.thumbnail_url,
-          display_url: image.display_url,
-          original_name: image.original_name,
-          caption: image.caption,
-          sort_order: image.sort_order,
-        })),
-      });
-    }
-
-    if (Array.isArray(files) && files.length > 0) {
-      await tx.post_files.createMany({
-        data: files.map((file, index) => ({
-          post_id: createdPost.id,
-          original_name: file.originalName,
-          file_name: file.fileName,
-          file_url: file.fileUrl,
-          download_url: file.downloadUrl,
-          size: file.size,
-          sort_order: index,
-        })),
-      });
-    }
-
-    return createdPost;
-  });
   return newPost;
 };
 
@@ -693,6 +663,12 @@ exports.updatePost = async ({ id, body, user }) => {
     const isDraft = Boolean(is_draft);
 
     const postId = parseInt(id, 10);
+
+  if (Number.isNaN(postId) || postId < 1) {
+    const error = new Error("잘못된 게시글 ID입니다.");
+    error.status = 400;
+    throw error;
+  }
 
   // 임시저장이 아닐 때만 제목/내용 필수
   if (!isDraft && (!title || !content)) {
@@ -826,6 +802,9 @@ exports.updatePost = async ({ id, body, user }) => {
         content: content || "",
         is_draft: isDraft,
         updated_at: new Date(),
+        event_start_date: event_start_date ? new Date(event_start_date) : null,
+        event_end_date: event_end_date ? new Date(event_end_date) : null,
+        location: location || null,
       },
     });
 
@@ -836,24 +815,24 @@ exports.updatePost = async ({ id, body, user }) => {
       },
     });
 
-    const updatedPost = await prisma.$transaction(async (tx) => {
-        await tx.posts.update({
-            where: {
-                id: postId,
-            },
-            data: {
-                board_type: finalBoardType,
-                category: category || null,
-                sub_category: finalSubCategory,
-                title: title || "",
-                content: content || "",
-                is_draft: isDraft,
-                updated_at: new Date(),
-                event_start_date: event_start_date ? new Date(event_start_date) : null,
-                event_end_date: event_end_date ? new Date(event_end_date) : null,
-                location: location || null,
-            },
-        });
+    if (postImages.length > 0) {
+      await tx.post_images.createMany({
+        data: postImages.map((image) => ({
+          post_id: postId,
+          thumbnail_url: image.thumbnail_url,
+          display_url: image.display_url,
+          original_name: image.original_name,
+          caption: image.caption,
+          sort_order: image.sort_order,
+        })),
+      });
+    }
+
+    await tx.post_files.deleteMany({
+      where: {
+        post_id: postId,
+      },
+    });
 
     if (Array.isArray(files) && files.length > 0) {
       await tx.post_files.createMany({
