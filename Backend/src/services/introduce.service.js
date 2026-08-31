@@ -9,6 +9,7 @@ async function getExecutives() {
         },
         select: {
             name: true,
+            phone_number: true,
             role: true,
             position: true,
         },

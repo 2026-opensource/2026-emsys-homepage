@@ -11,6 +11,56 @@ import DangerZone from '../components/admin/danger_zone.jsx';
 import ExecutiveZone from '../components/admin/excutive_zone.jsx';
 import FinanceStats from '../components/admin/FinanceStats.jsx';
 
+const ADMIN_POST_SORT_OPTIONS = [
+    { value: "latest", label: "최신순" },
+    { value: "views", label: "조회수 순" },
+    { value: "likes", label: "좋아요 순" },
+    { value: "comments", label: "댓글 순" },
+];
+
+const ADMIN_POST_SUB_CATEGORY_OPTIONS = {
+    all: [
+        "공지",
+        "소모임",
+        "게임",
+        "기타",
+        "공모전",
+        "스터디",
+        "초급반",
+        "중급반",
+        "심화반",
+        "전필-수업자료/과제",
+        "전필-족보",
+        "전선-수업자료/과제",
+        "전선-족보",
+        "교양-수업자료/과제",
+        "교양-족보",
+        "개강총회",
+        "종강총회",
+        "MT",
+        "행사",
+        "점검일시",
+        "점검내용",
+    ],
+    notice: ["공지"],
+    free: ["소모임", "게임", "기타"],
+    qna: [],
+    recruit: ["공모전", "스터디", "소모임"],
+    study: ["초급반", "중급반", "심화반"],
+    project: [],
+    contest: [],
+    class: [
+        "전필-수업자료/과제",
+        "전필-족보",
+        "전선-수업자료/과제",
+        "전선-족보",
+        "교양-수업자료/과제",
+        "교양-족보",
+    ],
+    activity: ["개강총회", "종강총회", "MT", "행사"],
+    maintenance: ["점검일시", "점검내용"],
+};
+
 const AdminPage = () => {
     const navigate = useNavigate();
     const [showFinance, setShowFinance] = useState(false);
@@ -21,6 +71,8 @@ const AdminPage = () => {
 
     const [selectedPosts, setSelectedPosts] = useState([]);
     const [postCategory, setPostCategory] = useState('');
+    const [postSubCategory, setPostSubCategory] = useState('all');
+    const [postSort, setPostSort] = useState('latest');
     const [postSearch, setPostSearch] = useState('');
 
     // 부원 검색
@@ -35,9 +87,11 @@ const AdminPage = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const POSTS_PER_PAGE = 5;
+    const POSTS_PER_PAGE = 7;
 
     const role = getUserRole();
+    const postSubCategoryOptions = ADMIN_POST_SUB_CATEGORY_OPTIONS[postCategory || "all"] || [];
+    const hasPostSubCategoryOptions = postSubCategoryOptions.length > 0;
 
     // 동작 실행 함수들
     const togglePostSelect = (postId) => {
@@ -61,7 +115,14 @@ const AdminPage = () => {
             setSelectedPosts([]);
 
             // 삭제 후 데이터 새로 불러오기
-            const postsData = await fetchPosts(currentPage, POSTS_PER_PAGE, postCategory, postSearch);
+            const postsData = await fetchPosts(
+                currentPage,
+                POSTS_PER_PAGE,
+                postCategory,
+                postSearch,
+                postSubCategory,
+                postSort
+            );
             setPosts(postsData.data || []);
             setTotalPages(postsData.pagination?.totalPages || 1);
 
@@ -187,7 +248,14 @@ const AdminPage = () => {
 
                 // 백엔드에서 데이터 가져오기 (비동기 처리)
                 const membersData = await fetchMembers();
-                const postsData = await fetchPosts(currentPage, POSTS_PER_PAGE, postCategory, postSearch);
+                const postsData = await fetchPosts(
+                    currentPage,
+                    POSTS_PER_PAGE,
+                    postCategory,
+                    postSearch,
+                    postSubCategory,
+                    postSort
+                );
 
                 setAvailableMembers(membersData.data || []);
                 setPosts(postsData.data || []);
@@ -207,7 +275,7 @@ const AdminPage = () => {
         };
 
         loadInitialData();
-    }, [currentPage, postCategory, postSearch, navigate]); // 딱 한번 실행되도록 빈 배열을 넣음
+    }, [currentPage, postCategory, postSubCategory, postSearch, postSort, navigate]); // 딱 한번 실행되도록 빈 배열을 넣음
 
     // 카테고리 key를 화면에 보여줄 한글로 변환
     function getCategoryText(category) {
@@ -221,6 +289,12 @@ const AdminPage = () => {
         if (category === "class") return "수업";
         if (category === "activity") return "행사";
         return category;
+    }
+
+    function getPostTitlePrefix(post) {
+        if (post.sub_category) return post.sub_category;
+
+        return "";
     }
 
     // 데이터를 가져오는 동안의 로딩 화면
@@ -253,74 +327,147 @@ const AdminPage = () => {
                             ) : (
                                 <>
                                     <div className="admin-post-controls-row">
-                                        <select
-                                            className="form-control admin-board-category-select"
-                                            value={postCategory}
-                                            onChange={(e) => { setPostCategory(e.target.value); setCurrentPage(1); }}
-                                        >
-                                            <option value="">전체</option>
-                                            <option value="notice">공지사항</option>
-                                            <option value="free">자유</option>
-                                            <option value="qna">질문</option>
-                                            <option value="recurit">팀원 모집</option>
-                                            <option value="study">스터디</option>
-                                            <option value="project">과제/프로젝트</option>
-                                            <option value="contest">대회/공모전</option>
-                                            <option value="class">수업</option>
-                                            <option value="event">행사</option>
-                                        </select>
+                                        <div className="admin-post-filter-selects">
+                                            <select
+                                                className="form-control admin-board-category-select"
+                                                value={postCategory}
+                                                onChange={(e) => {
+                                                    setPostCategory(e.target.value);
+                                                    setPostSubCategory("all");
+                                                    setCurrentPage(1);
+                                                }}
+                                            >
+                                                <option value="">게시판 선택</option>
+                                                <option value="notice">공지사항</option>
+                                                <option value="free">자유</option>
+                                                <option value="qna">질문</option>
+                                                <option value="recruit">팀원 모집</option>
+                                                <option value="study">스터디</option>
+                                                <option value="project">과제/프로젝트</option>
+                                                <option value="contest">대회/공모전</option>
+                                                <option value="class">수업</option>
+                                                <option value="activity">행사</option>
+                                                <option value="maintenance">점검안내</option>
+                                            </select>
 
-                                        <div className="input-group admin-board-search-input">
-                                            <div className="modal-search-input-group">
-                                                <input
-                                                    type="text"
-                                                    className="search-input"
-                                                    placeholder="게시글 검색"
-                                                    value={postSearch}
-                                                    onChange={(e) => { setPostSearch(e.target.value); setCurrentPage(1); }}
-                                                />
-                                                <button className="admin-search-btn" type="button">
-                                                    <i className="fa-solid fa-magnifying-glass"></i>
-                                                </button>
-                                            </div>
+                                            <select
+                                                className="form-control admin-board-category-select admin-board-sub-category-select"
+                                                value={hasPostSubCategoryOptions ? postSubCategory : ""}
+                                                onChange={(e) => {
+                                                    setPostSubCategory(e.target.value);
+                                                    setCurrentPage(1);
+                                                }}
+                                                disabled={!hasPostSubCategoryOptions}
+                                            >
+                                                {hasPostSubCategoryOptions ? (
+                                                    <>
+                                                        <option value="all">세부 말머리</option>
+                                                        {postSubCategoryOptions.map((option) => (
+                                                            <option key={option} value={option}>
+                                                                {option}
+                                                            </option>
+                                                        ))}
+                                                    </>
+                                                ) : (
+                                                    <option value="">말머리 없음</option>
+                                                )}
+                                            </select>
+
+                                            <select
+                                                className="form-control admin-board-category-select admin-board-sort-select"
+                                                value={postSort}
+                                                onChange={(e) => {
+                                                    setPostSort(e.target.value);
+                                                    setCurrentPage(1);
+                                                }}
+                                            >
+                                                {ADMIN_POST_SORT_OPTIONS.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
 
-                                        <button className="btn-danger btn-delete" onClick={deletePosts}>
-                                            선택 삭제
-                                        </button>
+                                        <div className="admin-post-action-row">
+                                            <div className="input-group admin-board-search-input">
+                                                <div className="modal-search-input-group">
+                                                    <input
+                                                        type="text"
+                                                        className="search-input"
+                                                        placeholder="게시글 검색"
+                                                        value={postSearch}
+                                                        onChange={(e) => { setPostSearch(e.target.value); setCurrentPage(1); }}
+                                                    />
+                                                    <button className="admin-search-btn" type="button">
+                                                        <i className="fa-solid fa-magnifying-glass"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <button className="btn-danger btn-delete" onClick={deletePosts}>
+                                                선택 삭제
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <div className="post-list">
+                                    <div className="admin-post-list">
                                         {posts.length === 0 ? (
-                                            <p style={{ textAlign: 'center', padding: '20px', color: '#888' }}>조건에 맞는 게시글이 없습니다.</p>
+                                            <p className="admin-post-empty">조건에 맞는 게시글이 없습니다.</p>
                                         ) : (
-                                            posts.map(post => (
-                                                <div key={post.id} className="post-item" onClick={() => goToPostDetail(post.id)} style={{ cursor: 'pointer' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedPosts.includes(post.id)}
-                                                        onChange={() => togglePostSelect(post.id)}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    />
-                                                    <div className="post-category">{getCategoryText(post.category)}</div>
-                                                    <div className="admin-post-content">
-
-                                                        <div className="post-text-group">
-                                                            <h3>
-                                                                {post.title}
-                                                            </h3>
-                                                            <p className="post-info"> {post.users.student_id?.slice(2, 4)}{post.users.name} · {post.created_at?.split('T')[0]}</p>
-                                                        </div>
-
-                                                        <div className="admin-post-stats">
-                                                            <div>조회수 {post.view_count || 0}</div>
-                                                            <div>좋아요 {post._count.post_likes || 0}</div>
-                                                            <div>댓글 {post._count.comments || 0}</div>
-                                                        </div>
-                                                    </div>
-
+                                            <>
+                                                <div className="admin-post-list-header" aria-hidden="true">
+                                                    <span></span>
+                                                    <span>분류</span>
+                                                    <span>제목</span>
+                                                    <span>작성자</span>
+                                                    <span>날짜</span>
+                                                    <span>조회</span>
+                                                    <span>좋아요</span>
+                                                    <span>댓글</span>
                                                 </div>
-                                            ))
+                                                {posts.map(post => {
+                                                    const isSelected = selectedPosts.includes(post.id);
+                                                    const authorName = post.users?.name || "-";
+                                                    const authorPrefix = post.users?.student_id?.slice(2, 4) || "";
+                                                    const authorLabel = authorPrefix ? `${authorPrefix}${authorName}` : authorName;
+                                                    const createdDate = post.created_at?.split('T')[0] || "-";
+                                                    const titlePrefix = getPostTitlePrefix(post);
+
+                                                    return (
+                                                        <div
+                                                            key={post.id}
+                                                            className={`admin-post-row ${isSelected ? "selected" : ""}`}
+                                                            onClick={() => goToPostDetail(post.id)}
+                                                        >
+                                                            <label className="admin-post-check" onClick={(e) => e.stopPropagation()}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    aria-label={`${post.title || "게시글"} 선택`}
+                                                                    checked={isSelected}
+                                                                    onChange={() => togglePostSelect(post.id)}
+                                                                />
+                                                            </label>
+                                                            <span className="admin-post-category">{getCategoryText(post.category)}</span>
+                                                            <div className="admin-post-title-cell">
+                                                                <h3>
+                                                                    {titlePrefix && (
+                                                                        <span className="admin-post-title-prefix">[{titlePrefix}]</span>
+                                                                    )}
+                                                                    {post.title || "-"}
+                                                                </h3>
+                                                            </div>
+                                                            <div className="admin-post-meta">
+                                                                <span className="admin-post-author">{authorLabel}</span>
+                                                                <span className="admin-post-date">{createdDate}</span>
+                                                                <span className="admin-post-stat admin-post-stat-view">{post.view_count || 0}</span>
+                                                                <span className="admin-post-stat admin-post-stat-like">{post._count?.post_likes || 0}</span>
+                                                                <span className="admin-post-stat admin-post-stat-comment">{post._count?.comments || 0}</span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </>
                                         )}
                                     </div>
                                     <Pagination
