@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMyInfo, getUserInfoById, resetProfileImage, updateGreetingMessage, updateProfileImage } from "../api/userAPI";
 import { getMyPosts, getMyPostActivityStats, getMyPostCategoryStats, getUserPosts, getUserPostActivityStats, getUserPostCategoryStats } from "../api/postAPI";
 import { getUserInfo as getStoredUserInfo, isAuthError, redirectToLogin, requireLogin } from "../utils/token";
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 const ACTIVITY_YEAR = new Date().getFullYear();
@@ -1072,6 +1073,11 @@ function MyPage() {
                             </span>
                           )}{" "}
                           {post.title}
+                          {formatMaintenancePeriod(post) && (
+                            <span className="maintenance-period-text">
+                              {formatMaintenancePeriod(post)}
+                            </span>
+                          )}
                         </h2>
                         <time className="mypage-board-date" dateTime={post.created_at}>
                           {post.created_at?.slice(0, 10)}

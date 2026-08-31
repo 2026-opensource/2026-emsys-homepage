@@ -49,6 +49,10 @@ router.get('/', optionalAuth, postController.getAllPosts);
 
 router.get('/popular', optionalAuth, postController.getPopularPosts);
 
+router.get('/maintenance/active', postController.getActiveMaintenancePost);
+
+router.get('/maintenance/latest', postController.getLatestMaintenancePost);
+
 // 사용자 본인 게시글만 불러오게
 router.get('/my/category-stats', requireAuth, postController.getMyPostCategoryStats);
 

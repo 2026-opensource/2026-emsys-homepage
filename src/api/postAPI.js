@@ -93,6 +93,16 @@ export async function getPopularPosts({ category = "all", search = "", page = 1,
     return response.data;
 }
 
+export async function getActiveMaintenancePost() {
+    const response = await axios.get(`${API_BASE_URL}/api/posts/maintenance/active`);
+    return response.data;
+}
+
+export async function getLatestMaintenancePost() {
+    const response = await axios.get(`${API_BASE_URL}/api/posts/maintenance/latest`);
+    return response.data;
+}
+
 // 게시글 상세 내용 조회
 export async function getPostById(id) {
     const token = getToken();

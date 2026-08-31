@@ -265,6 +265,14 @@ body {
   color-scheme: dark;
 }
 
+.maintenance-time-box {
+  flex-wrap: nowrap;
+}
+
+.maintenance-message-input {
+  min-width: 220px;
+}
+
 .event-date-separator {
   flex-shrink: 0;
   color: var(--text-muted);
@@ -540,5 +548,10 @@ body {
 
   .event-location-input {
     min-width: 0;
+  }
+
+  .maintenance-time-box {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

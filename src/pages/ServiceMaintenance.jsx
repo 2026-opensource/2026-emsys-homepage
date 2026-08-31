@@ -1,19 +1,55 @@
-import { useEffect } from "react";
-import { Clock3, Wrench } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Wrench } from "lucide-react";
 
 import logoGreen from "../assets/images/logo-green-removebg.png";
 import logoBlack from "../assets/images/logo-black-removebg.png";
+import { getLatestMaintenancePost } from "../api/postAPI";
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 
 import "../styles/service-maintenance.css";
 
 // 점검 화면에 표시할 일시를 직접 입력하세요.
-const MAINTENANCE_TIME = "2026년 8월 29일 00:00까지";
+const MAINTENANCE_TIME = "08.29(토) 18:00 ~ 22:00";
 
-function ServiceMaintenance() {
+function ServiceMaintenance({ maintenance = null }) {
+  const [latestMaintenance, setLatestMaintenance] = useState(maintenance);
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") ?? "dark";
     document.documentElement.dataset.theme = savedTheme;
   }, []);
+
+  useEffect(() => {
+    if (maintenance) {
+      setLatestMaintenance(maintenance);
+      return;
+    }
+
+    let isActive = true;
+
+    async function fetchLatestMaintenance() {
+      try {
+        const result = await getLatestMaintenancePost();
+        if (isActive) {
+          setLatestMaintenance(result.data || null);
+        }
+      } catch (error) {
+        console.error("최신 점검 안내 조회 실패:", error);
+      }
+    }
+
+    fetchLatestMaintenance();
+
+    return () => {
+      isActive = false;
+    };
+  }, [maintenance]);
+
+  const maintenanceTime =
+    formatMaintenancePeriod(latestMaintenance) || MAINTENANCE_TIME;
+  const maintenanceMessage =
+    latestMaintenance?.maintenance_message?.trim() ||
+    "더 안정적인 서비스를 제공하기 위해 시스템을 점검하고 있습니다.";
 
   return (
     <main className="service-maintenance-page">
@@ -40,16 +76,18 @@ function ServiceMaintenance() {
         </div>
 
         <div className="service-maintenance-time" aria-label="점검 일시">
-          <Clock3 size={24} aria-hidden="true" />
           <div>
             <span className="service-maintenance-time-label">점검 일시</span>
-            <strong>{MAINTENANCE_TIME}</strong>
+            <strong>{maintenanceTime}</strong>
           </div>
         </div>
 
+        <div className="service-maintenance-message" aria-label="점검 내용">
+          <span className="service-maintenance-time-label">점검 내용</span>
+          <strong>{maintenanceMessage}</strong>
+        </div>
+
         <p className="service-maintenance-description">
-          더 안정적인 서비스를 제공하기 위해 시스템을 점검하고 있습니다.
-          <br />
           점검이 완료되는 대로 정상적으로 이용하실 수 있습니다.
         </p>
 
