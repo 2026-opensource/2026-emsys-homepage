@@ -13,6 +13,15 @@ body {
   background-color: var(--bg-main);
 }
 
+.board-page.post-write-page {
+  min-height: calc(100vh - 70px);
+  margin: 0;
+  padding: 70px 90px;
+  box-sizing: border-box;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
 .write-container {
   width: 100%;
   max-width: 1200px;
@@ -43,6 +52,7 @@ body {
   color: var(--point-mint);
   font-size: 32px;
   font-weight: 700;
+  margin: 10px 0;
 }
 
 /* 수정/삭제 버튼 영역 */
@@ -75,7 +85,7 @@ body {
 /* 삭제 버튼 */
 .cancel-write-btn {
   background-color: var(--border-color);
-  color: white;
+  color: var(--text-main);
 }
 
 .post-write-btn:hover,
@@ -262,7 +272,7 @@ body {
   color: var(--text-main);
   background-color: var(--bg-box);
   border: 2px solid var(--border-color);
-  color-scheme: dark;
+  color-scheme: light dark;
 }
 
 .event-date-separator {
@@ -319,20 +329,19 @@ body {
 
 .jodit {
   --jd-color-panel: ;
-  --jd-color-background-default: #333333;
-  --jd-color-text: #ffffff;
-  --jd-color-border: #555555;
+  --jd-color-background-default: var(--bg-main);
+  --jd-color-text: var(--text-main);
+  --jd-color-border: var(--border-color);
   --jd-color-background-light-gray: var(--border-color);
   --jd-color-button-background-hover: var(--bg-box);
   --jd-color-button-background-hover-opacity40: var(--bg-box);
   --jd-color-button-background-hover-opacity60: var(--bg-box);
   --jd-font-default: "Pretendard", sans-serif;
-  --jd-color-text-icons: white;
-  --jd-dark-background-darknes: red;
+  --jd-color-text-icons: var(--text-main);
 }
 
 .jodit-wysiwyg ul li::marker {
-  color: #ffffff !important;
+  color: var(--text-main) !important;
 }
 
 .jodit-wysiwyg ul {
@@ -349,28 +358,44 @@ body {
 
 .jodit-container {
   border: 2px solid var(--border-color) !important;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
+.jodit-toolbar__box,
+.jodit-toolbar-editor-collection,
+.jodit-toolbar-collection,
+.jodit-workplace,
+.jodit-wysiwyg,
+.jodit-status-bar {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
 }
 
 .jodit-toolbar-button svg {
   width: 20px !important;
   height: 20px !important;
-  fill: #ffffff !important;
+  fill: var(--text-main) !important;
 }
 
 .jodit-popup input,
 .jodit-popup textarea,
 .jodit-popup select {
-  color: #222 !important;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
 }
 
 .jodit-popup input::placeholder,
 .jodit-popup textarea::placeholder {
-  color: #777 !important;
+  color: var(--text-muted) !important;
 }
 
 .jodit-popup__content {
   border: 2px solid var(--border-color);
   border-radius: 5px;
+  background-color: var(--bg-box) !important;
+  color: var(--text-main) !important;
 }
 
 .jodit-status-bar {
@@ -411,37 +436,44 @@ body {
 
 .jodit-dialog__box,
 .jodit-dialog__box * {
-  color: #222 !important;
+  color: var(--text-main) !important;
+}
+
+.jodit-dialog__box,
+.jodit-dialog__content,
+.jodit-dialog__header {
+  background-color: var(--bg-main) !important;
+  border-color: var(--border-color) !important;
 }
 
 .jodit-dialog__box input,
 .jodit-dialog__box textarea,
 .jodit-dialog__box select {
-  background-color: #fff !important;
-  color: #222 !important;
-  border: 1px solid #999 !important;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
 }
 
 .jodit-dialog__box button {
-  color: #222 !important;
+  color: var(--text-main) !important;
 }
 
 .jodit-dialog__box .jodit-button__text {
-  color: #222 !important;
+  color: var(--text-main) !important;
 }
 
 .attached-file-list {
   margin-top: 14px;
   padding: 12px;
-  border: 1px solid #555;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #333;
+  background-color: var(--bg-main);
 }
 
 .attached-file-title {
   margin: 0 0 8px;
   font-weight: 700;
-  color: #00ffa3;
+  color: var(--point-mint);
 }
 
 .attached-file-item {
@@ -452,11 +484,11 @@ body {
   padding: 8px 10px;
   margin-top: 6px;
   border-radius: 6px;
-  background-color: #444;
+  background-color: var(--bg-box);
 }
 
 .attached-file-name {
-  color: #fff;
+  color: var(--text-main);
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -477,7 +509,42 @@ body {
   cursor: pointer;
 }
 
+:root[data-theme="light"] .post-write-page {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] .write-container {
+  background-color: #ffffff;
+  box-shadow: 0 8px 28px rgba(32, 48, 60, 0.07);
+}
+
+:root[data-theme="light"] .event-date-input {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] .cancel-write-btn {
+  background-color: #e8ecef;
+  color: #34404a;
+}
+
+:root[data-theme="light"] .draft-list-item:hover {
+  background-color: #edf2f4;
+}
+
+:root[data-theme="light"] .jodit-toolbar-button:hover,
+:root[data-theme="light"] .jodit-toolbar-button.jodit-toolbar-button_active {
+  background-color: #edf3f1 !important;
+}
+
+:root[data-theme="light"] .jodit-wysiwyg a {
+  color: #0877c1 !important;
+}
+
 @media (max-width: 780px) {
+  .board-page.post-write-page {
+    padding: 70px 15px;
+  }
+
   .jodit-toolbar__box,
   .jodit-toolbar-editor-collection,
   .jodit-toolbar-editor-collection_mode_horizontal,
@@ -513,6 +580,46 @@ body {
 }
 
 @media (max-width: 505px) {
+  .write-top-area {
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .write-board-title {
+    flex-shrink: 0;
+    margin-top: 4px;
+    font-size: 26px;
+    line-height: 1.25;
+    letter-spacing: -0.6px;
+  }
+
+  .write-button-area {
+    display: grid;
+    grid-template-columns: repeat(2, 78px);
+    width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .write-button-area .error-message,
+  .write-button-area .board-message {
+    grid-column: 1 / -1;
+  }
+
+  .draft-list-btn,
+  .draft-save-btn,
+  .cancel-write-btn,
+  .post-write-btn {
+    width: 78px;
+    min-width: 0;
+    max-width: none;
+    height: 34px;
+    padding: 0 4px;
+    font-size: 12px;
+  }
+
   .title-box {
     flex-direction: column;
     gap: 10px;

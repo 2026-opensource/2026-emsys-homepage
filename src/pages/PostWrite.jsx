@@ -19,8 +19,8 @@ import Footer from "../layout/Footer";
 import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 
 import "../layout/common.css";
-import "../styles/post-write.css";
 import "../styles/board.css";
+import "../styles/post-write.css";
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 반환 (기간 선택 유효성 검사에 사용)
 function getTodayDateStr() {

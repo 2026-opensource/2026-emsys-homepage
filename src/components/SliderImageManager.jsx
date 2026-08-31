@@ -126,7 +126,7 @@ function SliderImageManager({ onClose, onImagesChanged }) {
         <div className="slider-manager-list">
           {loading && <p className="slider-manager-empty">불러오는 중...</p>}
           {!loading && images.length === 0 && (
-            <p className="slider-manager-empty">등록된 이미지가 없어 기본 이미지 3장이 표시되고 있습니다.<br />새 이미지를 추가하면 관리자 설정으로 전환됩니다.</p>
+            <p className="slider-manager-empty">등록된 이미지가 없어 기본 이미지가 표시되고 있습니다.<br />새 이미지를 추가하면 관리자 설정으로 전환됩니다.</p>
           )}
           {images.map((image, index) => (
             <article className={`slider-manager-item ${image.is_active ? "" : "inactive"}`} key={image.id}>
@@ -139,7 +139,6 @@ function SliderImageManager({ onClose, onImagesChanged }) {
                   aria-label="이미지 설명"
                   onBlur={(event) => handleAltBlur(image, event.target.value)}
                 />
-                <span>{image.original_name || "슬라이더 이미지"}</span>
               </div>
               <label className="slider-visibility-toggle">
                 <input type="checkbox" checked={image.is_active} onChange={() => handleToggle(image)} />
