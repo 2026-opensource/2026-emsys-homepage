@@ -21,7 +21,15 @@ export function saveUserInfo(user) {
 
 export function getUserInfo() {
     const info = localStorage.getItem("userInfo");
-    return info ? JSON.parse(info) : null;
+    if (!info) return null;
+
+    try {
+        return JSON.parse(info);
+    } catch (error) {
+        console.error("저장된 사용자 정보를 읽을 수 없습니다.", error);
+        removeUserInfo();
+        return null;
+    }
 }
 
 export function getUserRole() {

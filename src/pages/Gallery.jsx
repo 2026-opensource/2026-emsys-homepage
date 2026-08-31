@@ -12,6 +12,18 @@ import "../layout/common.css";
 import "../styles/board.css";
 import "../styles/gallery.css";
 
+const GALLERY_POST_SORT_OPTIONS = [
+  { value: "latest", label: "최신순" },
+  { value: "views", label: "조회수 순" },
+  { value: "likes", label: "좋아요 순" },
+  { value: "comments", label: "댓글 순" },
+];
+
+const SUB_CATEGORY_OPTIONS = {
+  all: ["개강총회", "종강총회", "MT", "행사"],
+  activity: ["개강총회", "종강총회", "MT", "행사"],
+};
+
 function Gallery() {
   const navigate = useNavigate();
 
@@ -20,6 +32,8 @@ function Gallery() {
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [subCategory, setSubCategory] = useState("all");
+  const [sort, setSort] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -37,11 +51,8 @@ function Gallery() {
     return `${API_BASE_URL}${path}`;
   }
 
-  // 카테고리 key를 화면에 보여줄 한글로 변환
-  function getCategoryText(category) {
-    if (category === "activity") return "활동";
-    return category;
-  }
+  const subCategoryOptions = SUB_CATEGORY_OPTIONS[category] || [];
+  const hasSubCategoryOptions = subCategoryOptions.length > 0;
 
   useEffect(() => {
     async function fetchPosts() {
@@ -52,9 +63,11 @@ function Gallery() {
         const result = await getPosts({
           board_type: "GALLERY",
           category,
+          sub_category: subCategory,
           search,
           page: currentPage,
           limit: POSTS_PER_PAGE,
+          sort,
         });
 
         console.log("갤러리 게시글 목록 응답:", result);
@@ -74,7 +87,7 @@ function Gallery() {
     }
 
     fetchPosts();
-  }, [category, search, currentPage]);
+  }, [category, subCategory, search, sort, currentPage]);
 
   const handleWriteClick = (event) => {
     if (!isLoggedIn()) {
@@ -89,44 +102,86 @@ function Gallery() {
       <div className="board-page-wrapper">
         <main className="board-page">
           <div className="board-container">
-            <div className="board-title-area">
+            <div className="board-title-area board-title-compact">
               <h1 className="board-page-title">갤러리</h1>
               <div className="board-title-line"></div>
             </div>
 
             {/* 메뉴 영역 */}
-            <div className="board-menu-area">
-              {/* 글쓰기 */}
-              <Link to="/gallery/write" onClick={handleWriteClick}>
-                <button className="board-write-btn btn btn-default">
-                  글쓰기
-                </button>
-              </Link>
-              {/* 검색 영역 */}
-              <div className="board-search-area">
-                <select
-                  className="form-control board-category-select"
-                  value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">전체 글</option>
-                  <option value="activity">활동</option>
-                </select>
+            <div className="board-menu-area board-menu-flat">
+              <div className="board-toolbar">
+                {/* 글쓰기 */}
+                <Link to="/gallery/write" onClick={handleWriteClick}>
+                  <button className="board-write-btn btn btn-default">
+                    글쓰기
+                  </button>
+                </Link>
 
-                <div className="board-input-area">
-                  <input
-                    type="text"
-                    className="form-control search-input"
-                    placeholder="제목 또는 내용을 입력하세요"
-                    value={search}
+                {/* 검색 영역 */}
+                <div className="board-search-area board-filter-area">
+                  <select
+                    className="form-control board-category-select board-select board-select-category"
+                    value={category}
                     onChange={(e) => {
-                      setSearch(e.target.value);
+                      setCategory(e.target.value);
+                      setSubCategory("all");
                       setCurrentPage(1);
                     }}
-                  />
+                  >
+                    <option value="all">전체 글</option>
+                    <option value="activity">활동</option>
+                  </select>
+
+                  <select
+                    className="form-control board-category-select board-select board-select-sub"
+                    value={hasSubCategoryOptions ? subCategory : ""}
+                    onChange={(e) => {
+                      setSubCategory(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    disabled={!hasSubCategoryOptions}
+                  >
+                    {hasSubCategoryOptions ? (
+                      <>
+                        <option value="all">세부 말머리</option>
+                        {subCategoryOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </>
+                    ) : (
+                      <option value="">말머리 없음</option>
+                    )}
+                  </select>
+
+                  <select
+                    className="form-control board-category-select board-select"
+                    value={sort}
+                    onChange={(e) => {
+                      setSort(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    {GALLERY_POST_SORT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="board-input-area board-search-box">
+                    <input
+                      type="text"
+                      className="form-control search-input"
+                      placeholder="제목 또는 내용을 입력하세요"
+                      value={search}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -149,7 +204,7 @@ function Gallery() {
                         const firstImage = post.post_images?.[0];
 
                         return (
-                          <div className="col-sm-3" key={post.id}>
+                          <div className="col-sm-4" key={post.id}>
                             <Link to={`/posts/${post.id}`}>
                               <div className="gallery-post">
                                 <section className="post-image-box">
@@ -168,7 +223,10 @@ function Gallery() {
                                     {post.created_at?.slice(0, 10)}
                                   </p>
 
-                                  <p className="post-title">{post.title}</p>
+                                  <p className="post-title">
+                                    {post.sub_category && `[${post.sub_category}]`}
+                                    {post.title}
+                                  </p>
                                 </section>
                               </div>
                             </Link>

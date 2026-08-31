@@ -22,6 +22,15 @@ import "../layout/common.css";
 import "../styles/post-write.css";
 import "../styles/board.css";
 
+// 오늘 날짜를 YYYY-MM-DD 형식으로 반환 (기간 선택 유효성 검사에 사용)
+function getTodayDateStr() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function PostWrite() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,6 +60,9 @@ function PostWrite() {
     category: isNoticeWritePage ? "notice" : "",
     sub_category: isNoticeWritePage ? "공지" : "",
     title: "",
+    event_start_date: "",
+    event_end_date: "",
+    location: "",
   });
 
   // 서버에서 받아온 최초 데이터
@@ -385,6 +397,7 @@ function PostWrite() {
       "교양-족보",
     ],
     maintenance: ["점검일시", "점검내용"],
+    activity: ["개강총회", "종강총회", "MT", "행사"],
   };
 
   const currentSubCategoryOptions = subCategoryOptions[formData.category] || null;
@@ -406,6 +419,32 @@ function PostWrite() {
     if (name === "category") {
       // 카테고리가 바뀌면 세부 말머리 선택도 초기화
       setFormData((prev) => ({ ...prev, category: value, sub_category: "" }));
+      return;
+    }
+
+    // 갤러리 기간 선택: 시작일은 미래로 선택 불가, 종료일은 시작일보다 빠를 수 없음
+    if (name === "event_start_date") {
+      if (value && value > getTodayDateStr()) {
+        alert("시작 일자는 오늘보다 미래로 선택할 수 없습니다.");
+        return;
+      }
+
+      if (value && formData.event_end_date && value > formData.event_end_date) {
+        alert("종료 일자는 시작 일자보다 빠를 수 없습니다.");
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, event_start_date: value }));
+      return;
+    }
+
+    if (name === "event_end_date") {
+      if (value && formData.event_start_date && value < formData.event_start_date) {
+        alert("종료 일자는 시작 일자보다 빠를 수 없습니다.");
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, event_end_date: value }));
       return;
     }
 
@@ -620,6 +659,11 @@ function PostWrite() {
         setTotalDraftCount((prev) => (prev === null ? prev : prev + 1));
       }
 
+      // 임시글 목록이 열려 있는 상태라면 방금 저장한 내용이 바로 반영되도록 목록을 다시 불러온다.
+      if (showDraftList) {
+        await fetchDraftList();
+      }
+
       setIsDirty(false);
       alert("임시저장되었습니다.");
     } catch (error) {
@@ -636,6 +680,32 @@ function PostWrite() {
     }
   }
 
+  // 임시저장은 게시판 구분 없이 전체 합산 10개 제한이므로,
+  // 목록도 현재 게시판 것만이 아니라 전체를 보여주고 각 항목에 게시판 이름 라벨만 붙여 구분한다.
+  const BOARD_TYPE_LABELS = {
+    COMMUNITY: "커뮤니티",
+    ARCHIVE: "자료실",
+    GALLERY: "갤러리",
+    MAINTENANCE: "점검안내",
+  };
+
+  function getDraftBoardLabel(draft) {
+    if (draft.board_type === "COMMUNITY" && draft.category === "notice") {
+      return "공지사항";
+    }
+
+    return BOARD_TYPE_LABELS[draft.board_type] || draft.board_type;
+  }
+
+  // 임시글 목록을 서버에서 다시 불러와 개수/목록 state에 반영
+  async function fetchDraftList() {
+    const result = await getMyDrafts();
+    const allDrafts = result.data || [];
+    setTotalDraftCount(allDrafts.length);
+    // 전체 게시판 합산 개수(위 배지)와 실제 목록이 항상 일치하도록 필터링하지 않고 전부 보여준다.
+    setDrafts(allDrafts);
+  }
+
   // 임시글 목록 펼치기/불러오기
   async function handleToggleDraftList() {
     if (!requireLogin(navigate)) return;
@@ -647,19 +717,7 @@ function PostWrite() {
 
     try {
       setLoadingDrafts(true);
-      const result = await getMyDrafts();
-      const allDrafts = result.data || [];
-      setTotalDraftCount(allDrafts.length);
-      setDrafts(
-        allDrafts.filter((draft) => {
-          if (draft.board_type !== board_type) return false;
-          if (board_type !== "COMMUNITY") return true;
-
-          return isNoticeWritePage
-            ? draft.category === "notice"
-            : draft.category !== "notice";
-        }),
-      );
+      await fetchDraftList();
       setShowDraftList(true);
     } catch (error) {
       console.error("임시글 목록 조회 실패:", error);
@@ -677,6 +735,21 @@ function PostWrite() {
 
   // 임시글 불러오기
   async function handleLoadDraft(draftId) {
+    // 갤러리는 사진/기간/장소 등 작성 양식 자체가 달라서, 갤러리 작성 페이지에서는
+    // 갤러리 임시글만 불러올 수 있도록 제한한다.
+    const targetDraft = drafts.find((draft) => draft.id === draftId);
+
+    if (
+      initialBoardType === "GALLERY" &&
+      targetDraft &&
+      targetDraft.board_type !== "GALLERY"
+    ) {
+      alert(
+        "현재 갤러리 게시글 작성 페이지입니다. 갤러리 작성 페이지에서는 다른 게시판의 임시글을 불러올 수 없습니다.",
+      );
+      return;
+    }
+
     try {
       setIsEditorReady(false);
       setLoading(true);
@@ -701,6 +774,13 @@ function PostWrite() {
         category: draft.category || "",
         sub_category: draft.sub_category || "",
         title: draft.title || "",
+        event_start_date: draft.event_start_date
+          ? draft.event_start_date.slice(0, 10)
+          : "",
+        event_end_date: draft.event_end_date
+          ? draft.event_end_date.slice(0, 10)
+          : "",
+        location: draft.location || "",
       });
       setInitialContent(draft.content || "");
       contentRef.current = draft.content || "";
@@ -784,6 +864,13 @@ function PostWrite() {
           category: post.category,
           sub_category: post.sub_category || "",
           title: post.title,
+          event_start_date: post.event_start_date
+            ? post.event_start_date.slice(0, 10)
+            : "",
+          event_end_date: post.event_end_date
+            ? post.event_end_date.slice(0, 10)
+            : "",
+          location: post.location || "",
         });
         setInitialContent(post.content || "");
         contentRef.current = post.content || "";
@@ -993,6 +1080,9 @@ function PostWrite() {
                       key={draft.id}
                       onClick={() => handleLoadDraft(draft.id)}
                     >
+                      <span className="draft-list-item-board">
+                        {getDraftBoardLabel(draft)}
+                      </span>
                       <span className="draft-list-item-title">
                         {draft.title?.trim() ? draft.title : "(제목 없음)"}
                       </span>
@@ -1013,58 +1103,93 @@ function PostWrite() {
             )}
 
             <div className="form-group">
-              <div className="title-box">
-                <select
-                  className="category-select"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  required
-                  disabled={isNoticeContext}
-                >
-                  <option value="" disabled hidden>
-                    게시판 선택
-                  </option>
-                  {currentCategoryOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+              <div className="write-meta-box">
+                <div className="title-box">
+                  <select
+                    className="category-select"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    required
+                    disabled={isNoticeContext}
+                  >
+                    <option value="" disabled hidden>
+                      게시판 선택
                     </option>
-                  ))}
-                </select>
-
-                <select
-                  className="category-select sub-category-select"
-                  name="sub_category"
-                  value={currentSubCategoryOptions ? formData.sub_category : ""}
-                  onChange={handleChange}
-                  required={Boolean(currentSubCategoryOptions)}
-                  disabled={!currentSubCategoryOptions}
-                >
-                  {currentSubCategoryOptions ? (
-                    <>
-                      <option value="" disabled hidden>
-                        세부 말머리
+                    {currentCategoryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
-                      {currentSubCategoryOptions.map((label) => (
-                        <option key={label} value={label}>
-                          {label}
-                        </option>
-                      ))}
-                    </>
-                  ) : (
-                    <option value="">말머리 없음</option>
-                  )}
-                </select>
+                    ))}
+                  </select>
 
-                <input
-                  className="title-input-box form-control"
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="제목을 입력해주세요."
-                  required
-                />
+                  <select
+                    className="category-select sub-category-select"
+                    name="sub_category"
+                    value={currentSubCategoryOptions ? formData.sub_category : ""}
+                    onChange={handleChange}
+                    required={Boolean(currentSubCategoryOptions)}
+                    disabled={!currentSubCategoryOptions}
+                  >
+                    {currentSubCategoryOptions ? (
+                      <>
+                        <option value="" disabled hidden>
+                          세부 말머리
+                        </option>
+                        {currentSubCategoryOptions.map((label) => (
+                          <option key={label} value={label}>
+                            {label}
+                          </option>
+                        ))}
+                      </>
+                    ) : (
+                      <option value="">말머리 없음</option>
+                    )}
+                  </select>
+
+                  <input
+                    className="title-input-box form-control"
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="제목을 입력해주세요."
+                    required
+                  />
+                </div>
+
+                {board_type === "GALLERY" && (
+                  <div className="event-info-box">
+                    <div className="event-date-range">
+                      <input
+                        className="event-date-input form-control"
+                        type="date"
+                        name="event_start_date"
+                        value={formData.event_start_date}
+                        onChange={handleChange}
+                        max={getTodayDateStr()}
+                      />
+                      <span className="event-date-separator">~</span>
+                      <input
+                        className="event-date-input form-control"
+                        type="date"
+                        name="event_end_date"
+                        value={formData.event_end_date}
+                        onChange={handleChange}
+                        min={formData.event_start_date || undefined}
+                      />
+                    </div>
+
+                    <input
+                      className="event-location-input form-control"
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="장소를 입력해주세요."
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="content-box">

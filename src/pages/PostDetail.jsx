@@ -14,7 +14,7 @@ import DOMPurify from "dompurify";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
-import { getToken, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
+import { getToken, getUserInfo, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 import "../layout/common.css";
@@ -614,7 +614,7 @@ function PostDetail() {
     );
   }
 
-  const loginUser = JSON.parse(localStorage.getItem("userInfo"));
+  const loginUser = getUserInfo();
 
   const isAuthor = Number(post?.author_id) === Number(loginUser?.id);
   const isAdmin =
@@ -760,16 +760,24 @@ function PostDetail() {
             </div>
           </section>
 
-          {/* 본문 */}
-          <section
-            className="detail-content"
-            onClick={handleImageClick}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(post.content, {
-                ADD_ATTR: ["target", "rel"],
-              }),
-            }}
-          />
+          {/* 구분선 아래 본문 영역 */}
+          <div className="detail-body">
+            {post.board_type === "GALLERY" && post.location && (
+              <div className="gallery-location-badge">
+                <i className="fa-solid fa-location-dot gallery-map"></i> {post.location}</div>
+            )}
+
+            {/* 본문 */}
+            <section
+              className="detail-content"
+              onClick={handleImageClick}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(post.content, {
+                  ADD_ATTR: ["target", "rel"],
+                }),
+              }}
+            />
+          </div>
 
           {post.post_files?.length > 0 && (
             <section className="detail-file-section">

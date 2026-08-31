@@ -1,14 +1,16 @@
 /* 커뮤니티, 자료실, 글쓰기, 글 상세 페이지 공통 스타일 */
-body {
-  background-color: var(--bg-main);
+
+:root {
+  --bg-main: #333333;
+  --bg-box: #444444;
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --point-mint: #00ffa3;
+  --border-color: #555555;
 }
 
-.post-write-page {
-  min-height: calc(100svh - 70px);
-  margin: 0;
-  padding: 70px 90px;
+body {
   background-color: var(--bg-main);
-  color: var(--text-main);
 }
 
 .write-container {
@@ -19,10 +21,6 @@ body {
   padding: 60px;
   border: 2px solid var(--border-color);
   border-radius: 20px;
-}
-
-:root[data-theme="light"] .write-container {
-  background-color: var(--bg-main);
 }
 
 /* 목록 + 버튼 전체 */
@@ -77,7 +75,7 @@ body {
 /* 삭제 버튼 */
 .cancel-write-btn {
   background-color: var(--border-color);
-  color: var(--text-main);
+  color: white;
 }
 
 .post-write-btn:hover,
@@ -172,6 +170,18 @@ body {
   background-color: var(--border-color);
 }
 
+/* 임시글 목록이 전체 게시판을 함께 보여주므로, 어느 게시판/카테고리 글인지 구분하는 라벨 */
+.draft-list-item-board {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--point-mint);
+  color: var(--point-mint);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .draft-list-item-title {
   flex: 1;
   min-width: 0;
@@ -212,12 +222,62 @@ body {
   margin-top: 20px;
 }
 
-.title-box {
+/* 게시판 선택/말머리/제목 줄과 (갤러리의 경우) 기간/장소 줄을 하나의 네모 칸으로 감싸는 바깥 박스.
+   게시판 선택/말머리/제목만 있는 경우엔 안쪽 title-box에 테두리가 없어도 이 박스 하나로 동일하게 보인다. */
+.write-meta-box {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
   border: 3px solid var(--border-color);
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 15px;
+}
+
+.title-box {
+  display: flex;
+}
+
+/* 갤러리 전용: 기간(시작~종료) + 장소 입력 영역. write-meta-box 안에서 title-box와 같은 칸을 공유한다. */
+.event-info-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.event-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.event-date-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--text-main);
+  background-color: var(--bg-box);
+  border: 2px solid var(--border-color);
+  color-scheme: dark;
+}
+
+.event-date-separator {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.event-location-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--text-main);
+  background-color: var(--bg-box);
+  border: 2px solid var(--border-color);
 }
 
 .category-select {
@@ -258,20 +318,21 @@ body {
 }
 
 .jodit {
-  --jd-color-panel: var(--bg-box);
-  --jd-color-background-default: var(--bg-main);
-  --jd-color-text: var(--text-main);
-  --jd-color-border: var(--border-color);
+  --jd-color-panel: ;
+  --jd-color-background-default: #333333;
+  --jd-color-text: #ffffff;
+  --jd-color-border: #555555;
   --jd-color-background-light-gray: var(--border-color);
   --jd-color-button-background-hover: var(--bg-box);
   --jd-color-button-background-hover-opacity40: var(--bg-box);
   --jd-color-button-background-hover-opacity60: var(--bg-box);
   --jd-font-default: "Pretendard", sans-serif;
-  --jd-color-text-icons: var(--text-main);
+  --jd-color-text-icons: white;
+  --jd-dark-background-darknes: red;
 }
 
 .jodit-wysiwyg ul li::marker {
-  color: var(--text-main) !important;
+  color: #ffffff !important;
 }
 
 .jodit-wysiwyg ul {
@@ -290,20 +351,10 @@ body {
   border: 2px solid var(--border-color) !important;
 }
 
-.jodit-toolbar__box,
-.jodit-status-bar {
-  background-color: var(--bg-box) !important;
-}
-
-.jodit-wysiwyg {
-  background-color: var(--bg-main) !important;
-  color: var(--text-main) !important;
-}
-
 .jodit-toolbar-button svg {
   width: 20px !important;
   height: 20px !important;
-  fill: var(--text-main) !important;
+  fill: #ffffff !important;
 }
 
 .jodit-popup input,
@@ -344,14 +395,6 @@ body {
   color: #b9ddff !important;
 }
 
-:root[data-theme="light"] .jodit-wysiwyg a {
-  color: #0068b7 !important;
-}
-
-:root[data-theme="light"] .jodit-wysiwyg a:hover {
-  color: #004f8c !important;
-}
-
 /* 에디터 안 이미지 스타일 */
 .jodit-wysiwyg img {
   max-width: 480px !important;
@@ -390,15 +433,15 @@ body {
 .attached-file-list {
   margin-top: 14px;
   padding: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #555;
   border-radius: 8px;
-  background-color: var(--bg-main);
+  background-color: #333;
 }
 
 .attached-file-title {
   margin: 0 0 8px;
   font-weight: 700;
-  color: var(--point-mint);
+  color: #00ffa3;
 }
 
 .attached-file-item {
@@ -409,11 +452,11 @@ body {
   padding: 8px 10px;
   margin-top: 6px;
   border-radius: 6px;
-  background-color: var(--bg-box);
+  background-color: #444;
 }
 
 .attached-file-name {
-  color: var(--text-main);
+  color: #fff;
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -435,10 +478,6 @@ body {
 }
 
 @media (max-width: 780px) {
-  .post-write-page {
-    padding: 20px;
-  }
-
   .jodit-toolbar__box,
   .jodit-toolbar-editor-collection,
   .jodit-toolbar-editor-collection_mode_horizontal,
@@ -487,5 +526,19 @@ body {
 
   .title-input-box {
     width: 100%;
+  }
+
+  .event-info-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .event-date-range {
+    min-width: 0;
+  }
+
+  .event-location-input {
+    min-width: 0;
   }
 }

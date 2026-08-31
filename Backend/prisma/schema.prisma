@@ -108,6 +108,9 @@ model posts {
   updated_at    DateTime?       @db.Timestamp(0)
   author_id     Int
   is_draft      Boolean         @default(false)
+  event_start_date DateTime?    @db.Date
+  event_end_date   DateTime?    @db.Date
+  location      String?         @db.VarChar(255)
   comments      comments[]
   post_dislikes post_dislikes[]
   post_images   post_images[]
@@ -155,4 +158,15 @@ model post_files {
   posts         posts   @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([post_id])
+}
+
+model slider_images {
+  id            Int      @id @default(autoincrement())
+  image_url     String   @db.VarChar(500)
+  original_name String?  @db.VarChar(255)
+  alt_text      String?  @db.VarChar(255)
+  sort_order    Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 }
