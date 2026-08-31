@@ -18,8 +18,8 @@ import { getToken, getUserInfo, isAuthError, isLoggedIn, redirectToLogin } from 
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 import "../layout/common.css";
-import "../styles/post-detail.css";
 import "../styles/board.css";
+import "../styles/post-detail.css";
 
 function PostDetail() {
   const navigate = useNavigate();

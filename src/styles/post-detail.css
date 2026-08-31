@@ -18,17 +18,22 @@
 }
 
 .post-detail-page .board-page {
-  margin-top: 0;
+  width: 100%;
+  margin: 0;
+  padding: calc(70px + clamp(20px, 4vw, 50px)) clamp(14px, 6vw, 90px) clamp(32px, 6vw, 70px);
+  box-sizing: border-box;
 }
 
 .detail-container {
   width: 100%;
   max-width: 1200px;
-  margin: 50px auto 0 auto;
+  margin: 0 auto;
   gap: 2%;
-  padding: 50px;
+  padding: clamp(22px, 4vw, 50px);
   border: 2px solid var(--border-color);
   border-radius: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* ========================================
@@ -57,6 +62,7 @@
 .detail-top-buttons {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .edit-btn,
@@ -100,6 +106,11 @@
   gap: 3%;
   padding: 30px 0;
   flex-wrap: wrap;
+}
+
+.detail-title-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .detail-title {
@@ -187,6 +198,8 @@
   font-size: clamp(14px, 4vw, 18px);
   word-break: break-word;
   color: var(--text-main);
+  overflow-wrap: anywhere;
+  overflow-x: auto;
 }
 
 /* 장소 뱃지가 있으면 본문 내용이 한 줄 더 아래에서 시작하도록 여백 확보 */
@@ -197,8 +210,21 @@
 .detail-content img {
   max-width: 100%;
   height: auto;
-  margin: 10px;
+  margin: 10px 0;
   vertical-align: top;
+}
+
+.detail-content iframe,
+.detail-content video,
+.detail-content canvas,
+.detail-content svg {
+  max-width: 100%;
+}
+
+.detail-content pre {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre;
 }
 
 .detail-content table {
@@ -314,6 +340,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .comment-writer,
@@ -360,6 +387,7 @@
 .comment-actions {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .comment-edit-btn,
@@ -623,13 +651,46 @@
   반응형 웹 스타일 (모바일)
 ======================================== */
 @media (max-width: 768px) {
-  .board-page {
-    margin: 20px;
-    padding: 40px 0;
+  .post-detail-page .board-page {
+    margin: 0;
+    padding: 94px 14px 40px;
   }
 
   .detail-container {
-    padding: 30px;
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .detail-title-area {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 22px 0;
+  }
+
+  .detail-title-area .board-category {
+    width: auto;
+    min-width: 58px;
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+
+  .detail-info {
+    line-height: 1.6;
+  }
+
+  .detail-content {
+    min-height: 22vh;
+    padding: 24px 0;
+  }
+
+  .gallery-location-badge + .detail-content {
+    padding-top: 30px;
+  }
+
+  .detail-content th,
+  .detail-content td {
+    min-width: 90px;
+    padding: 7px 9px;
   }
 
   .edit-btn,
@@ -663,6 +724,139 @@
   .img-viewer-download-all {
     padding: 0 12px;
     font-size: 13px;
+  }
+
+  .img-viewer-img {
+    max-width: calc(100vw - 72px);
+    max-height: calc(100vh - 120px);
+  }
+
+  .comment-card {
+    padding: 12px;
+  }
+
+  .comment-replies {
+    margin-left: 12px;
+    padding-left: 10px;
+  }
+
+  .detail-file-section {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .post-detail-page .board-page {
+    padding-inline: 10px;
+  }
+
+  .detail-container {
+    padding: 18px 14px;
+    border-width: 1px;
+    border-radius: 12px;
+  }
+
+  .detail-top-area {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .back-link {
+    flex-shrink: 0;
+    font-size: 17px;
+  }
+
+  .detail-top-buttons {
+    width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+    min-width: 72px;
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .detail-title-area {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .detail-title {
+    padding-top: 5px;
+  }
+
+  .detail-info {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .detail-info > span {
+    margin-left: 0;
+  }
+
+  .reaction-section {
+    gap: 10px;
+  }
+
+  .reaction-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .comment-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .comment-actions {
+    align-self: flex-end;
+    margin-top: -4px;
+  }
+
+  .comment-replies {
+    margin-left: 5px;
+    padding-left: 8px;
+  }
+
+  .comment-input-section,
+  .comment-reply-input-section {
+    gap: 6px;
+  }
+
+  .comment-input {
+    min-width: 0;
+    padding-inline: 14px;
+  }
+
+  .detail-file-item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-file-name {
+    width: 100%;
+  }
+
+  .img-viewer-download-all span {
+    display: none;
+  }
+
+  .img-viewer-download-all {
+    width: 38px;
+    padding: 0;
+    border-radius: 50%;
   }
 }
 
@@ -719,4 +913,22 @@
 .img-viewer-download{
   background-color: transparent;
   border: none;
+}
+
+@media (max-width: 768px) {
+  .detail-file-section {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .detail-file-item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-file-name {
+    width: 100%;
+  }
 }
