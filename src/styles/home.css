@@ -198,10 +198,16 @@
 }
 
 .home-board-box {
+  width: 100%;
+  height: 100%;
   padding: 15px 30px;
   border: 2px solid var(--point-mint);
   border-radius: 10px;
   background-color: var(--bg-box);
+}
+
+.home-board-preview .row > .col-sm-6 {
+  display: flex;
 }
 
 .home-board-row-secondary {
@@ -305,6 +311,7 @@
   }
 
   .home-board-box {
+    height: auto;
     margin-bottom: 15px;
   }
 

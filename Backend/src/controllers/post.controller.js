@@ -24,6 +24,21 @@ exports.getAllPosts = async (req, res, next) => {
   }
 };
 
+// 커뮤니티 인기글 조회
+exports.getPopularPosts = async (req, res, next) => {
+  try {
+    const result = await postService.getPopularPosts(req.query);
+
+    res.status(200).json({
+      success: true,
+      data: result.posts,
+      pagination: result.pagination,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 // 특정 게시글 상세 조회
