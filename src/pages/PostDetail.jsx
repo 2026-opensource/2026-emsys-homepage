@@ -759,16 +759,24 @@ function PostDetail() {
             </div>
           </section>
 
-          {/* 본문 */}
-          <section
-            className="detail-content"
-            onClick={handleImageClick}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(post.content, {
-                ADD_ATTR: ["target", "rel"],
-              }),
-            }}
-          />
+          {/* 구분선 아래 본문 영역 */}
+          <div className="detail-body">
+            {post.board_type === "GALLERY" && post.location && (
+              <div className="gallery-location-badge">
+                <i className="fa-solid fa-location-dot gallery-map"></i> {post.location}</div>
+            )}
+
+            {/* 본문 */}
+            <section
+              className="detail-content"
+              onClick={handleImageClick}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(post.content, {
+                  ADD_ATTR: ["target", "rel"],
+                }),
+              }}
+            />
+          </div>
 
           {post.post_files?.length > 0 && (
             <section className="detail-file-section">

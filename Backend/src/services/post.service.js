@@ -367,6 +367,7 @@ const SUB_CATEGORY_OPTIONS = {
         "교양-족보",
     ],
     maintenance: ["점검일시", "점검내용"],
+    activity: ["개강총회", "종강총회", "MT", "행사"],
 };
 
 function getSubCategoryOptions(category) {
@@ -398,7 +399,7 @@ function validateSubCategory(category, subCategory, isDraft) {
 
 // 새로운 게시글 작성
 exports.createPost = async ({ body, user }) => {
-    const { board_type, category, sub_category, title, content, files = [], is_draft } = body;
+    const { board_type, category, sub_category, title, content, files = [], is_draft, event_start_date, event_end_date, location } = body;
     const authorId = user.id;
     const userRole = user.role;
     const isDraft = Boolean(is_draft);
@@ -493,6 +494,12 @@ exports.createPost = async ({ body, user }) => {
                 content: content || "",
                 author_id: authorId,
                 is_draft: isDraft,
+                // updated_at을 생성 시점에도 채워둬야 새로 만든 글이 updated_at desc 정렬에서
+                // (NULL은 MySQL DESC 정렬에서 맨 뒤로 밀리므로) 최신 글로 맨 위에 온다.
+                updated_at: new Date(),
+                event_start_date: event_start_date ? new Date(event_start_date) : null,
+                event_end_date: event_end_date ? new Date(event_end_date) : null,
+                location: location || null,
             },
         });
 
@@ -532,7 +539,7 @@ exports.createPost = async ({ body, user }) => {
 
 // 게시글 수정 (본인만 가능)
 exports.updatePost = async ({ id, body, user }) => {
-    const { board_type, category, sub_category, title, content, files = [], is_draft } = body;
+    const { board_type, category, sub_category, title, content, files = [], is_draft, event_start_date, event_end_date, location } = body;
     const userId = user.id;
     const userRole = user.role;
     const isDraft = Boolean(is_draft);
@@ -667,6 +674,9 @@ exports.updatePost = async ({ id, body, user }) => {
                 content: content || "",
                 is_draft: isDraft,
                 updated_at: new Date(),
+                event_start_date: event_start_date ? new Date(event_start_date) : null,
+                event_end_date: event_end_date ? new Date(event_end_date) : null,
+                location: location || null,
             },
         });
 
