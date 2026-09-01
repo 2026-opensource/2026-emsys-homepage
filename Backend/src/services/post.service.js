@@ -507,9 +507,166 @@ function validateSubCategory(category, subCategory, isDraft) {
   return subCategory || null;
 }
 
+function parseMaintenanceDateTime(value, fieldLabel) {
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    const error = new Error(`${fieldLabel} 형식이 올바르지 않습니다.`);
+    error.status = 400;
+    throw error;
+  }
+
+  return date;
+}
+
+function getMaintenanceDateRange({
+  boardType,
+  subCategory,
+  isDraft,
+  maintenanceStartAt,
+  maintenanceEndAt,
+}) {
+  if (boardType !== "MAINTENANCE" || subCategory !== "점검일시") {
+    return {
+      maintenance_start_at: null,
+      maintenance_end_at: null,
+    };
+  }
+
+  const startAt = parseMaintenanceDateTime(
+    maintenanceStartAt,
+    "점검 시작 시간",
+  );
+  const endAt = parseMaintenanceDateTime(
+    maintenanceEndAt,
+    "점검 종료 시간",
+  );
+
+  if (!isDraft && (!startAt || !endAt)) {
+    const error = new Error("점검 시작 시간과 종료 시간을 입력해주세요.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (startAt && endAt && startAt >= endAt) {
+    const error = new Error("점검 종료 시간은 시작 시간보다 늦어야 합니다.");
+    error.status = 400;
+    throw error;
+  }
+
+  return {
+    maintenance_start_at: startAt,
+    maintenance_end_at: endAt,
+  };
+}
+
+function getMaintenanceMessage({
+  boardType,
+  subCategory,
+  isDraft,
+  maintenanceMessage,
+}) {
+  if (
+    boardType !== "MAINTENANCE" ||
+    !["점검일시", "점검내용"].includes(subCategory)
+  ) {
+    return null;
+  }
+
+  const trimmedMessage = maintenanceMessage?.trim() || "";
+
+  if (!isDraft && !trimmedMessage) {
+    const error = new Error("점검 내용을 입력해주세요.");
+    error.status = 400;
+    throw error;
+  }
+
+  return trimmedMessage || null;
+}
+
+const MAINTENANCE_POST_SELECT = {
+  id: true,
+  title: true,
+  content: true,
+  sub_category: true,
+  maintenance_start_at: true,
+  maintenance_end_at: true,
+  maintenance_message: true,
+};
+
+exports.getActiveMaintenancePost = async () => {
+  const now = new Date();
+
+  return prisma.posts.findFirst({
+    where: {
+      board_type: "MAINTENANCE",
+      category: "maintenance",
+      sub_category: "점검일시",
+      is_draft: false,
+      maintenance_start_at: {
+        lte: now,
+      },
+      maintenance_end_at: {
+        gt: now,
+      },
+    },
+    orderBy: [
+      {
+        maintenance_start_at: "desc",
+      },
+      {
+        id: "desc",
+      },
+    ],
+    select: MAINTENANCE_POST_SELECT,
+  });
+};
+
+exports.getLatestMaintenancePost = async () => {
+  return prisma.posts.findFirst({
+    where: {
+      board_type: "MAINTENANCE",
+      category: "maintenance",
+      sub_category: "점검일시",
+      is_draft: false,
+      maintenance_start_at: {
+        not: null,
+      },
+      maintenance_end_at: {
+        not: null,
+      },
+    },
+    orderBy: [
+      {
+        created_at: "desc",
+      },
+      {
+        id: "desc",
+      },
+    ],
+    select: MAINTENANCE_POST_SELECT,
+  });
+};
+
 // 새로운 게시글 작성
 exports.createPost = async ({ body, user }) => {
-    const { board_type, category, sub_category, title, content, files = [], is_draft, event_start_date, event_end_date, location } = body;
+    const {
+      board_type,
+      category,
+      sub_category,
+      title,
+      content,
+      files = [],
+      is_draft,
+      event_start_date,
+      event_end_date,
+      maintenance_start_at,
+      maintenance_end_at,
+      maintenance_message,
+      location,
+    } = body;
     const authorId = user.id;
     const userRole = user.role;
     const isDraft = Boolean(is_draft);
@@ -586,6 +743,19 @@ exports.createPost = async ({ body, user }) => {
 
   // 세부 말머리 검사
   const finalSubCategory = validateSubCategory(category, sub_category, isDraft);
+  const maintenanceRange = getMaintenanceDateRange({
+    boardType: finalBoardType,
+    subCategory: finalSubCategory,
+    isDraft,
+    maintenanceStartAt: maintenance_start_at,
+    maintenanceEndAt: maintenance_end_at,
+  });
+  const finalMaintenanceMessage = getMaintenanceMessage({
+    boardType: finalBoardType,
+    subCategory: finalSubCategory,
+    isDraft,
+    maintenanceMessage: maintenance_message,
+  });
 
   const postImages = extractPostImages(content);
 
@@ -619,6 +789,9 @@ exports.createPost = async ({ body, user }) => {
                 updated_at: new Date(),
                 event_start_date: event_start_date ? new Date(event_start_date) : null,
                 event_end_date: event_end_date ? new Date(event_end_date) : null,
+                maintenance_start_at: maintenanceRange.maintenance_start_at,
+                maintenance_end_at: maintenanceRange.maintenance_end_at,
+                maintenance_message: finalMaintenanceMessage,
                 location: location || null,
             },
         });
@@ -657,7 +830,21 @@ exports.createPost = async ({ body, user }) => {
 
 // 게시글 수정 (본인만 가능)
 exports.updatePost = async ({ id, body, user }) => {
-    const { board_type, category, sub_category, title, content, files = [], is_draft, event_start_date, event_end_date, location } = body;
+    const {
+      board_type,
+      category,
+      sub_category,
+      title,
+      content,
+      files = [],
+      is_draft,
+      event_start_date,
+      event_end_date,
+      maintenance_start_at,
+      maintenance_end_at,
+      maintenance_message,
+      location,
+    } = body;
     const userId = user.id;
     const userRole = user.role;
     const isDraft = Boolean(is_draft);
@@ -749,6 +936,19 @@ exports.updatePost = async ({ id, body, user }) => {
 
   // 세부 말머리 검사
   const finalSubCategory = validateSubCategory(category, sub_category, isDraft);
+  const maintenanceRange = getMaintenanceDateRange({
+    boardType: finalBoardType,
+    subCategory: finalSubCategory,
+    isDraft,
+    maintenanceStartAt: maintenance_start_at,
+    maintenanceEndAt: maintenance_end_at,
+  });
+  const finalMaintenanceMessage = getMaintenanceMessage({
+    boardType: finalBoardType,
+    subCategory: finalSubCategory,
+    isDraft,
+    maintenanceMessage: maintenance_message,
+  });
 
   // 기존 content 이미지 목록
   const oldImageUrls = existingPost.post_images.flatMap((image) => [
@@ -804,6 +1004,9 @@ exports.updatePost = async ({ id, body, user }) => {
         updated_at: new Date(),
         event_start_date: event_start_date ? new Date(event_start_date) : null,
         event_end_date: event_end_date ? new Date(event_end_date) : null,
+        maintenance_start_at: maintenanceRange.maintenance_start_at,
+        maintenance_end_at: maintenanceRange.maintenance_end_at,
+        maintenance_message: finalMaintenanceMessage,
         location: location || null,
       },
     });

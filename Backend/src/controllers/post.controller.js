@@ -39,6 +39,34 @@ exports.getPopularPosts = async (req, res, next) => {
   }
 };
 
+// 현재 진행 중인 점검 안내 조회
+exports.getActiveMaintenancePost = async (req, res, next) => {
+  try {
+    const post = await postService.getActiveMaintenancePost();
+
+    return res.status(200).json({
+      success: true,
+      data: post,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 가장 최근 등록된 점검 안내 조회
+exports.getLatestMaintenancePost = async (req, res, next) => {
+  try {
+    const post = await postService.getLatestMaintenancePost();
+
+    return res.status(200).json({
+      success: true,
+      data: post,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 // 특정 게시글 상세 조회

@@ -15,11 +15,12 @@ import DOMPurify from "dompurify";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import { getToken, getUserInfo, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 import "../layout/common.css";
-import "../styles/post-detail.css";
 import "../styles/board.css";
+import "../styles/post-detail.css";
 
 function PostDetail() {
   const navigate = useNavigate();
@@ -756,6 +757,13 @@ function PostDetail() {
                     </>
                   )}
                   {post.title}
+                  {formatMaintenancePeriod(post) && (
+                    <>
+                      <span className="maintenance-period-text">
+                        {formatMaintenancePeriod(post)}
+                      </span>
+                    </>
+                  )}
                 </h1>
                 <div className="detail-info">
                   <Link
@@ -805,6 +813,13 @@ function PostDetail() {
                   )}
                 </div>
               )}
+
+            {post.board_type === "MAINTENANCE" && post.maintenance_message && (
+              <div className="maintenance-message-badge">
+                <i className="fa-solid fa-screwdriver-wrench maintenance-message-icon"></i>
+                {post.maintenance_message}
+              </div>
+            )}
 
             {/* 본문 */}
             <section

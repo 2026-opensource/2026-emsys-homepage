@@ -5,6 +5,7 @@ import Footer from "../layout/Footer";
 import MainCalendar from "../components/calendar/MainCalendar";
 import ImageSlider from "../components/ImageSlider";
 import { getPopularPosts, getPosts } from "../api/postAPI";
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 
 import "../layout/common.css";
 import "../styles/home.css";
@@ -265,14 +266,23 @@ function Home() {
                   {maintenancePosts.length === 0 ? (
                     <li>점검안내가 없습니다.</li>
                   ) : (
-                    maintenancePosts.map((post) => (
-                      <li key={post.id}>
-                        <Link to={`/posts/${post.id}`}>
-                          {post.sub_category && `[${post.sub_category}] `}
-                          {post.title}
-                        </Link>
-                      </li>
-                    ))
+                    maintenancePosts.map((post) => {
+                      const maintenancePeriod = formatMaintenancePeriod(post);
+
+                      return (
+                        <li key={post.id}>
+                          <Link to={`/posts/${post.id}`}>
+                            {post.sub_category && `[${post.sub_category}] `}
+                            {post.title}
+                            {maintenancePeriod && (
+                              <span className="maintenance-period-text">
+                                {maintenancePeriod}
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      );
+                    })
                   )}
                 </ul>
               </div>

@@ -15,22 +15,24 @@ body {
 }
 
 .mypage-page {
+  --mypage-navbar-height: 70px;
   display: flow-root;
   min-height: 100svh;
+  padding-top: var(--mypage-navbar-height);
   background-color: var(--bg-main);
 }
 
 .mypage-container {
   width: 100%;
   max-width: 900px;
-  margin: 70px auto;
-  padding: 0 20px;
+  margin: 0 auto 70px;
+  padding: 30px 20px 0;
   background-color: var(--bg-main);
 }
 
 /* 마이페이지 사용자 정보 스타일 */
 .mypage-text {
-  margin: 30px 0;
+  margin: 0 0 30px;
   font-size: 45px;
   font-weight: 700;
   color: var(--point-mint);
@@ -819,14 +821,21 @@ body {
 /* 게시글 목록 영역 */
 .mypage-post-section-box {
   width: 100%;
+  min-width: 0;
 }
 
 .mypage-board-header {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 92px 78px 78px 68px;
+  grid-template-columns:
+    minmax(68px, 88px)
+    minmax(0, 1fr)
+    minmax(68px, 92px)
+    minmax(48px, 78px)
+    minmax(54px, 78px)
+    minmax(48px, 68px);
   align-items: center;
-  column-gap: 14px;
-  min-width: 700px;
+  column-gap: clamp(6px, 1.3vw, 14px);
+  min-width: 0;
   padding: 0 8px 10px 8px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
@@ -883,10 +892,16 @@ body {
 .mypage-board-row {
   width: 100%;
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 92px 78px 78px 68px;
+  grid-template-columns:
+    minmax(68px, 88px)
+    minmax(0, 1fr)
+    minmax(68px, 92px)
+    minmax(48px, 78px)
+    minmax(54px, 78px)
+    minmax(48px, 68px);
   align-items: center;
-  column-gap: 14px;
-  min-width: 700px;
+  column-gap: clamp(6px, 1.3vw, 14px);
+  min-width: 0;
 }
 
 /* 카테고리 */
@@ -917,8 +932,16 @@ body {
   color: var(--point-mint);
 }
 
+.maintenance-period-text {
+  color: inherit;
+  font-weight: inherit;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
 .mypage-board-date,
 .mypage-board-stat {
+  min-width: 0;
   margin: 0;
   color: #bdbdbd;
   font-size: 13px;
@@ -932,17 +955,46 @@ body {
   display: contents;
 }
 
+@media (max-width: 900px) and (min-width: 835px) {
+  .mypage-board-header,
+  .mypage-board-row {
+    grid-template-columns:
+      minmax(58px, 0.75fr)
+      minmax(0, 1.75fr)
+      minmax(58px, 0.75fr)
+      minmax(42px, 0.55fr)
+      minmax(50px, 0.65fr)
+      minmax(42px, 0.55fr);
+    column-gap: 8px;
+  }
+
+  .mypage-board-card {
+    padding-inline: 6px;
+  }
+
+  .mypage-board-category,
+  .mypage-board-date,
+  .mypage-board-stat {
+    font-size: 12px;
+  }
+
+  .mypage-board-title {
+    font-size: 14px;
+  }
+}
+
 /* ========================================
     모바일
 ======================================== */
 @media (max-width: 834px) {
   .mypage-container {
     width: 100%;
-    padding: 20px 15px;
+    padding: 40px 15px 20px;
     box-sizing: border-box;
   }
 
   .mypage-text {
+    margin: 0 0 24px;
     font-size: 36px;
     text-align: left;
   }

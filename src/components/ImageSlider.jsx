@@ -8,17 +8,13 @@ import "swiper/css/navigation";
 
 import "./imageslider.css";
 
-import img1 from "../assets/images/EMSYS_Start.jpg";
-import img3 from "../assets/images/EMSYS_Halloween.png";
-import img2 from "../assets/images/EMSYS_Winter.jpg";
+import defaultSliderImage from "../assets/images/black.png";
 import { getUserRole } from "../utils/token";
 import { fetchSliderImages } from "../api/sliderAPI";
 import SliderImageManager from "./SliderImageManager";
 
 const defaultImages = [
-  { id: "default-1", image_url: img1, alt_text: "EMSYS 마스코트" },
-  { id: "default-2", image_url: img2, alt_text: "EMSYS 겨울 배너" },
-  { id: "default-3", image_url: img3, alt_text: "EMSYS 할로윈 배너" },
+  { id: "default", image_url: defaultSliderImage, alt_text: "EMSYS 기본 배너" },
 ];
 
 function ImageSlider() {

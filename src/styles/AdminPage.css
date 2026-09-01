@@ -70,12 +70,26 @@
 /* 게시글 관리 */
 .admin-post-controls-row {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: center;
+  align-items: stretch;
   margin-bottom: 20px;
 }
 
-.admin-board-category-select, .status-select {
+.admin-board-category-select {
+  flex: 0 0 136px;
+  width: 136px;
+  min-width: 136px;
+  height: 42px; /* 데스크탑 기준 */
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.status-select {
   flex: 0 0 100px;
   height: 42px; /* 데스크탑 기준 */
   padding: 0 12px;
@@ -84,6 +98,66 @@
   background-color: var(--bg-box);
   color: var(--text-main);
   font-size: 14px;
+}
+
+.admin-post-filter-selects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.admin-post-filter-selects .admin-board-category-select {
+  width: 100%;
+  min-width: 0;
+  flex: initial;
+}
+
+.admin-post-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-post-action-row .btn-delete {
+  width: 96px;
+  min-width: 96px;
+  margin-left: 0;
+  padding-inline: 10px;
+}
+
+.admin-post-action-row .modal-search-input-group {
+  min-width: 0;
+}
+
+.admin-post-action-row .search-input {
+  min-width: 0;
+}
+
+.admin-board-sub-category-select {
+  flex-basis: auto;
+}
+
+.admin-board-sort-select {
+  flex-basis: auto;
+}
+
+.admin-board-category-select:disabled {
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  cursor: not-allowed;
+  opacity: 1;
+  -webkit-text-fill-color: var(--text-main);
+}
+
+.admin-board-search-input {
+  flex: 1 1 160px;
+  min-width: 0;
 }
 
 .admin-board-category-select:focus{
@@ -108,66 +182,118 @@
   border : none;
 }
 
-.post-list {
+.admin-post-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0;
   max-height: 500px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.post-item {
-  display: flex;
+.admin-post-empty {
+  margin: 0;
+  padding: 20px;
+  color: #888;
+  text-align: center;
+}
+
+.admin-post-list-header,
+.admin-post-row {
+  display: grid;
+  grid-template-columns:
+    28px
+    minmax(54px, 64px)
+    minmax(0, 1fr)
+    minmax(56px, 70px)
+    minmax(72px, 80px)
+    minmax(38px, 44px)
+    minmax(42px, 50px)
+    minmax(38px, 44px);
   align-items: center;
-  gap: 15px;
-  padding: 5px 15px;
-  background-color: var(--border-color);
-  border-radius: 10px;
-  transition: all 0.2s;
+  column-gap: clamp(6px, 1.2vw, 10px);
+  min-width: 0;
 }
 
-.post-item:hover {
-  background-color: #666666;
-  transform: translateY(-2px);
+.admin-post-list-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 8px;
+  border-radius: 6px 6px 0 0;
+  background-color: #3d3d3d;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
-.post-item input[type="checkbox"] {
+.admin-post-list-header span {
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.admin-post-list-header span:nth-child(2),
+.admin-post-list-header span:nth-child(3) {
+  text-align: left;
+}
+
+:root[data-theme="light"] .admin-post-list-header {
+  background-color: #f1f4f6;
+}
+
+.admin-post-row {
+  width: 100%;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-post-row:hover,
+.admin-post-row.selected {
+  background-color: #4a4a4a;
+}
+
+:root[data-theme="light"] .admin-post-row:hover,
+:root[data-theme="light"] .admin-post-row.selected {
+  background-color: #eef1f4;
+}
+
+.admin-post-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+}
+
+.admin-post-check input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
 }
 
-.admin-post-content {
-  display: flex;
-  padding: 15px 0 15px 15px;
-  align-items: center;  
-  min-width:0;   
-  flex: 1;
-}
-
-.post-category {        
-  width:80px;
-  min-width:50px;          
-  text-align: center;     
-  padding: 5px 5px;         
-  background-color: #d9d9d9;
-  color: #000;
-  border-radius: 6px;
+.admin-post-category {
+  min-width: 0;
+  color: var(--text-muted);
   font-size: 13px;
   font-weight: 700;
+  line-height: 1.4;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.post-text-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;              
-  flex: 1;
-  align-items: flex-start;
-  min-width: 50px;
-  width:100%;
+.admin-post-title-cell {
+  min-width: 0;
 }
 
-.admin-post-content h3 {
+.admin-post-title-cell h3 {
   margin: 0;        
   font-size: 15px;
   font-weight: 600;
@@ -177,14 +303,39 @@
   width: 100%;
 }
 
-.post-info {            
-  font-size: 12px;
-  color: var(--text-muted);
+.admin-post-title-prefix {
+  color: var(--point-mint);
+  font-weight: 700;
+  margin-right: 4px;
 }
 
-.admin-post-stats {
-  font-size: 10px;
-  gap:10px;
+.admin-post-title-cell .maintenance-period-text {
+  color: inherit;
+  font-weight: inherit;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.admin-post-meta {
+  display: contents;
+}
+
+.admin-post-author,
+.admin-post-date,
+.admin-post-stat {
+  min-width: 0;
+  margin: 0;
+  color: #bdbdbd;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.admin-post-author {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 부원 */
@@ -417,6 +568,7 @@
 }
 
 .btn-delete{
+  margin-left: 0;
   margin-right:0;
   background-color: var(--danger-red);
   color: white;
@@ -465,40 +617,113 @@
 }
 
 /* 반응형 */
-@container post-box (max-width: 500px) {
-  .admin-post-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .post-category {
-    font-size: 10px;
-    padding: 4px 8px;
-  }
-
-  .post-text-group h3 {
-    font-size: 14px;
-  }
-
-  .post-info {
-    font-size: 10px;
-  }
-
-  .admin-post-stats {
-    gap: 6px;
-    font-size: 8px;
-    display: flex; 
-  }
-
+@container post-box (max-width: 620px) {
   .admin-post-controls-row {
     flex-direction: column;
     gap: 10px;
   }
 
   .admin-board-category-select,
-  .admin-board-search-input,
-  .admin-post-controls-row .btn-danger {
+  .admin-board-search-input {
     width: 100%;
+  }
+
+  .admin-post-action-row .btn-delete {
+    width: 96px;
+    min-width: 96px;
+    margin-left: 0;
+  }
+
+  .admin-post-filter-selects {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .admin-post-filter-selects .admin-board-category-select {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+
+  .admin-post-list-header {
+    display: none;
+  }
+
+  .admin-post-row {
+    grid-template-columns: 24px max-content minmax(0, 1fr);
+    grid-template-areas:
+      "check category title"
+      "check meta meta";
+    column-gap: 6px;
+    row-gap: 4px;
+    padding: 13px 0;
+  }
+
+  .admin-post-check {
+    grid-area: check;
+    align-self: start;
+    padding-top: 1px;
+  }
+
+  .admin-post-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  .admin-post-category {
+    grid-area: category;
+    color: var(--text-main);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .admin-post-category::before {
+    content: "[";
+  }
+
+  .admin-post-category::after {
+    content: "]";
+  }
+
+  .admin-post-title-cell {
+    grid-area: title;
+  }
+
+  .admin-post-title-cell h3 {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .admin-post-meta {
+    grid-area: meta;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    min-width: 0;
+  }
+
+  .admin-post-author,
+  .admin-post-date,
+  .admin-post-stat {
+    color: #9fa7ad;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .admin-post-author {
+    max-width: 90px;
+  }
+
+  .admin-post-stat-view::before {
+    content: "조회 ";
+  }
+
+  .admin-post-stat-like::before {
+    content: "좋아요 ";
+  }
+
+  .admin-post-stat-comment::before {
+    content: "댓글 ";
   }
 }
 
@@ -563,10 +788,16 @@
   .admin-board-category-select, 
   .admin-board-search-input,
   .status-select,
-  .admin-post-controls-row .btn-danger,
   .user-controls-row button {
       width: 100%;
       display: block;
+  }
+
+  .admin-post-action-row .btn-delete {
+      width: 96px;
+      min-width: 96px;
+      display: block;
+      margin-left: 0;
   }
 
   .admin-board-search-input .modal-search-input-group {
@@ -575,52 +806,13 @@
       display: flex;
   }
 
-  .board-search-input .search-input {
+  .admin-board-search-input .search-input {
       flex: 1;
       height: 100%;
   }
 
   .admin-board-search-input .admin-search-btn {
       width: 50px;
-  }
-
-  .post-item {
-      align-items: center;
-    }
-
-  .admin-post-content {
-      display: flex;
-      gap:0;
-      flex-direction: column;
-      align-items: flex-start;
-  }
-
-  .post-category {
-      flex-shrink: 0;
-      font-size: 10px;
-      padding: 4px 8px;
-
-  }
-
-  .post-text-group {
-      width: 100%;
-  }
-
-  .post-text-group h3 {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 14px;
-  }
-  
-  .post-info{
-    font-size: 10px;
-  }
-
-  .admin-post-stats {
-      gap:10px;
-      font-size: 10px;
-      display: flex; 
   }
 
   .left-section.admin-box {

@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getMyInfo, getUserInfoById, resetProfileImage, updateGreetingMessage, updateProfileImage } from "../api/userAPI";
 import { getMyPosts, getMyPostActivityStats, getMyPostCategoryStats, getUserPosts, getUserPostActivityStats, getUserPostCategoryStats } from "../api/postAPI";
 import { getUserInfo as getStoredUserInfo, isAuthError, redirectToLogin, requireLogin } from "../utils/token";
+import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 import defaultProfile from "../assets/images/기본_프로필_라이트.png";
 
 const ACTIVITY_YEAR = new Date().getFullYear();
@@ -540,6 +541,7 @@ function MyPage() {
     if (category === "contest") return "대회/공모전";
     if (category === "class") return "수업";
     if (category === "activity") return "행사";
+    if (category === "maintenance") return "점검안내";
     if (category === "uncategorized") return "미분류";
     return category;
   }
@@ -1071,6 +1073,11 @@ function MyPage() {
                             </span>
                           )}{" "}
                           {post.title}
+                          {formatMaintenancePeriod(post) && (
+                            <span className="maintenance-period-text">
+                              {formatMaintenancePeriod(post)}
+                            </span>
+                          )}
                         </h2>
                         <time className="mypage-board-date" dateTime={post.created_at}>
                           {post.created_at?.slice(0, 10)}
