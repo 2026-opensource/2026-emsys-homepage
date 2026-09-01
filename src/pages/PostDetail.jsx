@@ -159,6 +159,26 @@ function PostDetail() {
     return date.slice(0, 10);
   }
 
+  // 갤러리 행사 날짜를 "YY.MM.DD" 형태로 표시
+  function formatEventDate(date) {
+    if (!date) return "";
+
+    const [year, month, day] = date.slice(0, 10).split("-");
+    return `${year.slice(-2)}.${month}.${day}`;
+  }
+
+  // 갤러리 행사 기간을 "시작일 ~ 종료일" 형태로 표시 (하루짜리 행사면 날짜 하나만)
+  function formatEventPeriod(startDate, endDate) {
+    const start = formatEventDate(startDate);
+    const end = formatEventDate(endDate);
+
+    if (start && end && start !== end) {
+      return `${start} ~ ${end}`;
+    }
+
+    return start || end;
+  }
+
   function formatFileSize(size) {
     if (!size) return "";
 
@@ -762,10 +782,29 @@ function PostDetail() {
 
           {/* 구분선 아래 본문 영역 */}
           <div className="detail-body">
-            {post.board_type === "GALLERY" && post.location && (
-              <div className="gallery-location-badge">
-                <i className="fa-solid fa-location-dot gallery-map"></i> {post.location}</div>
-            )}
+            {post.board_type === "GALLERY" &&
+              (post.event_start_date || post.location) && (
+                <div className="gallery-meta-row">
+                  {post.event_start_date && (
+                    <div className="gallery-meta-badge">
+                      <i className="fa-solid fa-calendar-days gallery-meta-icon"></i>
+                      <span>
+                        {formatEventPeriod(
+                          post.event_start_date,
+                          post.event_end_date,
+                        )}
+                      </span>
+                    </div>
+                  )}
+
+                  {post.location && (
+                    <div className="gallery-meta-badge">
+                      <i className="fa-solid fa-location-dot gallery-meta-icon"></i>
+                      <span>{post.location}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
             {/* 본문 */}
             <section

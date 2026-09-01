@@ -54,6 +54,16 @@ function Gallery() {
   const subCategoryOptions = SUB_CATEGORY_OPTIONS[category] || [];
   const hasSubCategoryOptions = subCategoryOptions.length > 0;
 
+  // 행사 시작일의 연도 뒤 두 자리를 "XX년도" 형태로 반환 (시작일이 없으면 빈 문자열)
+  function getEventYearLabel(eventStartDate) {
+    if (!eventStartDate) return "";
+
+    const year = new Date(eventStartDate).getFullYear();
+    if (Number.isNaN(year)) return "";
+
+    return `${String(year).slice(-2)}년도 `;
+  }
+
   useEffect(() => {
     async function fetchPosts() {
       try {
@@ -224,7 +234,8 @@ function Gallery() {
                                   </p>
 
                                   <p className="post-title">
-                                    {post.sub_category && `[${post.sub_category}]`}
+                                    {post.sub_category && `[${post.sub_category}] `}
+                                    {getEventYearLabel(post.event_start_date)}
                                     {post.title}
                                   </p>
                                 </section>

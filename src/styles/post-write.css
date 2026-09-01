@@ -280,6 +280,13 @@ body {
   border: 2px solid var(--border-color);
 }
 
+.event-date-input:focus,
+.event-location-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--border-color);
+}
+
 .category-select {
   padding: 0 28px;
   border-radius: 6px;

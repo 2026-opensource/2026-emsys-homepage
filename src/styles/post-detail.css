@@ -160,24 +160,33 @@
   border-top: 2px solid var(--border-color);
 }
 
-/* 갤러리 게시글 상세 상단에 장소를 작은 칸으로 표시 */
-.gallery-location-badge {
-  display: block;
-  width: fit-content;
-  margin: 20px auto 0;
+/* 갤러리 게시글 상세 상단에 행사 기간/장소를 뱃지 형태로 표시 */
+.gallery-meta-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 0;
+}
+
+.gallery-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 16px;
-  border-radius: 8px;
+  border-radius: 7px;
   background-color: var(--bg-box);
   border: 1.5px solid var(--point-mint);
   color: var(--text-main);
   font-size: 14px;
   font-weight: 600;
-  text-align: center;
+  line-height: 1;
 }
 
-.gallery-map{
-  font-size: 15px;
-  margin: 0 2px 0 0;
+.gallery-meta-icon {
+  font-size: 13px;
+  color: var(--point-mint);
 }
 
 .detail-content {
@@ -189,8 +198,8 @@
   color: var(--text-main);
 }
 
-/* 장소 뱃지가 있으면 본문 내용이 한 줄 더 아래에서 시작하도록 여백 확보 */
-.gallery-location-badge + .detail-content {
+/* 행사 기간/장소 뱃지가 있으면 본문 내용이 한 줄 더 아래에서 시작하도록 여백 확보 */
+.gallery-meta-row + .detail-content {
   padding-top: 46px;
 }
 
