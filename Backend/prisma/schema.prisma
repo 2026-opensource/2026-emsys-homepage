@@ -113,7 +113,7 @@ model posts {
   maintenance_start_at DateTime? @db.Timestamp(0)
   maintenance_end_at   DateTime? @db.Timestamp(0)
   maintenance_message  String?   @db.VarChar(255)
-  location      String?         @db.VarChar(255)
+  location      String?         @db.VarChar(100)
   comments      comments[]
   post_dislikes post_dislikes[]
   post_images   post_images[]

@@ -288,14 +288,28 @@ body {
   color: var(--text-muted);
 }
 
-.event-location-input {
+.event-location-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex: 1;
   min-width: 200px;
+}
+
+.event-location-input {
+  flex: 1;
+  min-width: 0;
   padding: 6px 10px;
   border-radius: 6px;
   color: var(--text-main);
   background-color: var(--bg-box);
   border: 2px solid var(--border-color);
+}
+
+.event-location-count {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .event-date-input:focus,
@@ -660,7 +674,7 @@ body {
     min-width: 0;
   }
 
-  .event-location-input {
+  .event-location-field {
     min-width: 0;
   }
 

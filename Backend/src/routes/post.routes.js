@@ -36,6 +36,12 @@ router.delete(
     postController.deleteUnusedPostFiles
 );
 
+// 업로드(멀터) 관련 라우터에서 발생한 에러만 여기서 처리.
+// 라우터 맨 아래에 두면 이후에 등록된 모든 라우트(글쓰기, 점검 조회 등)의
+// 에러까지 전부 가로채서 무조건 400으로 뭉개버리기 때문에, 업로드 라우터
+// 바로 다음(다른 라우트들보다 앞)에 둬야 함.
+router.use(uploadErrorHandler);
+
 // 게시글 첨부파일 다운로드 라우터
 router.get(
     "/download/post-files/:fileName",
@@ -81,7 +87,5 @@ router.delete('/:id', requireAuth, postController.deletePost);
 router.post('/:postId/like', requireAuth, postController.toggleLike);
 
 router.post('/:postId/dislike', requireAuth, postController.toggleDislike);
-
-router.use(uploadErrorHandler);
 
 module.exports = router;

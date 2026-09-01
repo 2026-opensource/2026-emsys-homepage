@@ -1266,14 +1266,20 @@ function PostWrite() {
                       />
                     </div>
 
-                    <input
-                      className="event-location-input form-control"
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="장소를 입력해주세요."
-                    />
+                    <div className="event-location-field">
+                      <input
+                        className="event-location-input form-control"
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder="장소를 입력해주세요."
+                        maxLength={100}
+                      />
+                      <span className="event-location-count">
+                        {formData.location.length}/100
+                      </span>
+                    </div>
                   </div>
                 )}
 

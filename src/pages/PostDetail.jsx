@@ -180,6 +180,16 @@ function PostDetail() {
     return start || end;
   }
 
+  // 행사 시작일의 연도 뒤 두 자리를 "XX년도" 형태로 반환 (시작일이 없으면 빈 문자열)
+  function getEventYearLabel(eventStartDate) {
+    if (!eventStartDate) return "";
+
+    const year = new Date(eventStartDate).getFullYear();
+    if (Number.isNaN(year)) return "";
+
+    return `${String(year).slice(-2)}년도 `;
+  }
+
   function formatFileSize(size) {
     if (!size) return "";
 
@@ -756,6 +766,8 @@ function PostDetail() {
                       </span>{" "}
                     </>
                   )}
+                  {post.board_type === "GALLERY" &&
+                    getEventYearLabel(post.event_start_date)}
                   {post.title}
                   {formatMaintenancePeriod(post) && (
                     <>
