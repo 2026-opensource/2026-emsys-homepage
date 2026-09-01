@@ -84,14 +84,14 @@ body {
 
 .profile-avatar-control {
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: 170px;
+  height: 170px;
   margin: 0;
 }
 
 .profile-image {
-  width: 140px;
-  height: 140px;
+  width: 170px;
+  height: 170px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
@@ -99,23 +99,38 @@ body {
 
 .profile-settings-btn {
   position: absolute;
-  right: -3px;
-  bottom: 6px;
-  width: 42px;
-  height: 42px;
+  right: 15px;
+  bottom: 25px;
+  width: 37px;
+  height: 37px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background-color: #18d47c;
-  color: #1f1f1f;
+  background-color: #8f8f8f;
+  color: #ffffff;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+:root[data-theme="light"] .profile-settings-btn {
+  background-color: #c7c7c7;
+  color: #000000;
 }
 
 .profile-settings-btn:hover,
 .profile-settings-btn:focus-visible {
-  background-color: #0fa25f;
+  background-color: #7d7d7d;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .profile-settings-btn:hover,
+:root[data-theme="light"] .profile-settings-btn:focus-visible {
+  background-color: #b5b5b5;
+  color: #000000;
 }
 
 .profile-settings-menu {
@@ -1039,8 +1054,8 @@ body {
   }
 
   .profile-avatar-control {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     margin: 0;
   }
 
@@ -1073,21 +1088,21 @@ body {
   }
 
   .profile-avatar-control {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     margin: 0 auto;
   }
 
   .profile-image {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
   }
 
   .profile-settings-btn {
     width: 38px;
     height: 38px;
-    right: -4px;
-    bottom: 2px;
+    right: 9px;
+    bottom: 9px;
   }
 
   .user-info-content1 {

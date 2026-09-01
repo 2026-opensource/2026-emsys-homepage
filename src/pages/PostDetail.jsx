@@ -16,7 +16,7 @@ import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import { getToken, getUserInfo, isAuthError, isLoggedIn, redirectToLogin } from "../utils/token";
 import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
-import defaultProfile from "../assets/images/기본_프로필_라이트.png";
+import defaultProfile from "../assets/images/기본프로필.png";
 
 import "../layout/common.css";
 import "../styles/board.css";

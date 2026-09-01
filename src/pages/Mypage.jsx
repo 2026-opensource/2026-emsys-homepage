@@ -12,7 +12,7 @@ import { getMyInfo, getUserInfoById, resetProfileImage, updateGreetingMessage, u
 import { getMyPosts, getMyPostActivityStats, getMyPostCategoryStats, getUserPosts, getUserPostActivityStats, getUserPostCategoryStats } from "../api/postAPI";
 import { getUserInfo as getStoredUserInfo, isAuthError, redirectToLogin, requireLogin } from "../utils/token";
 import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
-import defaultProfile from "../assets/images/기본_프로필_라이트.png";
+import defaultProfile from "../assets/images/기본프로필.png";
 
 const ACTIVITY_YEAR = new Date().getFullYear();
 const ACTIVITY_YEARS = [ACTIVITY_YEAR, ACTIVITY_YEAR - 1, ACTIVITY_YEAR - 2];

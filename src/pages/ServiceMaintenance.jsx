@@ -8,9 +8,6 @@ import { formatMaintenancePeriod } from "../utils/maintenanceFormat";
 
 import "../styles/service-maintenance.css";
 
-// 점검 화면에 표시할 일시를 직접 입력하세요.
-const MAINTENANCE_TIME = "08.29(토) 18:00 ~ 22:00";
-
 function ServiceMaintenance({ maintenance = null }) {
   const [latestMaintenance, setLatestMaintenance] = useState(maintenance);
 
@@ -45,11 +42,8 @@ function ServiceMaintenance({ maintenance = null }) {
     };
   }, [maintenance]);
 
-  const maintenanceTime =
-    formatMaintenancePeriod(latestMaintenance) || MAINTENANCE_TIME;
-  const maintenanceMessage =
-    latestMaintenance?.maintenance_message?.trim() ||
-    "더 안정적인 서비스를 제공하기 위해 시스템을 점검하고 있습니다.";
+  const maintenanceTime = formatMaintenancePeriod(latestMaintenance);
+  const maintenanceMessage = latestMaintenance?.maintenance_message?.trim() || "";
 
   return (
     <main className="service-maintenance-page">
