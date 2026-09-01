@@ -194,7 +194,7 @@ function AppContent() {
 }
 
 function App() {
-  const ENABLE_SCHEDULED_MAINTENANCE = true;
+  const ENABLE_SCHEDULED_MAINTENANCE = false;
   const isMaintenanceMode =
     import.meta.env.VITE_MAINTENANCE_MODE === "true";
   const [maintenanceChecked, setMaintenanceChecked] = useState(
