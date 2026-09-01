@@ -581,6 +581,16 @@ function MyPage() {
     return "";
   }
 
+  // 갤러리 게시글의 행사 시작일 연도 뒤 두 자리를 "XX년도" 형태로 반환
+  function getEventYearLabel(post) {
+    if (post.board_type !== "GALLERY" || !post.event_start_date) return "";
+
+    const year = new Date(post.event_start_date).getFullYear();
+    if (Number.isNaN(year)) return "";
+
+    return `${String(year).slice(-2)}년도 `;
+  }
+
   function formatDateOnly(date) {
     return date ? String(date).slice(0, 10) : "";
   }
@@ -1072,6 +1082,7 @@ function MyPage() {
                               [{getPostTitlePrefix(post)}]
                             </span>
                           )}{" "}
+                          {getEventYearLabel(post)}
                           {post.title}
                           {formatMaintenancePeriod(post) && (
                             <span className="maintenance-period-text">
