@@ -17,6 +17,7 @@ import { Jodit } from "jodit";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
+import { formatMaintenanceInputValue } from "../utils/maintenanceFormat";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -29,21 +30,6 @@ function getTodayDateStr() {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function formatDateTimeLocalValue(value) {
-  if (!value) return "";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function PostWrite() {
@@ -860,8 +846,8 @@ function PostWrite() {
         event_end_date: draft.event_end_date
           ? draft.event_end_date.slice(0, 10)
           : "",
-        maintenance_start_at: formatDateTimeLocalValue(draft.maintenance_start_at),
-        maintenance_end_at: formatDateTimeLocalValue(draft.maintenance_end_at),
+        maintenance_start_at: formatMaintenanceInputValue(draft.maintenance_start_at),
+        maintenance_end_at: formatMaintenanceInputValue(draft.maintenance_end_at),
         maintenance_message: draft.maintenance_message || "",
         location: draft.location || "",
       });
@@ -953,8 +939,8 @@ function PostWrite() {
           event_end_date: post.event_end_date
             ? post.event_end_date.slice(0, 10)
             : "",
-          maintenance_start_at: formatDateTimeLocalValue(post.maintenance_start_at),
-          maintenance_end_at: formatDateTimeLocalValue(post.maintenance_end_at),
+          maintenance_start_at: formatMaintenanceInputValue(post.maintenance_start_at),
+          maintenance_end_at: formatMaintenanceInputValue(post.maintenance_end_at),
           maintenance_message: post.maintenance_message || "",
           location: post.location || "",
         });
