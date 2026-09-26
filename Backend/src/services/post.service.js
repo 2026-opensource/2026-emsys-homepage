@@ -510,7 +510,11 @@ function validateSubCategory(category, subCategory, isDraft) {
 function parseMaintenanceDateTime(value, fieldLabel) {
   if (!value) return null;
 
-  const date = new Date(value);
+  const date = new Date(
+    typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(value)
+      ? `${value}+09:00`
+      : value,
+  );
 
   if (Number.isNaN(date.getTime())) {
     const error = new Error(`${fieldLabel} 형식이 올바르지 않습니다.`);
@@ -773,6 +777,8 @@ exports.createPost = async ({ body, user }) => {
     //     throw error;
     // } 로컬 파일 시스템 기준이라 R2에선 그대로 작동 X
 
+    const now = new Date();
+
     // transaction 사용해서 게시글 생성 + 이미지 저장 (둘 중 하나 실패하면 db에 둘 다 저장안됨)
     const newPost = await prisma.$transaction(async (tx) => {
         const createdPost = await tx.posts.create({
@@ -784,9 +790,10 @@ exports.createPost = async ({ body, user }) => {
                 content: content || "",
                 author_id: authorId,
                 is_draft: isDraft,
+                created_at: now,
                 // updated_at을 생성 시점에도 채워둬야 새로 만든 글이 updated_at desc 정렬에서
                 // (NULL은 MySQL DESC 정렬에서 맨 뒤로 밀리므로) 최신 글로 맨 위에 온다.
-                updated_at: new Date(),
+                updated_at: now,
                 event_start_date: event_start_date ? new Date(event_start_date) : null,
                 event_end_date: event_end_date ? new Date(event_end_date) : null,
                 maintenance_start_at: maintenanceRange.maintenance_start_at,
