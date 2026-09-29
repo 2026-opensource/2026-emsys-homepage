@@ -382,7 +382,7 @@ function PostWrite() {
       { value: "contest", label: "대회/공모전" },
       { value: "class", label: "수업" },
     ],
-    GALLERY: [{ value: "activity", label: "행사" }],
+    GALLERY: [{ value: "activity", label: "활동" }],
     MAINTENANCE: [{ value: "maintenance", label: "점검안내" }],
   };
 
@@ -391,17 +391,14 @@ function PostWrite() {
     free: ["소모임", "게임", "기타"],
     recruit: ["공모전", "스터디", "소모임"],
     notice: ["공지"],
-    study: ["초급반", "중급반", "심화반"],
     class: [
-      "전필-수업자료/과제",
-      "전필-족보",
-      "전선-수업자료/과제",
-      "전선-족보",
-      "교양-수업자료/과제",
-      "교양-족보",
+      "전공 자료",
+      "전공 과제",
+      "교양 자료",
+      "교양 과제",
     ],
     maintenance: ["점검일시", "점검내용"],
-    activity: ["개강총회", "종강총회", "MT", "행사"],
+    activity: ["개강총회", "종강총회", "MT", "이벤트"],
   };
 
   const currentSubCategoryOptions = subCategoryOptions[formData.category] || null;
