@@ -1,30 +1,15 @@
 const express = require("express");
 const path = require("path");
 const multer = require("multer");
-const fs = require("fs");
 const authController = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
 const uploadErrorHandler = require("../middlewares/uploadError.middleware");
 
 const router = express.Router();
 
-const uploadDir = path.join(__dirname, "../../uploads/profile-images");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const profileImageStorage  = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const ext = path.extname(file.originalname).toLowerCase();
-        const fileName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
-
-        cb(null, fileName);
-    },
-});
-
+// 프로필 이미지는 서버 로컬 디스크에 저장하지 않고 메모리에 버퍼로만 담아둔 뒤
+// Cloudflare R2에 업로드함. (배포 서버의 로컬 디스크는 재배포할 때마다 초기화되기
+// 때문에, 로컬에 저장하면 재배포 후 이미지가 깨짐)
 const allowedProfileImageTypes = [
     "image/png",
     "image/jpeg",
@@ -40,7 +25,7 @@ const allowedProfileImageExtensions = [
 ];
 
 const uploadProfileImage = multer({
-    storage: profileImageStorage,
+    storage: multer.memoryStorage(),
     limits: {
         fileSize: 5 * 1024 * 1024,
     },
