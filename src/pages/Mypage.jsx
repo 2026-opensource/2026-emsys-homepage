@@ -528,7 +528,9 @@ function MyPage() {
   }
 
   const profileImageUrl = user?.profile_image
-    ? `${import.meta.env.VITE_API_BASE_URL}${user.profile_image}`
+    ? user.profile_image.startsWith("http")
+      ? user.profile_image
+      : `${import.meta.env.VITE_API_BASE_URL}${user.profile_image}`
     : defaultProfile;
 
   function getCategoryText(category) {

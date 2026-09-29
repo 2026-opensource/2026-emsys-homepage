@@ -17,6 +17,7 @@ import { Jodit } from "jodit";
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
 import { isAuthError, redirectToLogin, requireLogin } from "../utils/token";
+import { formatMaintenanceInputValue } from "../utils/maintenanceFormat";
 
 import "../layout/common.css";
 import "../styles/board.css";
@@ -29,21 +30,6 @@ function getTodayDateStr() {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function formatDateTimeLocalValue(value) {
-  if (!value) return "";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function PostWrite() {
@@ -396,7 +382,7 @@ function PostWrite() {
       { value: "contest", label: "대회/공모전" },
       { value: "class", label: "수업" },
     ],
-    GALLERY: [{ value: "activity", label: "행사" }],
+    GALLERY: [{ value: "activity", label: "활동" }],
     MAINTENANCE: [{ value: "maintenance", label: "점검안내" }],
   };
 
@@ -405,17 +391,14 @@ function PostWrite() {
     free: ["소모임", "게임", "기타"],
     recruit: ["공모전", "스터디", "소모임"],
     notice: ["공지"],
-    study: ["초급반", "중급반", "심화반"],
     class: [
-      "전필-수업자료/과제",
-      "전필-족보",
-      "전선-수업자료/과제",
-      "전선-족보",
-      "교양-수업자료/과제",
-      "교양-족보",
+      "전공 자료",
+      "전공 과제",
+      "교양 자료",
+      "교양 과제",
     ],
     maintenance: ["점검일시", "점검내용"],
-    activity: ["개강총회", "종강총회", "MT", "행사"],
+    activity: ["개강총회", "종강총회", "MT", "이벤트"],
   };
 
   const currentSubCategoryOptions = subCategoryOptions[formData.category] || null;
@@ -860,8 +843,8 @@ function PostWrite() {
         event_end_date: draft.event_end_date
           ? draft.event_end_date.slice(0, 10)
           : "",
-        maintenance_start_at: formatDateTimeLocalValue(draft.maintenance_start_at),
-        maintenance_end_at: formatDateTimeLocalValue(draft.maintenance_end_at),
+        maintenance_start_at: formatMaintenanceInputValue(draft.maintenance_start_at),
+        maintenance_end_at: formatMaintenanceInputValue(draft.maintenance_end_at),
         maintenance_message: draft.maintenance_message || "",
         location: draft.location || "",
       });
@@ -953,8 +936,8 @@ function PostWrite() {
           event_end_date: post.event_end_date
             ? post.event_end_date.slice(0, 10)
             : "",
-          maintenance_start_at: formatDateTimeLocalValue(post.maintenance_start_at),
-          maintenance_end_at: formatDateTimeLocalValue(post.maintenance_end_at),
+          maintenance_start_at: formatMaintenanceInputValue(post.maintenance_start_at),
+          maintenance_end_at: formatMaintenanceInputValue(post.maintenance_end_at),
           maintenance_message: post.maintenance_message || "",
           location: post.location || "",
         });

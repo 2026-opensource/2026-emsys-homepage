@@ -467,17 +467,9 @@ const SUB_CATEGORY_OPTIONS = {
     free: ["소모임", "게임", "기타"],
     recruit: ["공모전", "스터디", "소모임"],
     notice: ["공지"],
-    study: ["초급반", "중급반", "심화반"],
-    class: [
-        "전필-수업자료/과제",
-        "전필-족보",
-        "전선-수업자료/과제",
-        "전선-족보",
-        "교양-수업자료/과제",
-        "교양-족보",
-    ],
+    class: ["전공 자료", "전공 과제", "교양 자료", "교양 과제"],
     maintenance: ["점검일시", "점검내용"],
-    activity: ["개강총회", "종강총회", "MT", "행사"],
+    activity: ["개강총회", "종강총회", "MT", "이벤트"],
 };
 
 function getSubCategoryOptions(category) {
@@ -510,7 +502,11 @@ function validateSubCategory(category, subCategory, isDraft) {
 function parseMaintenanceDateTime(value, fieldLabel) {
   if (!value) return null;
 
-  const date = new Date(value);
+  const date = new Date(
+    typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(value)
+      ? `${value}+09:00`
+      : value,
+  );
 
   if (Number.isNaN(date.getTime())) {
     const error = new Error(`${fieldLabel} 형식이 올바르지 않습니다.`);
@@ -725,6 +721,13 @@ exports.createPost = async ({ body, user }) => {
     throw error;
   }
 
+  // 갤러리 게시판은 임원만 작성 가능
+  if (finalBoardType === "GALLERY" && !isAdmin(userRole)) {
+    const error = new Error("갤러리는 임원만 작성할 수 있습니다.");
+    error.status = 403;
+    throw error;
+  }
+
   // 임시저장 개수 제한 (전체 게시판 합산, 최대 10개)
   // 새 임시글을 생성하는 경우에만 검사 (기존 임시글을 이어서 저장하는 건 updatePost가 처리)
   if (isDraft) {
@@ -773,6 +776,8 @@ exports.createPost = async ({ body, user }) => {
     //     throw error;
     // } 로컬 파일 시스템 기준이라 R2에선 그대로 작동 X
 
+    const now = new Date();
+
     // transaction 사용해서 게시글 생성 + 이미지 저장 (둘 중 하나 실패하면 db에 둘 다 저장안됨)
     const newPost = await prisma.$transaction(async (tx) => {
         const createdPost = await tx.posts.create({
@@ -784,9 +789,10 @@ exports.createPost = async ({ body, user }) => {
                 content: content || "",
                 author_id: authorId,
                 is_draft: isDraft,
+                created_at: now,
                 // updated_at을 생성 시점에도 채워둬야 새로 만든 글이 updated_at desc 정렬에서
                 // (NULL은 MySQL DESC 정렬에서 맨 뒤로 밀리므로) 최신 글로 맨 위에 온다.
-                updated_at: new Date(),
+                updated_at: now,
                 event_start_date: event_start_date ? new Date(event_start_date) : null,
                 event_end_date: event_end_date ? new Date(event_end_date) : null,
                 maintenance_start_at: maintenanceRange.maintenance_start_at,
@@ -930,6 +936,13 @@ exports.updatePost = async ({ id, body, user }) => {
   // 점검안내 게시판은 임원만 가능
   if (finalBoardType === "MAINTENANCE" && !isAdmin(userRole)) {
     const error = new Error("점검안내는 임원만 작성할 수 있습니다.");
+    error.status = 403;
+    throw error;
+  }
+
+  // 갤러리 게시판은 임원만 가능
+  if (finalBoardType === "GALLERY" && !isAdmin(userRole)) {
+    const error = new Error("갤러리는 임원만 작성할 수 있습니다.");
     error.status = 403;
     throw error;
   }

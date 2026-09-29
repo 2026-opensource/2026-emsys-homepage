@@ -1,54 +1,53 @@
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const KOREA_DATE_TIME_FORMAT = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
 
-function formatMaintenanceDateTime(value) {
-  if (!value) return "";
+function getKoreanDateTimeParts(value) {
+  if (!value) return null;
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) return null;
 
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const weekday = WEEKDAYS[date.getDay()];
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${month}.${day}(${weekday}) ${hours}:${minutes}`;
+  return Object.fromEntries(
+    KOREA_DATE_TIME_FORMAT.formatToParts(date).map(({ type, value: part }) => [type, part]),
+  );
 }
 
-function formatTimeOnly(date) {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+export function formatMaintenanceInputValue(value) {
+  const parts = getKoreanDateTimeParts(value);
+  if (!parts) return "";
 
-  return `${hours}:${minutes}`;
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+function formatMaintenanceDateTime(parts) {
+  const weekday = WEEKDAYS[new Date(Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+  )).getUTCDay()];
+
+  return `${parts.month}.${parts.day}(${weekday}) ${parts.hour}:${parts.minute}`;
 }
 
 export function formatMaintenancePeriod(post) {
-  const startText = formatMaintenanceDateTime(post?.maintenance_start_at);
-  const startDate = post?.maintenance_start_at
-    ? new Date(post.maintenance_start_at)
-    : null;
-  const endDate = post?.maintenance_end_at
-    ? new Date(post.maintenance_end_at)
-    : null;
-
-  if (
-    !startText ||
-    !startDate ||
-    !endDate ||
-    Number.isNaN(startDate.getTime()) ||
-    Number.isNaN(endDate.getTime())
-  ) {
-    return "";
-  }
+  const start = getKoreanDateTimeParts(post?.maintenance_start_at);
+  const end = getKoreanDateTimeParts(post?.maintenance_end_at);
+  if (!start || !end) return "";
 
   const isSameDay =
-    startDate.getFullYear() === endDate.getFullYear() &&
-    startDate.getMonth() === endDate.getMonth() &&
-    startDate.getDate() === endDate.getDate();
+    start.year === end.year &&
+    start.month === end.month &&
+    start.day === end.day;
 
   const endText = isSameDay
-    ? formatTimeOnly(endDate)
-    : formatMaintenanceDateTime(endDate);
+    ? `${end.hour}:${end.minute}`
+    : formatMaintenanceDateTime(end);
 
-  return `${startText} ~ ${endText}`;
+  return `${formatMaintenanceDateTime(start)} ~ ${endText}`;
 }

@@ -4,6 +4,7 @@ const { isValidPassword, isValidEmail, isValidStatus, isValidPhoneNumber } = req
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
+const { uploadToR2, deleteFromR2, extractR2Key } = require("../lib/uploadToR2");
 
 const SIGNUP_FAILED_MESSAGE =
     "입력 정보가 이미 사용 중이거나 초대 정보와 일치하지 않습니다.\n다시 확인하거나 관리자에게 문의해 주세요.";
@@ -464,12 +465,37 @@ async function getUserProfile(userId) {
     return getMe(targetUserId);
 }
 
+// 기존 프로필 이미지를 지워줌.
+// R2에 올라간 이미지(절대 URL)면 R2에서 삭제하고, 예전 방식대로 서버 로컬 디스크
+// 경로("/uploads/profile-images/...")가 남아있는 경우(마이그레이션 이전 데이터)엔
+// 혹시 몰라 로컬 파일 삭제도 시도함(대부분 이미 없어졌을 가능성이 높아서 존재할 때만 지움).
+async function removeOldProfileImage(profileImage) {
+    if (!profileImage) return;
+
+    const r2Key = extractR2Key(profileImage);
+
+    if (r2Key) {
+        await deleteFromR2(r2Key);
+        return;
+    }
+
+    const oldImagePath = path.join(
+        __dirname,
+        "../../",
+        profileImage.replace(/^\/+/, "")
+    );
+
+    if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+    }
+}
+
 async function updateProfileImage(userId, file) {
-    if (!file || !file.filename) {
+    if (!file || !file.buffer) {
         const error = new Error("업로드된 이미지 파일 정보가 올바르지 않습니다.");
         error.statusCode = 400;
-        throw error; 
-}
+        throw error;
+    }
 
     const user = await prisma.users.findUnique({
         where: { id: userId },
@@ -485,25 +511,21 @@ async function updateProfileImage(userId, file) {
         throw error;
     }
 
-    // 기존 프로필 이미지가 있으면 삭제
-    if (user.profile_image) {
-        const oldImagePath = path.join(
-            __dirname,
-            "../../",
-            user.profile_image
-        );
+    // 기존 프로필 이미지가 있으면 삭제 (새 이미지 업로드 전에 지워서 R2에 고아 파일이 안 남게 함)
+    await removeOldProfileImage(user.profile_image);
 
-        if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
-        }
-    }
-
-    const imagePath = `/uploads/profile-images/${file.filename}`;
+    // Cloudflare R2에 새 이미지 업로드
+    const imageUrl = await uploadToR2(
+        file.buffer,
+        file.originalname,
+        file.mimetype,
+        "profile-images"
+    );
 
     const updatedUser = await prisma.users.update({
         where: { id: userId },
         data: {
-            profile_image: imagePath,
+            profile_image: imageUrl,
         },
         select: {
             id: true,
@@ -538,18 +560,8 @@ async function resetProfileImage(userId) {
         throw error;
     }
 
-    // 기존 프로필 이미지가 있으면 실제 파일 삭제
-    if (user.profile_image) {
-        const oldImagePath = path.join(
-            __dirname,
-            "../../",
-            user.profile_image.replace(/^\/+/, "")
-        );
-
-        if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
-        }
-    }
+    // 기존 프로필 이미지가 있으면 실제 파일 삭제 (R2 또는 예전 로컬 파일)
+    await removeOldProfileImage(user.profile_image);
 
     // DB의 profile_image 값을 null로 변경
     const updatedUser = await prisma.users.update({
