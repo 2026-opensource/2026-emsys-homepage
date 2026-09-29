@@ -467,17 +467,9 @@ const SUB_CATEGORY_OPTIONS = {
     free: ["소모임", "게임", "기타"],
     recruit: ["공모전", "스터디", "소모임"],
     notice: ["공지"],
-    study: ["초급반", "중급반", "심화반"],
-    class: [
-        "전필-수업자료/과제",
-        "전필-족보",
-        "전선-수업자료/과제",
-        "전선-족보",
-        "교양-수업자료/과제",
-        "교양-족보",
-    ],
+    class: ["전공 자료", "전공 과제", "교양 자료", "교양 과제"],
     maintenance: ["점검일시", "점검내용"],
-    activity: ["개강총회", "종강총회", "MT", "행사"],
+    activity: ["개강총회", "종강총회", "MT", "이벤트"],
 };
 
 function getSubCategoryOptions(category) {
@@ -729,6 +721,13 @@ exports.createPost = async ({ body, user }) => {
     throw error;
   }
 
+  // 갤러리 게시판은 임원만 작성 가능
+  if (finalBoardType === "GALLERY" && !isAdmin(userRole)) {
+    const error = new Error("갤러리는 임원만 작성할 수 있습니다.");
+    error.status = 403;
+    throw error;
+  }
+
   // 임시저장 개수 제한 (전체 게시판 합산, 최대 10개)
   // 새 임시글을 생성하는 경우에만 검사 (기존 임시글을 이어서 저장하는 건 updatePost가 처리)
   if (isDraft) {
@@ -937,6 +936,13 @@ exports.updatePost = async ({ id, body, user }) => {
   // 점검안내 게시판은 임원만 가능
   if (finalBoardType === "MAINTENANCE" && !isAdmin(userRole)) {
     const error = new Error("점검안내는 임원만 작성할 수 있습니다.");
+    error.status = 403;
+    throw error;
+  }
+
+  // 갤러리 게시판은 임원만 가능
+  if (finalBoardType === "GALLERY" && !isAdmin(userRole)) {
+    const error = new Error("갤러리는 임원만 작성할 수 있습니다.");
     error.status = 403;
     throw error;
   }

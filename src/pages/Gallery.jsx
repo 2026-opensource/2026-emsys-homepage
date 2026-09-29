@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getPosts } from "../api/postAPI";
-import { isLoggedIn, redirectToLogin } from "../utils/token";
+import { isLoggedIn, redirectToLogin, getUserRole } from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -20,8 +20,8 @@ const GALLERY_POST_SORT_OPTIONS = [
 ];
 
 const SUB_CATEGORY_OPTIONS = {
-  all: ["개강총회", "종강총회", "MT", "행사"],
-  activity: ["개강총회", "종강총회", "MT", "행사"],
+  all: ["개강총회", "종강총회", "MT", "이벤트"],
+  activity: ["개강총회", "종강총회", "MT", "이벤트"],
 };
 
 function Gallery() {
@@ -40,6 +40,9 @@ function Gallery() {
   const POSTS_PER_PAGE = 12;
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const role = getUserRole();
+  const isAdmin = role === "PRESIDENT" || role === "OFFICER";
 
   function getImageUrl(path) {
     if (!path) return "";
@@ -120,12 +123,14 @@ function Gallery() {
             {/* 메뉴 영역 */}
             <div className="board-menu-area board-menu-flat">
               <div className="board-toolbar">
-                {/* 글쓰기 */}
-                <Link to="/gallery/write" onClick={handleWriteClick}>
-                  <button className="board-write-btn btn btn-default">
-                    글쓰기
-                  </button>
-                </Link>
+                {/* 글쓰기 (임원/회장만) */}
+                {isAdmin && (
+                  <Link to="/gallery/write" onClick={handleWriteClick}>
+                    <button className="board-write-btn btn btn-default">
+                      글쓰기
+                    </button>
+                  </Link>
+                )}
 
                 {/* 검색 영역 */}
                 <div className="board-search-area board-filter-area">
