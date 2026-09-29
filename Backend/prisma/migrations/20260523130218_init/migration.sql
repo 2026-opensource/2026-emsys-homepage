@@ -5,7 +5,7 @@
 
 */
 -- DropTable
-DROP TABLE `user`;
+DROP TABLE `User`;
 
 -- CreateTable
 CREATE TABLE `comments` (
