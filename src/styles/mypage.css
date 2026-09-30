@@ -53,8 +53,8 @@ body {
   border-radius: 10px;
   color: var(--text-main);
   text-align: center;
-  padding: 0px 50px;
-  margin: 0px 0px 15px 0px;
+  padding: 40px 50px 0;
+  margin: 0 0 30px;
 }
 
 .user-info-body {
@@ -1029,8 +1029,8 @@ body {
     border-radius: 10px;
     color: var(--text-main);
     text-align: center;
-    padding: 0px 15px;
-    margin: 0px 0px 15px 0px;
+    padding: 20px 15px 0;
+    margin: 0 0 15px;
   }
 
   .section-title {
@@ -1080,18 +1080,25 @@ body {
 
   .user-info-row {
     display: grid;
-    grid-template-columns: minmax(86px, 0.48fr) minmax(0, 1fr);
+    grid-template-columns: minmax(64px, 0.35fr) minmax(0, 1fr);
     align-items: center;
+    column-gap: 10px;
     min-height: 38px;
     border-bottom: 1px solid var(--border-color);
   }
 
   .user-info-label,
   .user-info-value {
+    min-width: 0;
     margin: 0;
-    font-size: 16px;
+    font-size: clamp(13px, 3.8vw, 16px);
     line-height: 1.4;
     color: var(--text-main);
+  }
+
+  .user-info-value {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .profile-avatar-control {

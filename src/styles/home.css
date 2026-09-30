@@ -135,19 +135,22 @@
 .shortcut-item {
   margin-bottom: 15px;
   padding: 40px 20px;
+  border: 2px solid var(--point-mint);
   border-radius: 10px;
-  background-color: var(--point-mint);
-  color: black;
+  background-color: var(--bg-main);
+  color: var(--point-mint);
   text-align: center;
   cursor: pointer;
   transition:
     transform 0.3s,
-    background-color 0.3s;
+    background-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .shortcut-item:hover {
   transform: translateY(-2px);
-  background-color: #00cc82;
+  background-color: var(--bg-main);
+  box-shadow: 0 6px 16px rgba(0, 255, 163, 0.12);
 }
 
 .shortcut-item i {
@@ -169,7 +172,7 @@
 
 .shortcut-item:hover i,
 .shortcut-item:hover h4 {
-  color: #ffffff;
+  color: var(--point-mint);
 }
 
 :root[data-theme="light"] .shortcut-item {
@@ -302,6 +305,117 @@
   font-weight: inherit;
   margin-left: 6px;
   white-space: nowrap;
+}
+
+/* =========================
+   다크 모드 색상 정리
+========================= */
+:root[data-theme="dark"] .about-title,
+:root:not([data-theme]) .about-title {
+  color: var(--text-main);
+}
+
+:root[data-theme="dark"] .fa-instagram,
+:root[data-theme="dark"] .fa-location-dot,
+:root:not([data-theme]) .fa-instagram,
+:root:not([data-theme]) .fa-location-dot {
+  color: var(--point-mint);
+}
+
+:root[data-theme="dark"] .content-wrapper-link:hover .fa-instagram,
+:root[data-theme="dark"] .content-wrapper-link:hover .fa-location-dot,
+:root:not([data-theme]) .content-wrapper-link:hover .fa-instagram,
+:root:not([data-theme]) .content-wrapper-link:hover .fa-location-dot {
+  color: var(--point-mint);
+}
+
+:root[data-theme="dark"] .shortcut .shortcut-text,
+:root:not([data-theme]) .shortcut .shortcut-text {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .shortcut-item,
+:root:not([data-theme]) .shortcut-item {
+  border-color: var(--border-color);
+  background-color: var(--bg-box);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .shortcut-item i,
+:root:not([data-theme]) .shortcut-item i {
+  color: var(--point-mint);
+}
+
+:root[data-theme="dark"] .shortcut-item h4,
+:root:not([data-theme]) .shortcut-item h4 {
+  color: var(--text-main);
+}
+
+:root[data-theme="dark"] .shortcut-item:hover,
+:root:not([data-theme]) .shortcut-item:hover {
+  border-color: var(--point-mint);
+  background-color: var(--bg-box);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .home-board-box,
+:root:not([data-theme]) .home-board-box {
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .home-board-title,
+:root:not([data-theme]) .home-board-title {
+  color: var(--point-mint);
+}
+
+:root[data-theme="dark"] .plus-btn,
+:root[data-theme="dark"] .plus-btn:link,
+:root[data-theme="dark"] .plus-btn:visited,
+:root:not([data-theme]) .plus-btn,
+:root:not([data-theme]) .plus-btn:link,
+:root:not([data-theme]) .plus-btn:visited {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .plus-btn:hover,
+:root[data-theme="dark"] .plus-btn:focus,
+:root[data-theme="dark"] .plus-btn:active,
+:root:not([data-theme]) .plus-btn:hover,
+:root:not([data-theme]) .plus-btn:focus,
+:root:not([data-theme]) .plus-btn:active {
+  color: var(--point-mint);
+}
+
+:root[data-theme="dark"] .home-board-divider,
+:root:not([data-theme]) .home-board-divider {
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .home-board-list li,
+:root:not([data-theme]) .home-board-list li {
+  border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .fc,
+:root:not([data-theme]) .fc {
+  border: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .fc .fc-button,
+:root:not([data-theme]) .fc .fc-button {
+  border-color: var(--border-color) !important;
+  color: var(--text-muted) !important;
+}
+
+:root[data-theme="dark"] .fc .fc-button:hover:not(:disabled),
+:root[data-theme="dark"] .fc .fc-button:focus,
+:root[data-theme="dark"] .fc .fc-button:active,
+:root:not([data-theme]) .fc .fc-button:hover:not(:disabled),
+:root:not([data-theme]) .fc .fc-button:focus,
+:root:not([data-theme]) .fc .fc-button:active {
+  border-color: var(--point-mint) !important;
+  color: var(--point-mint) !important;
 }
 
 /* =========================

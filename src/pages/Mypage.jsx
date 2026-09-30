@@ -627,8 +627,6 @@ function MyPage() {
 
         {/* 사용자 정보 */}
         <div className="user-info-box">
-          <h2 className="section-title">사용자 정보</h2>
-
           <div className="user-info-body">
             <div className="user-info-left-panel">
               <div className="user-info-top">
