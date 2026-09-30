@@ -45,6 +45,24 @@ export async function updatePost(id, postData) {
     return response.data;
 }
 
+// 공지 상단 고정 상태 변경
+export async function updatePostPin(id, isPinned) {
+    const token = getToken();
+
+    const response = await axios.patch(
+        `${API_BASE_URL}/api/posts/${id}/pin`,
+        { is_pinned: isPinned },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return response.data;
+}
+
 // 게시글 삭제
 export async function deletePost(id) {
     const token = getToken();

@@ -31,6 +31,33 @@ const MAX_DRAFT_COUNT = 10;
 // 게시글 목록에서 한 페이지에 허용하는 최대 개수
 const MAX_POSTS_PER_PAGE = 15;
 
+function resolveNoticePinState({
+  boardType,
+  category,
+  requestedValue,
+  fallback = false,
+  userRole,
+}) {
+  const isNotice = boardType === "COMMUNITY" && category === "notice";
+
+  if (!isNotice) return false;
+  if (requestedValue === undefined) return Boolean(fallback);
+
+  if (typeof requestedValue !== "boolean") {
+    const error = new Error("공지 고정 여부는 boolean 값이어야 합니다.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!isAdmin(userRole)) {
+    const error = new Error("공지 고정 권한이 없습니다.");
+    error.status = 403;
+    throw error;
+  }
+
+  return requestedValue;
+}
+
 // 게시글 목록 조회
 exports.getAllPosts = async (query, user) => {
   const {
@@ -127,12 +154,16 @@ exports.getAllPosts = async (query, user) => {
   }
 
   const totalCount = await prisma.posts.count({ where });
+  const orderBy =
+    board_type === "COMMUNITY" && category === "notice"
+      ? [{ is_pinned: "desc" }, ...orderByMap[normalizedSort]]
+      : orderByMap[normalizedSort];
 
   const posts = await prisma.posts.findMany({
     where,
     skip: (pageNumber - 1) * limitNumber,
     take: limitNumber,
-    orderBy: orderByMap[normalizedSort],
+    orderBy,
     include: {
       users: {
         select: {
@@ -656,6 +687,7 @@ exports.createPost = async ({ body, user }) => {
       content,
       files = [],
       is_draft,
+      is_pinned,
       event_start_date,
       event_end_date,
       maintenance_start_at,
@@ -744,6 +776,13 @@ exports.createPost = async ({ body, user }) => {
     }
   }
 
+  const finalIsPinned = resolveNoticePinState({
+    boardType: finalBoardType,
+    category,
+    requestedValue: is_pinned,
+    userRole,
+  });
+
   // 세부 말머리 검사
   const finalSubCategory = validateSubCategory(category, sub_category, isDraft);
   const maintenanceRange = getMaintenanceDateRange({
@@ -789,6 +828,7 @@ exports.createPost = async ({ body, user }) => {
                 content: content || "",
                 author_id: authorId,
                 is_draft: isDraft,
+                is_pinned: finalIsPinned,
                 created_at: now,
                 // updated_at을 생성 시점에도 채워둬야 새로 만든 글이 updated_at desc 정렬에서
                 // (NULL은 MySQL DESC 정렬에서 맨 뒤로 밀리므로) 최신 글로 맨 위에 온다.
@@ -844,6 +884,7 @@ exports.updatePost = async ({ id, body, user }) => {
       content,
       files = [],
       is_draft,
+      is_pinned,
       event_start_date,
       event_end_date,
       maintenance_start_at,
@@ -947,6 +988,14 @@ exports.updatePost = async ({ id, body, user }) => {
     throw error;
   }
 
+  const finalIsPinned = resolveNoticePinState({
+    boardType: finalBoardType,
+    category,
+    requestedValue: is_pinned,
+    fallback: existingPost.is_pinned,
+    userRole,
+  });
+
   // 세부 말머리 검사
   const finalSubCategory = validateSubCategory(category, sub_category, isDraft);
   const maintenanceRange = getMaintenanceDateRange({
@@ -1002,6 +1051,9 @@ exports.updatePost = async ({ id, body, user }) => {
     (oldUrl) => !newFileUrls.includes(oldUrl),
   );
 
+  const updatedAt = new Date();
+  const isPublishingDraft = existingPost.is_draft && !isDraft;
+
   const updatedPost = await prisma.$transaction(async (tx) => {
     await tx.posts.update({
       where: {
@@ -1014,7 +1066,9 @@ exports.updatePost = async ({ id, body, user }) => {
         title: title || "",
         content: content || "",
         is_draft: isDraft,
-        updated_at: new Date(),
+        is_pinned: finalIsPinned,
+        ...(isPublishingDraft && { created_at: updatedAt }),
+        updated_at: updatedAt,
         event_start_date: event_start_date ? new Date(event_start_date) : null,
         event_end_date: event_end_date ? new Date(event_end_date) : null,
         maintenance_start_at: maintenanceRange.maintenance_start_at,
@@ -1076,6 +1130,61 @@ exports.updatePost = async ({ id, body, user }) => {
   await Promise.all(removedFileUrls.map(deleteUploadedPostFile));
 
   return updatedPost;
+};
+
+// 공지 상단 고정 상태 변경 (임원만 가능)
+exports.updatePostPin = async ({ id, isPinned, user }) => {
+  const postId = parseInt(id, 10);
+
+  if (Number.isNaN(postId) || postId < 1) {
+    const error = new Error("잘못된 게시글 ID입니다.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (typeof isPinned !== "boolean") {
+    const error = new Error("공지 고정 여부는 boolean 값이어야 합니다.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!isAdmin(user.role)) {
+    const error = new Error("공지 고정 권한이 없습니다.");
+    error.status = 403;
+    throw error;
+  }
+
+  const existingPost = await prisma.posts.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      board_type: true,
+      category: true,
+      is_draft: true,
+    },
+  });
+
+  if (!existingPost) {
+    const error = new Error("게시글을 찾을 수 없습니다.");
+    error.status = 404;
+    throw error;
+  }
+
+  if (
+    existingPost.board_type !== "COMMUNITY" ||
+    existingPost.category !== "notice" ||
+    existingPost.is_draft
+  ) {
+    const error = new Error("게시된 공지사항만 상단 고정할 수 있습니다.");
+    error.status = 400;
+    throw error;
+  }
+
+  // 고정 상태 변경만으로 게시글의 수정 시각이 바뀌지 않게 updated_at은 건드리지 않는다.
+  return prisma.posts.update({
+    where: { id: postId },
+    data: { is_pinned: isPinned },
+  });
 };
 
 // 게시글 삭제 (본인 또는 임원 이상)
@@ -1709,6 +1818,7 @@ exports.getMyDrafts = async ({ user }) => {
       id: true,
       board_type: true,
       category: true,
+      is_pinned: true,
       title: true,
       updated_at: true,
       created_at: true,

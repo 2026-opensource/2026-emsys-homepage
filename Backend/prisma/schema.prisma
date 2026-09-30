@@ -108,6 +108,7 @@ model posts {
   updated_at    DateTime?       @db.Timestamp(0)
   author_id     Int
   is_draft      Boolean         @default(false)
+  is_pinned     Boolean         @default(false)
   event_start_date DateTime?    @db.Date
   event_end_date   DateTime?    @db.Date
   maintenance_start_at DateTime? @db.Timestamp(0)
@@ -122,6 +123,7 @@ model posts {
   post_files    post_files[]
 
   @@index([author_id], map: "author_id")
+  @@index([board_type, category, is_draft, is_pinned], map: "posts_notice_pin_order_idx")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
