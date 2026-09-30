@@ -237,6 +237,10 @@
   font-size: clamp(16px, 5vw, 20px);
 }
 
+.home-board-title {
+  font-weight: 800;
+}
+
 .plus-btn,
 .plus-btn:link,
 .plus-btn:visited,
@@ -262,8 +266,12 @@
 
 .home-board-list li {
   padding: 15px 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #666666;
   color: var(--text-main);
+}
+
+:root[data-theme="light"] .home-board-list li {
+  border-bottom-color: #c9d0d5;
 }
 
 /* 최대 개수(3개)가 꽉 찼을 때만 마지막 항목의 구분선/여백 제거
@@ -271,6 +279,10 @@
    (1~2개일 때는 위의 기본 구분선을 유지해 빈 공간과 자연스럽게 분리) */
 .home-board-list li:nth-child(3):last-child {
   padding-bottom: 0;
+  border-bottom: none;
+}
+
+:root[data-theme="light"] .home-board-list li:nth-child(3):last-child {
   border-bottom: none;
 }
 
