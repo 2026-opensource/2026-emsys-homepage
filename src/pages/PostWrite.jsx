@@ -60,6 +60,7 @@ function PostWrite() {
     board_type: initialBoardType,
     category: isNoticeWritePage ? "notice" : "",
     sub_category: isNoticeWritePage ? "공지" : "",
+    is_pinned: false,
     title: "",
     event_start_date: "",
     event_end_date: "",
@@ -422,12 +423,17 @@ function PostWrite() {
   const [errorMessage, setErrorMessage] = useState("");
 
   function handleChange(e) {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setIsDirty(true);
 
     if (name === "category") {
       // 카테고리가 바뀌면 세부 말머리 선택도 초기화
-      setFormData((prev) => ({ ...prev, category: value, sub_category: "" }));
+      setFormData((prev) => ({
+        ...prev,
+        category: value,
+        sub_category: "",
+        is_pinned: value === "notice" ? prev.is_pinned : false,
+      }));
       return;
     }
 
@@ -477,7 +483,10 @@ function PostWrite() {
       return;
     }
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   }
 
   function handleRemoveFile(targetFile) {
@@ -836,6 +845,7 @@ function PostWrite() {
         board_type: draft.board_type,
         category: draft.category || "",
         sub_category: draft.sub_category || "",
+        is_pinned: Boolean(draft.is_pinned),
         title: draft.title || "",
         event_start_date: draft.event_start_date
           ? draft.event_start_date.slice(0, 10)
@@ -929,6 +939,7 @@ function PostWrite() {
           board_type: post.board_type,
           category: post.category,
           sub_category: post.sub_category || "",
+          is_pinned: Boolean(post.is_pinned),
           title: post.title,
           event_start_date: post.event_start_date
             ? post.event_start_date.slice(0, 10)
@@ -1215,6 +1226,19 @@ function PostWrite() {
                       <option value="">말머리 없음</option>
                     )}
                   </select>
+
+                  {isNoticeContext && (
+                    <label className="notice-pin-control">
+                      <input
+                        className="notice-pin-checkbox"
+                        type="checkbox"
+                        name="is_pinned"
+                        checked={formData.is_pinned}
+                        onChange={handleChange}
+                      />
+                      <span>상단 고정</span>
+                    </label>
+                  )}
 
                   <input
                     className="title-input-box form-control"

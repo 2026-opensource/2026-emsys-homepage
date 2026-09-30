@@ -42,6 +42,7 @@ function PostDetail() {
 
   const [viewerImages, setViewerImages] = useState([]); // 전체 이미지 목록
   const [viewerIndex, setViewerIndex] = useState(0); // 현재 이미지의 인덱스
+  const [downloadingAllImages, setDownloadingAllImages] = useState(false);
 
   // 좋아요 / 싫어요 상태
   const [like, setLike] = useState(false);
@@ -150,7 +151,14 @@ function PostDetail() {
   function isEdited(createdAt, updatedAt) {
     if (!createdAt || !updatedAt) return false;
 
-    return new Date(updatedAt).getTime() > new Date(createdAt).getTime();
+    const createdTime = new Date(createdAt).getTime();
+    const updatedTime = new Date(updatedAt).getTime();
+
+    if (Number.isNaN(createdTime) || Number.isNaN(updatedTime)) {
+      return false;
+    }
+
+    return updatedTime - createdTime > 1000;
   }
 
   // 글 작성 날짜
@@ -178,16 +186,6 @@ function PostDetail() {
     }
 
     return start || end;
-  }
-
-  // 행사 시작일의 연도 뒤 두 자리를 "XX년도" 형태로 반환 (시작일이 없으면 빈 문자열)
-  function getEventYearLabel(eventStartDate) {
-    if (!eventStartDate) return "";
-
-    const year = new Date(eventStartDate).getFullYear();
-    if (Number.isNaN(year)) return "";
-
-    return `${String(year).slice(-2)}년도 `;
   }
 
   function formatFileSize(size) {
@@ -677,13 +675,30 @@ function PostDetail() {
     window.URL.revokeObjectURL(objectUrl);
   };
 
-  const handleImageDownload = async (url) => {
+  const getImageDownloadFilename = (url, index = null) => {
+    const fallbackName = "image.jpg";
+    const rawName = url.split("/").pop()?.split("?")[0] || fallbackName;
+    let filename = rawName;
+
+    try {
+      filename = decodeURIComponent(rawName) || fallbackName;
+    } catch {
+      filename = rawName || fallbackName;
+    }
+
+    if (index === null) {
+      return filename;
+    }
+
+    return `${String(index + 1).padStart(2, "0")}_${filename}`;
+  };
+
+  const handleImageDownload = async (url, filename = getImageDownloadFilename(url)) => {
     if (!isLoggedIn()) {
       redirectToLogin(navigate);
       return;
     }
 
-    const filename = url.split("/").pop().split("?")[0];
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const downloadUrl = `${API_BASE_URL}/api/posts/download-proxy?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
 
@@ -703,6 +718,32 @@ function PostDetail() {
     } catch (error) {
       console.error("이미지 다운로드 실패:", error);
       setReactionMessage("이미지 다운로드에 실패했습니다.");
+    }
+  };
+
+  const handleAllImageDownload = async () => {
+    if (!isLoggedIn()) {
+      redirectToLogin(navigate);
+      return;
+    }
+
+    const uniqueImageUrls = [...new Set(viewerImages)];
+
+    if (uniqueImageUrls.length === 0 || downloadingAllImages) {
+      return;
+    }
+
+    try {
+      setDownloadingAllImages(true);
+
+      for (const [index, imageUrl] of uniqueImageUrls.entries()) {
+        await handleImageDownload(
+          imageUrl,
+          getImageDownloadFilename(imageUrl, index),
+        );
+      }
+    } finally {
+      setDownloadingAllImages(false);
     }
   };
 
@@ -766,8 +807,6 @@ function PostDetail() {
                       </span>{" "}
                     </>
                   )}
-                  {post.board_type === "GALLERY" &&
-                    getEventYearLabel(post.event_start_date)}
                   {post.title}
                   {formatMaintenancePeriod(post) && (
                     <>
@@ -878,10 +917,14 @@ function PostDetail() {
                 <button
                   type="button"
                   className="img-viewer-download-all"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAllImageDownload();
+                  }}
+                  disabled={downloadingAllImages}
                   aria-label="전체 이미지 다운로드"
                 >
-                  <i className="fa-solid fa-download"></i>
-                  <span>전체 다운로드</span>
+                  <span>이미지 전체 다운로드</span>
                 </button>
 
                 <button

@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getPosts } from "../api/postAPI";
-import { getUserRole, isLoggedIn, redirectToLogin } from "../utils/token";
+import { getPosts, updatePostPin } from "../api/postAPI";
+import {
+  getUserRole,
+  isAuthError,
+  isLoggedIn,
+  redirectToLogin,
+} from "../utils/token";
 
 import Navbar from "../layout/Nav";
 import Footer from "../layout/Footer";
@@ -35,6 +40,28 @@ function Notice() {
   const role = getUserRole();
   const isAdmin = role === "PRESIDENT" || role === "OFFICER";
 
+  async function handleUnpinNotice(postId) {
+    const shouldUnpin = window.confirm("상단 고정을 해제하시겠습니까?");
+    if (!shouldUnpin) return;
+
+    try {
+      await updatePostPin(postId, false);
+      window.location.reload();
+    } catch (error) {
+      console.error("공지 상단 고정 해제 실패:", error);
+
+      if (isAuthError(error)) {
+        redirectToLogin(navigate, error);
+        return;
+      }
+
+      const message =
+        error.response?.data?.message || "공지 상단 고정 해제에 실패했습니다.";
+      setErrorMessage(message);
+      alert(message);
+    }
+  }
+
   function getUserDisplayName(user) {
     if (!user || user.is_active === false || user.is_active === 0) {
       return "존재하지 않는 사용자입니다";
@@ -61,7 +88,7 @@ function Notice() {
           sort,
         });
 
-        setPosts(result.data);
+        setPosts(result.data || []);
         setTotalPages(result.pagination?.totalPages || 1);
       } catch (error) {
         console.error("공지사항 게시글 목록 조회 실패:", error);
@@ -193,9 +220,21 @@ function Notice() {
                             className="board-link"
                             key={post.id}
                           >
-                            <article className="board-card">
-                              <span className="board-list-category">
-                                공지사항
+                            <article
+                              className={`board-card${post.is_pinned ? " board-card-pinned" : ""}`}
+                            >
+                              <span className="board-list-category notice-list-category">
+                                <span>공지사항</span>
+                                {isAdmin && post.is_pinned && (
+                                  <input
+                                    className="board-pin-checkbox"
+                                    type="checkbox"
+                                    checked
+                                    aria-label={`${post.title} 공지 고정 해제`}
+                                    onClick={(event) => event.stopPropagation()}
+                                    onChange={() => handleUnpinNotice(post.id)}
+                                  />
+                                )}
                               </span>
                               <h2 className="board-title">
                                 {post.sub_category && (

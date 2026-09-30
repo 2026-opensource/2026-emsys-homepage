@@ -82,6 +82,8 @@ router.post('/', requireAuth, postController.createPost);
 
 router.put('/:id', requireAuth, postController.updatePost);
 
+router.patch('/:id/pin', requireAuth, postController.updatePostPin);
+
 router.delete('/:id', requireAuth, postController.deletePost);
 
 router.post('/:postId/like', requireAuth, postController.toggleLike);

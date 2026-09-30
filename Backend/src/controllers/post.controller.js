@@ -141,6 +141,27 @@ exports.updatePost = async (req, res, next) => {
   }
 };
 
+// 공지 상단 고정 상태 변경 (임원만 가능)
+exports.updatePostPin = async (req, res, next) => {
+  try {
+    const updatedPost = await postService.updatePostPin({
+      id: req.params.id,
+      isPinned: req.body.is_pinned,
+      user: req.user,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: updatedPost.is_pinned
+        ? "공지가 상단에 고정되었습니다."
+        : "공지 상단 고정이 해제되었습니다.",
+      data: updatedPost,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // 게시글 삭제 (본인 또는 임원 이상)
 exports.deletePost = async (req, res, next) => {
   try {

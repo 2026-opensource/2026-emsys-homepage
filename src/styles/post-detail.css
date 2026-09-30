@@ -647,6 +647,8 @@
   border: none;
   font-size: 30px;
   color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .img-viewer-prev {
@@ -655,6 +657,11 @@
 
 .img-viewer-next {
   right: 2vw;
+}
+
+.img-viewer-next .fa-angle-right,
+.img-viewer-prev .fa-angle-left {
+  color: inherit;
 }
 
 .img-viewer-next:hover,
@@ -668,6 +675,17 @@
 .img-viewer-download-all:hover {
   border-color: var(--point-mint);
   background-color: rgba(0, 255, 163, 0.12);
+}
+
+.img-viewer-download-all:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+.img-viewer-download-all:disabled:hover {
+  border-color: rgba(170, 170, 170, 0.45);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
 }
 
 .img-viewer-count {
