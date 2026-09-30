@@ -31,6 +31,8 @@ em {
   /* 캘린더에서 일요일, 토요일, 선택된 날짜 색상 */
   --danger-red: #dc3545;
   --warning-orange: #ff9800;
+  --slider-image-brightness: 0.9;
+  --slider-overlay: rgba(0, 0, 0, 0.24);
 
   --text: #6b6375;
   --text-h: #08060d;
@@ -65,34 +67,54 @@ em {
 
 :root[data-theme="light"] {
   --bg-main: #ffffff;
-  --bg-box: #f5f7fa;
-  --text-main: #222;
-  --point-mint: #00ffa3;
-  --border-color: #dcdfe4;
+  --bg-box: #f6f8f9;
+  --text-main: #20262d;
+  --text-muted: #66717d;
+  --point-mint: #269761;
+  --border-color: #dfe4e7;
   --calendar-header-bg: #edf1f5;
   --calendar-today-bg: rgba(0, 168, 120, 0.12);
   --calendar-day-hover-bg: rgba(0, 0, 0, 0.03);
-  --slider-image-brightness: 0.82;
+  --slider-image-brightness: 0.98;
+  --slider-overlay: rgba(8, 18, 24, 0.2);
+
+  --text: #5f6975;
+  --text-h: #20262d;
+  --bg: #ffffff;
+  --border: #dfe4e7;
+  --code-bg: #f4f6f7;
+  --accent: #269761;
+  --accent-bg: rgba(38, 151, 97, 0.1);
+  --accent-border: rgba(38, 151, 97, 0.4);
+  --social-bg: rgba(246, 248, 249, 0.82);
+  --shadow:
+    rgba(31, 41, 49, 0.08) 0 10px 15px -3px,
+    rgba(31, 41, 49, 0.04) 0 4px 6px -2px;
+
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+:root[data-theme="dark"],
+:root:not([data-theme]) {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #16171d;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  --social-bg: rgba(47, 48, 58, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] #social .button-icon,
+:root:not([data-theme]) #social .button-icon {
+  filter: invert(1) brightness(2);
 }
 
 body {

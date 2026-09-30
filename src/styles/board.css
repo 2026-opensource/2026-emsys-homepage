@@ -358,7 +358,7 @@ a:active {
 }
 
 :root[data-theme="light"] .board-link:hover .board-card {
-  background-color: #eef1f4;
+  background-color: var(--bg-box);
 }
 
 /* 말머리 */
@@ -388,6 +388,12 @@ a:active {
   font-size: clamp(14px, 3vw, 16px);
   font-weight: 700;
   white-space: nowrap;
+}
+
+:root[data-theme="light"] .board-category {
+  border: 1px solid rgba(38, 151, 97, 0.34);
+  background-color: var(--bg-main);
+  color: var(--point-mint);
 }
 
 /* 상세 페이지 제목 앞 말머리 */

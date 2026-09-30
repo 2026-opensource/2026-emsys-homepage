@@ -30,7 +30,7 @@
 .admin-floating-btn.active {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  color: #00ffa3;
+  color: var(--point-mint);
 }
 
 .admin-floating-menu {
@@ -63,7 +63,37 @@
 
 .admin-floating-menu-item:hover {
   background: rgba(0, 255, 163, 0.12);
-  color: #00ffa3;
+  color: var(--point-mint);
+}
+
+:root[data-theme="light"] .admin-floating-btn {
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-main);
+  box-shadow: 0 4px 16px rgba(31, 41, 49, 0.14);
+}
+
+:root[data-theme="light"] .admin-floating-btn:hover,
+:root[data-theme="light"] .admin-floating-btn.active {
+  border-color: var(--point-mint);
+  background: var(--point-mint);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(38, 151, 97, 0.24);
+}
+
+:root[data-theme="light"] .admin-floating-menu {
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(31, 41, 49, 0.16);
+}
+
+:root[data-theme="light"] .admin-floating-menu-item {
+  color: var(--text-main);
+}
+
+:root[data-theme="light"] .admin-floating-menu-item:hover {
+  background: rgba(38, 151, 97, 0.1);
+  color: var(--point-mint);
 }
 
 @keyframes admin-menu-fade-in {
