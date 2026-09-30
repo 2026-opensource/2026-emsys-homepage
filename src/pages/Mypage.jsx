@@ -597,17 +597,11 @@ function MyPage() {
     return date ? String(date).slice(0, 10) : "";
   }
 
-  function getUserStatusText(targetUser) {
-    const studentYear = targetUser?.student_id
-      ? String(targetUser.student_id).slice(2, 4)
-      : "";
-    const status = targetUser?.status || "";
+  function getStudentYearText(studentId) {
+    if (!studentId) return "-";
 
-    if (studentYear && status) {
-      return `${studentYear}학번 ${status}`;
-    }
-
-    return status || "-";
+    const studentYear = String(studentId).slice(2, 4);
+    return studentYear ? `${studentYear}학번` : "-";
   }
 
   const categoryTotalCount = categoryStats.reduce(
@@ -700,18 +694,20 @@ function MyPage() {
               <dl className="user-info-inner-box">
                 <div className="user-info-row">
                   <dt className="user-info-label">학번</dt>
-                  <dd className="user-info-value">{user?.student_id}</dd>
-                </div>
-                <div className="user-info-row">
-                  <dt className="user-info-label">가입일</dt>
                   <dd className="user-info-value">
-                    {formatDateOnly(user?.created_at)}
+                    {isOwnPage ? user?.student_id : getStudentYearText(user?.student_id)}
                   </dd>
                 </div>
                 <div className="user-info-row">
                   <dt className="user-info-label">{isOwnPage ? "이메일" : "상태"}</dt>
                   <dd className="user-info-value">
-                    {isOwnPage ? user?.email : getUserStatusText(user)}
+                    {isOwnPage ? user?.email : user?.status || "-"}
+                  </dd>
+                </div>
+                <div className="user-info-row">
+                  <dt className="user-info-label">가입일</dt>
+                  <dd className="user-info-value">
+                    {formatDateOnly(user?.created_at)}
                   </dd>
                 </div>
               </dl>
