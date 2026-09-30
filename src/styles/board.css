@@ -164,28 +164,45 @@ a:active {
   width: 12%;
   min-width: 80px;
   height: 35px;
-  border: none;
+  border: 2px solid var(--text-muted);
+  background-color: var(--bg-main);
   border-radius: 10px;
-  background-color: var(--point-mint);
-  color: black;
+  color: var(--text-muted);
   font-size: clamp(14px, 4vw, 16px);
   font-weight: 700;
   margin-right: auto;
 }
 
-.board-write-btn:hover {
-  background-color: #00e18e;
+.board-write-btn.btn-default:focus {
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  border-color: var(--text-muted);
 }
 
-:root[data-theme="light"] .board-write-btn {
-  border: 2px solid var(--point-mint);
+.board-write-btn.btn-default:hover,
+.board-write-btn.btn-default:active,
+.board-write-btn.btn-default.active,
+.board-write-btn.btn-default:active:focus,
+.board-write-btn.btn-default.active:focus {
+  background-color: var(--bg-main);
+  color: var(--point-mint);
+  border-color: var(--point-mint);
+}
+
+:root[data-theme="light"] .board-write-btn.btn-default,
+:root[data-theme="light"] .board-write-btn.btn-default:focus {
+  border: 2px solid var(--text-muted);
+  background-color: #ffffff;
+}
+
+:root[data-theme="light"] .board-write-btn.btn-default:hover,
+:root[data-theme="light"] .board-write-btn.btn-default:active,
+:root[data-theme="light"] .board-write-btn.btn-default.active,
+:root[data-theme="light"] .board-write-btn.btn-default:active:focus,
+:root[data-theme="light"] .board-write-btn.btn-default.active:focus {
   background-color: #ffffff;
   color: var(--point-mint);
-}
-
-:root[data-theme="light"] .board-write-btn:hover {
-  background-color: #f9f9f9;
-  color: var(--point-mint);
+  border: 2px solid var(--point-mint);
 }
 
 /*------
@@ -384,7 +401,7 @@ a:active {
 /* 말머리 */
 .board-title-prefix {
   color: var(--point-mint);
-  font-weight: 700;
+  font-weight: 400;
 }
 
 input[type="checkbox"].board-pin-checkbox {
@@ -425,17 +442,11 @@ input[type="checkbox"].board-pin-checkbox {
   color: var(--point-mint);
 }
 
-/* 상세 페이지 제목 앞 말머리 */
-.board-category-tag {
-  color: var(--point-mint);
-  font-weight: 700;
-}
-
 .board-list-category {
   min-width: 0;
   color: var(--text-muted);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -456,7 +467,7 @@ input[type="checkbox"].board-pin-checkbox {
   margin: 0;
   color: var(--text-main);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.4;
   text-align: left;
   white-space: nowrap;
@@ -464,7 +475,7 @@ input[type="checkbox"].board-pin-checkbox {
   text-overflow: ellipsis;
 }
 
-.board-link:hover .board-title {
+.board-link:hover {
   color: var(--point-mint);
 }
 
@@ -472,7 +483,7 @@ input[type="checkbox"].board-pin-checkbox {
   min-width: 0;
   color: var(--text-main);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.4;
   text-align: right;
   white-space: nowrap;
@@ -486,10 +497,15 @@ input[type="checkbox"].board-pin-checkbox {
   margin: 0;
   color: #bdbdbd;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.4;
   text-align: right;
   white-space: nowrap;
+}
+
+:root[data-theme="light"] .board-date,
+:root[data-theme="light"] .board-stat {
+  color: #747b82;
 }
 
 @media (max-width: 900px) and (min-width: 769px) {
